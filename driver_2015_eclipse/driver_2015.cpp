@@ -89,7 +89,6 @@ IPAddress ip(192, 168, 2, 2); //<<< ENTER YOUR IP ADDRESS HERE!!!
 // (port 80 is default for HTTP):
 EthernetServer server(8080);
 
-
 void setupI2C() {
 	Wire.begin();                // join i2c bus as master
 }
@@ -979,8 +978,6 @@ void log() {
 
  */
 
-
-
 void setupHttp() {
 	pinMode(2, OUTPUT);
 	// start the Ethernet connection and the server:
@@ -988,10 +985,7 @@ void setupHttp() {
 	server.begin();
 }
 
-
 //from webServerExample
-
-
 
 void printHtmlBufor(EthernetClient client) {
 	for (int i = 0; i < TEMPCOUNT; i++) {
@@ -1089,6 +1083,44 @@ void printHTTPHeader(EthernetClient& client) {
 	client.println("{");
 }
 
+void printHTTPHeaderLOG(EthernetClient& client) {
+	// send a standard http response header
+	client.println("HTTP/1.1 200 OK");
+	client.println("Content-Type: text/csv");
+	client.println("Connection: close"); // the connection will be closed after completion of the response
+	client.println();
+}
+
+void printRestStatus(EthernetClient& client) {
+	// send a standard http response header
+	printHTTPHeader(client);
+	// output the value of each analog input pin
+	printHtmlBufor(client);
+	printHtmlWent(client);
+	printHtmlConfig(client);
+	printHtmlLogFileList(client);
+	client.println("}");
+}
+
+void printLogFile(EthernetClient& client, char* fileName) {
+	printHTTPHeaderLOG(client);
+	myFile = SD.open(fileName);
+
+	if (myFile) {
+		// read from the file until there's nothing else in it:
+		while (myFile.available()) {
+			client.print(myFile.read());
+		}
+		// close the file:
+		myFile.close();
+	} else {
+		// if the file didn't open, print an error:
+		client.print("error opening");
+	}
+}
+
+//TODO przetestowac czy dziala pobieranie pliku z logami
+//TODO dopisac pobranie listy plikow z logami?
 void loopServer() {
 	// listen for incoming clients
 	EthernetClient client = server.available();
@@ -1096,6 +1128,9 @@ void loopServer() {
 		//Serial.println("new client");
 		// an http request ends with a blank line
 		boolean currentLineIsBlank = true;
+		boolean reading = false;
+		char readString[14]; //string for fetching data from address
+		int i = 0;
 		while (client.connected()) {
 			if (client.available()) {
 				char c = client.read();
@@ -1103,25 +1138,29 @@ void loopServer() {
 				// if you've gotten to the end of the line (received a newline
 				// character) and the line is blank, the http request has ended,
 				// so you can send a reply
-				if (c == '\n' && currentLineIsBlank) {
-					// send a standard http response header
-					printHTTPHeader(client);
-					// output the value of each analog input pin
-					printHtmlBufor(client);
-					printHtmlWent(client);
-					printHtmlConfig(client);
-					printHtmlLogFileList(client);
-				//	client.println("</html>");
-					client.println("}");
+				if (c == '\n' && currentLineIsBlank) {	// send a standard http response header
+					printRestStatus(client);
 					break;
 				}
-				if (c == '\n') {
-					// you're starting a new line
+				if (c == '\n') {	// you're starting a new line
 					currentLineIsBlank = true;
-				} else if (c != '\r') {
-					// you've gotten a character on the current line
+				} else if (c != '\r') {	// you've gotten a character on the current line
 					currentLineIsBlank = false;
 				}
+				//get log file
+				if (reading && c == ' ') {
+					reading = false;
+				}
+				if (reading) {
+					readString[i++] = c;
+				}
+				if (c == '?')
+					reading = true;
+				if (!reading && i > 0) {
+					printLogFile(client, readString);
+				}
+				//get log file
+
 			}
 		}
 		// give the web browser time to receive the data
@@ -1132,47 +1171,7 @@ void loopServer() {
 	}
 }
 
-void loopHttp() {
-		while (client.connected()) {
-			if (client.available()) {
-				char c = client.read();
-				// if you've gotten to the end of the line (received a newline
-				// character) and the line is blank, the http request has ended,
-				// so you can send a reply
-
-				//reads URL string from $ to first blank space
-				if (incoming && c == ' ') {
-					incoming = 0;
-				}
-				if (c == '$') {
-					incoming = 1;
-				}
-
-				//Checks for the URL string $1 or $2
-				if (incoming == 1) {
-					//Serial.println(c);
-
-					if (c == '1') {
-						//Serial.println("ON");
-						//digitalWrite(2, HIGH);
-					}
-					if (c == '2') {
-						//Serial.println("OFF");
-						//digitalWrite(2, LOW);
-					}
-
-				}
-
-				if (c == '\n') {
-					// you're starting a new line
-					currentLineIsBlank = true;
-				} else if (c != '\r') {
-					// you've gotten a character on the current line
-					currentLineIsBlank = false;
-				}
-			}
-		}
-		// give the web browser time to receive the data
+// give the web browser time to receive the data
 //from webServerExample
 //REST API
 
