@@ -89,7 +89,6 @@ IPAddress ip(192, 168, 2, 2); //<<< ENTER YOUR IP ADDRESS HERE!!!
 // (port 80 is default for HTTP):
 EthernetServer server(8080);
 
-
 void setupI2C() {
 	Wire.begin();                // join i2c bus as master
 }
@@ -979,8 +978,6 @@ void log() {
 
  */
 
-
-
 void setupHttp() {
 	pinMode(2, OUTPUT);
 	// start the Ethernet connection and the server:
@@ -988,114 +985,63 @@ void setupHttp() {
 	server.begin();
 }
 
-void loopHttp() {
-	// listen for incoming clients
-	EthernetClient client = server.available();
-	if (client) {
-		// an http request ends with a blank line
-		boolean currentLineIsBlank = true;
-		while (client.connected()) {
-			if (client.available()) {
-				char c = client.read();
-				// if you've gotten to the end of the line (received a newline
-				// character) and the line is blank, the http request has ended,
-				// so you can send a reply
-
-				//reads URL string from $ to first blank space
-				if (incoming && c == ' ') {
-					incoming = 0;
-				}
-				if (c == '$') {
-					incoming = 1;
-				}
-
-				//Checks for the URL string $1 or $2
-				if (incoming == 1) {
-					//Serial.println(c);
-
-					if (c == '1') {
-						//Serial.println("ON");
-						//digitalWrite(2, HIGH);
-					}
-					if (c == '2') {
-						//Serial.println("OFF");
-						//digitalWrite(2, LOW);
-					}
-
-				}
-
-				if (c == '\n') {
-					// you're starting a new line
-					currentLineIsBlank = true;
-				} else if (c != '\r') {
-					// you've gotten a character on the current line
-					currentLineIsBlank = false;
-				}
-			}
-		}
-		// give the web browser time to receive the data
-		delay(1);
-		// close the connection:
-		client.stop();
-	}
-}
-
 //from webServerExample
-
-
 
 void printHtmlBufor(EthernetClient client) {
 	for (int i = 0; i < TEMPCOUNT; i++) {
 		float tempC = sensors.getTempC(gDA_sensors[i]);
 		if (i < 4) {
+			client.print(",\"BUFOR_");
 			client.print(i);
-			client.print(':');
+			client.print("\":");
 			client.println(tempC);
 		}
 		gf_currentTemps[i] = tempC;
 	}
-	client.print("PODLOGA_OUT:");
+	client.print(",\"PODLOGA_OUT\":");
 	client.println(gf_currentTemps[PODLOGA_OUT]);
-	client.print("PODLOGA_IN :");
+	client.print(",\"PODLOGA_IN\":");
 	client.println(gf_currentTemps[PODLOGA_IN]);
 }
 
 void printHtmlWent(EthernetClient client) {
-	client.print("NEW_IN:");
+	client.print(",\"NEW_IN\":");
 	client.println(gf_currentTemps_reku[NEW_IN]);
-	client.print("USED_IN:");
+	client.print(",\"USED_IN\":");
 	client.println(gf_currentTemps_reku[USED_IN]);
-	client.print("USED_OUT:");
+	client.print(",\"USED_OUT\":");
 	client.println(gf_currentTemps_reku[USED_OUT]);
-	client.print("NEW_OUT:");
+	client.print(",\"NEW_OUT\":");
 	client.println(gf_currentTemps_reku[NEW_OUT]);
-	client.print("NEW_WENT:");
+	client.print(",\"NEW_WENT\":");
 	client.println(gi_currentWentRPM[NEW_WENT]);
-	client.print("USED_WENT:");
+	client.print(",\"USED_WENT\":");
 	client.println(gi_currentWentRPM[USED_WENT]);
 }
 
 void printHtmlConfig(EthernetClient client) {
 	char buf[40];
-	client.println(F("Strefy czas"));
-	snprintf(buf, sizeof(buf), "D %02d-%02d N %02d-%02d", gi_dzienStart, gi_dzienEnd, gi_nocStart, gi_nocEnd);
+	client.println(F("\"Strefy czas\":"));
+	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\",", gi_dzienStart, gi_dzienEnd, gi_nocStart, gi_nocEnd);
 	client.println(buf);
 
-	client.println(F("Temperatury"));
-	snprintf(buf, sizeof(buf), "D %02d-%02d N %02d-%02d", gi_mind, gi_maxd, gi_minn, gi_maxn);
+	client.println(F("\"Temperatury\":"));
+	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\",", gi_mind, gi_maxd, gi_minn, gi_maxn);
 	client.println(buf);
-	snprintf(buf, sizeof(buf), "PompMiesz %02d 7-8+", gi_temperaturaStartuMieszania);
+	snprintf(buf, sizeof(buf), "\"PompMiesz\":\"%02d\",", gi_temperaturaStartuMieszania);
 	client.println(buf);
 
-	client.println(F("Wentylatory"));
-	snprintf(buf, sizeof(buf), "N %04d U %04d S:%03d", gi_desiredWentRPM[NEW_WENT], gi_desiredWentRPM[USED_WENT], gi_wentStep);
+	client.println(F("\"Wentylatory\":"));
+	snprintf(buf, sizeof(buf), "\"N %04d U %04d S:%03d\",", gi_desiredWentRPM[NEW_WENT], gi_desiredWentRPM[USED_WENT], gi_wentStep);
 	client.println(buf);
 }
 
 void printHtmlLogFileList(EthernetClient client) {
 	File root;
 	root = SD.open("/");
+	client.println(F("\"LogFiles\":["));
 	printDirectory(client, root, 0);
+	client.println(F("]"));
 }
 
 void printDirectory(EthernetClient client, File dir, int numTabs) {
@@ -1106,19 +1052,70 @@ void printDirectory(EthernetClient client, File dir, int numTabs) {
 			// no more files
 			break;
 		}
-		for (uint8_t i = 0; i < numTabs; i++) {
-			client.print('\t');
-		}
+//		for (uint8_t i = 0; i < numTabs; i++) {
+//			client.print('\t');
+//		}
+		client.print("{\"name\":\"");
 		client.print(entry.name());
 		if (entry.isDirectory()) {
 			client.println("/");
 			printDirectory(client, entry, numTabs + 1);
 		} else {
 			// files have sizes, directories do not
-			client.print("\t\t");
-			client.println(entry.size(), DEC);
+			client.print("\"size\":");
+			client.print(entry.size(), DEC);
+			client.print(",");
 		}
+		client.print("},");
 		entry.close();
+	}
+}
+
+void printHTTPHeader(EthernetClient& client) {
+	// send a standard http response header
+	client.println("HTTP/1.1 200 OK");
+	client.println("Content-Type: application/json");
+	client.println("Connection: close"); // the connection will be closed after completion of the response
+	//client.println("Refresh: 5"); // refresh the page automatically every 5 sec
+	client.println();
+//	client.println("<!DOCTYPE HTML>");
+//	client.println("<html>");
+	client.println("{");
+}
+
+void printHTTPHeaderLOG(EthernetClient& client) {
+	// send a standard http response header
+	client.println("HTTP/1.1 200 OK");
+	client.println("Content-Type: text/csv");
+	client.println("Connection: close"); // the connection will be closed after completion of the response
+	client.println();
+}
+
+void printRestStatus(EthernetClient& client) {
+	// send a standard http response header
+	printHTTPHeader(client);
+	// output the value of each analog input pin
+	printHtmlBufor(client);
+	printHtmlWent(client);
+	printHtmlConfig(client);
+	printHtmlLogFileList(client);
+	client.println("}");
+}
+
+void printLogFile(EthernetClient& client, char* fileName) {
+	printHTTPHeaderLOG(client);
+	myFile = SD.open(fileName);
+
+	if (myFile) {
+		// read from the file until there's nothing else in it:
+		while (myFile.available()) {
+			client.print(myFile.read());
+		}
+		// close the file:
+		myFile.close();
+	} else {
+		// if the file didn't open, print an error:
+		client.print("error opening");
 	}
 }
 
@@ -1129,6 +1126,9 @@ void loopServer() {
 		//Serial.println("new client");
 		// an http request ends with a blank line
 		boolean currentLineIsBlank = true;
+		boolean reading = false;
+		char readString[14]; //string for fetching data from address
+		int i = 0;
 		while (client.connected()) {
 			if (client.available()) {
 				char c = client.read();
@@ -1136,30 +1136,29 @@ void loopServer() {
 				// if you've gotten to the end of the line (received a newline
 				// character) and the line is blank, the http request has ended,
 				// so you can send a reply
-				if (c == '\n' && currentLineIsBlank) {
-					// send a standard http response header
-					client.println("HTTP/1.1 200 OK");
-					client.println("Content-Type: text/html");
-					client.println("Connection: close");  // the connection will be closed after completion of the response
-					client.println("Refresh: 5");  // refresh the page automatically every 5 sec
-					client.println();
-					client.println("<!DOCTYPE HTML>");
-					client.println("<html>");
-					// output the value of each analog input pin
-					printHtmlBufor(client);
-					printHtmlWent(client);
-					printHtmlConfig(client);
-					printHtmlLogFileList(client);
-					client.println("</html>");
+				if (c == '\n' && currentLineIsBlank) {	// send a standard http response header
+					printRestStatus(client);
 					break;
 				}
-				if (c == '\n') {
-					// you're starting a new line
+				if (c == '\n') {	// you're starting a new line
 					currentLineIsBlank = true;
-				} else if (c != '\r') {
-					// you've gotten a character on the current line
+				} else if (c != '\r') {	// you've gotten a character on the current line
 					currentLineIsBlank = false;
 				}
+				//get log file
+				if (reading && c == ' ') {
+					reading = false;
+				}
+				if (reading) {
+					readString[i++] = c;
+				}
+				if (c == '?')
+					reading = true;
+				if (!reading && i > 0) {
+					printLogFile(client, readString);
+				}
+				//get log file
+
 			}
 		}
 		// give the web browser time to receive the data
@@ -1169,6 +1168,8 @@ void loopServer() {
 		//Serial.println("client disconnected");
 	}
 }
+
+// give the web browser time to receive the data
 //from webServerExample
 //REST API
 
