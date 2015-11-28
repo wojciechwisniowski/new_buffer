@@ -37,12 +37,15 @@ boolean vb_pompaPodlogowaRysuj = true;
 boolean vb_buforGrzeje = false;
 boolean vb_tempsPrinted = false; //optymalizacja rysowania
 boolean vb_wentPrinted = false; //optymalizacja rysowania
+boolean vb_wietrzenie = false;
 
 uint8_t gi_EEmind, gi_EEmaxd, gi_EEminn, gi_EEmaxn, gi_EEtemperaturaStartuMieszania;
 uint8_t gi_EEnocStart, gi_EEnocEnd, gi_EEdzienStart, gi_EEdzienEnd;
 
 uint8_t gi_mind, gi_maxd, gi_minn, gi_maxn, gi_temperaturaStartuMieszania;
 uint8_t gi_nocStart, gi_nocEnd, gi_dzienStart, gi_dzienEnd;
+
+uint8_t gi_EEusedWietrzenie, gi_EEnewWietrzenie;
 
 int vi_counter = 0; //for display
 int vi_currentScreen = 0;
@@ -58,6 +61,7 @@ const byte ROWS = 4; // Four rows
 const byte COLS = 4; // Four
 // Define the Keymap
 char keys[ROWS][COLS] = { //
+
 		{ '1', '2', '3', 'A' }, //
 				{ '4', '5', '6', 'B' }, //
 				{ '7', '8', '9', 'C' }, //
@@ -82,7 +86,7 @@ boolean incoming = 0;
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDA, 0x11 };
-IPAddress ip(192, 168, 2, 2); //<<< ENTER YOUR IP ADDRESS HERE!!!
+IPAddress ip(192, 168, 1, 200); //<<< ENTER YOUR IP ADDRESS HERE!!!
 
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
@@ -159,8 +163,8 @@ void setup(void) {
 }
 
 int setupWent() {
-	gi_desiredWentRPM[NEW_WENT] = 1110;
-	gi_desiredWentRPM[USED_WENT] = 1010;
+	gi_desiredWentRPM[NEW_WENT] = 610;
+	gi_desiredWentRPM[USED_WENT] = 510;
 	gi_wentStep = WENT_STEP2;
 }
 int setupSD(int line) {
@@ -338,7 +342,7 @@ void configGodz(char key) {
 	}
 }
 
-void loop(void) {
+void checkKey() {
 	char key = kpd.getKey();
 	if (key) {  // Check for a valid key.
 		switch (key) {
@@ -363,22 +367,53 @@ void loop(void) {
 			break;
 		}
 	}
+}
 
-//if (vi_counter % 3 == 0) {
+void startWietrzenie() {
+	if (!vb_wietrzenie) {
+		//TODO zapisac to w eeprom
+		gi_desiredOldWentRPM[USED_WENT] = gi_desiredWentRPM[USED_WENT];
+		gi_desiredOldWentRPM[NEW_WENT] = gi_desiredWentRPM[NEW_WENT];
+		gi_desiredWentRPM[USED_WENT] = gi_desiredWentWietrzenieRPM[USED_WENT];
+		gi_desiredWentRPM[NEW_WENT] = gi_desiredWentWietrzenieRPM[NEW_WENT];
+		setWents();// wyslij
+		vb_wietrzenie = true;
+	}
+}
+
+void stopWietrzenie() {
+	if (vb_wietrzenie) {
+		//TODO zapisac to w eeprom
+		gi_desiredWentRPM[USED_WENT] = gi_desiredOldWentRPM[USED_WENT];
+		gi_desiredWentRPM[NEW_WENT] = gi_desiredOldWentRPM[NEW_WENT];
+		setWents();// wyslij
+		vb_wietrzenie = false;
+	}
+}
+
+void checkWietrzenie(){
+	// jeżeli godzina 00 do 01 lub 05-06 lub 13-15 wietrz
+	//else nie wietrz
+}
+
+void loop(void) {
+	checkKey();
+
 	if (vi_counter % 17 == 0) {
 		sensors.requestTemperatures();  // Send the command to get temperatures
 		checkAndChangeTariff();
 		checkAndChangeBuffor();
 	}
 	if (vi_counter % 21 == 0) {
-		String went = getWentString();
+		String went = getWentString(); // Send request to get went's temps and rpms
 		parseRekuperatorMSG(went);
 	}
-	if (vi_counter % 51 == 0) {
+	if (vi_counter % 51 == 0) { // log to file
 		log();
 	}
-
-//}
+	if (vi_counter % 61 == 0) { // chek wietrzenie
+		checkWietrzenie();
+	}
 
 //	if (vi_counter < 5) {
 	switch (vi_currentScreen) {
@@ -402,7 +437,7 @@ void loop(void) {
 
 	printDigitalClock();
 	vi_counter++;
-	delay(50);
+	delay(70);
 	if (vi_counter == 1000)
 		vi_counter = 0;
 	loopServer();
@@ -558,7 +593,9 @@ void printGrzalkiStatus(int grzejDo, int czekajDo) {
 }
 
 void printBottomStatus(char* s) {
+	GLCD.SelectFont(Wendy3x5);
 	GLCD.DrawString(s, gTextfmt_left, gTextfmt_bottom, eraseFULL_LINE);
+	GLCD.SelectFont(System5x7);
 }
 
 void wlaczPompaBuf() {
@@ -612,26 +649,26 @@ void printConfigGodz() {
 	char buf[40];
 	GLCD.DrawString(F("Strefy czas"), gTextfmt_center, 9);
 	snprintf(buf, sizeof(buf), "D %02d-%02d N %02d-%02d", gi_dzienStart, gi_dzienEnd, gi_nocStart, gi_nocEnd);
-	GLCD.DrawString(buf, 0, 18, eraseFULL_LINE);
-	GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+"), 0, 27);
+	GLCD.DrawString(buf, 0, 17, eraseFULL_LINE);
+	GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+"), 0, 26);
 }
 
 void printConfigTemp() {
 	char buf[40];
 	GLCD.DrawString(F("Temperatury"), gTextfmt_center, 9);
 	snprintf(buf, sizeof(buf), "D %02d-%02d N %02d-%02d", gi_mind, gi_maxd, gi_minn, gi_maxn);
-	GLCD.DrawString(buf, 0, 18, eraseFULL_LINE);
-	GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+"), 0, 27);
+	GLCD.DrawString(buf, 0, 17, eraseFULL_LINE);
+	GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+"), 0, 26);
 	snprintf(buf, sizeof(buf), "PompMiesz %02d 7-8+", gi_temperaturaStartuMieszania);
-	GLCD.DrawString(buf, 0, 43, eraseFULL_LINE);
+	GLCD.DrawString(buf, 0, 42, eraseFULL_LINE);
 }
 
 void printConfigWent() {
 	char buf[40];
 	GLCD.DrawString(F("Wentylatory"), gTextfmt_center, 9);
 	snprintf(buf, sizeof(buf), "N %04d U %04d S:%03d", gi_desiredWentRPM[NEW_WENT], gi_desiredWentRPM[USED_WENT], gi_wentStep);
-	GLCD.DrawString(buf, 0, 18, eraseFULL_LINE);
-	GLCD.DrawString(F("Zmiana klawisze\nN 1-2+ U 4-5+\nA wysyla B krok"), 0, 27);
+	GLCD.DrawString(buf, 0, 17, eraseFULL_LINE);
+	GLCD.DrawString(F("Zmiana klawisze\nN 1-2+ U 4-5+\nA wysyla B krok"), 0, 26);
 }
 
 void printConfigFiles() {
@@ -706,7 +743,6 @@ void printDirectory(File dir, int numTabs, int line) {
 void printDigitalClock() {
 	char buf[11];
 	GLCD.DrawHLine(0, 6, DISPLAY_WIDTH, PIXEL_ON);
-	//GLCD.DrawHLine(0, 7, DISPLAY_WIDTH, PIXEL_OFF);
 	GLCD.SelectFont(Wendy3x5);
 	if (gt_prevtime != now()) { // if 1 second has gone by, update display
 		gt_prevtime = now();   // save the last update time
@@ -802,7 +838,7 @@ void printWent() {
 #define x0 50
 #define xmid 89
 #define x1 128
-#define y0 17
+#define y0 16
 #define ymid 32
 #define y1 47
 	if (!vb_wentPrinted) {
@@ -1119,6 +1155,8 @@ void printLogFile(EthernetClient& client, char* fileName) {
 	}
 }
 
+//TODO przetestowac czy dziala pobieranie pliku z logami
+//TODO dopisac pobranie listy plikow z logami?
 void loopServer() {
 	// listen for incoming clients
 	EthernetClient client = server.available();
