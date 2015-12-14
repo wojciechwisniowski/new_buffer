@@ -44,7 +44,7 @@
 #include <Wire.h>
 #include <AH_MCP41xxx.h>
 #include "termometry_rek.h"
-#define ONE_WIRE_BUS 10 //termometry 10 dla went
+#define GI_PIN_ONE_WIRE_BUS 10 //termometry 10 dla went
 
 //dla MPC41 - potencjometru cyfrowego
 #define CS 9 //chip select dla MPC41 - potencjometru cyfrowego
@@ -60,7 +60,7 @@ LiquidCrystal lcd(12, 11, 5, 4, A4, A5);//0 zamiana na A5; 1 zamiana na A4
 //LiquidCrystal lcd(12, 11, 5, 4, 1, 0);
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
-OneWire oneWire(ONE_WIRE_BUS);
+OneWire oneWire(GI_PIN_ONE_WIRE_BUS);
 
 byte resistance = 0;
 

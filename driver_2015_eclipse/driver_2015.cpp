@@ -17,14 +17,15 @@
 #include <SPI.h>
 #include <Ethernet.h>
 
-#define ONE_WIRE_BUS 40 //termometry 40 dla buf
+#define GI_PIN_ONE_WIRE_BUS 40 //termometry 40 dla buf
 #define GI_PIN_GRZALEK_1 42
 #define GI_PIN_GRZALEK_2 43
 #define GI_PIN_GRZALEK_3 44
-#define GI_PIN_POMPY 45//pompa mieszajaca bufor
+#define GI_PIN_POMPY_MIESZAJACEJ 45//pompa mieszajaca bufor
+#define GI_PIN_POMPY_PODLOGOWEJ 46//pompa od podłogówki
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
-OneWire oneWire(ONE_WIRE_BUS);
+OneWire oneWire(GI_PIN_ONE_WIRE_BUS);
 
 // Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
@@ -36,19 +37,41 @@ boolean vb_pompaPodlogowaPracuje = true;
 boolean vb_pompaPodlogowaRysuj = true;
 boolean vb_buforGrzeje = false;
 boolean vb_tempsPrinted = false; //optymalizacja rysowania
-boolean vb_wentPrinted = false; //optymalizacja rysowania
+boolean vb_wentsPrinted = false; //optymalizacja rysowania
 boolean vb_wietrzenie = false;
 
-uint8_t gi_EEmind, gi_EEmaxd, gi_EEminn, gi_EEmaxn, gi_EEtemperaturaStartuMieszania;
-uint8_t gi_EEnocStart, gi_EEnocEnd, gi_EEdzienStart, gi_EEdzienEnd;
+uint8_t gi_EE_Temp_Min_Day;
+uint8_t gi_EE_Temp_Max_Day;
+uint8_t gi_EE_Temp_Min_Night;
+uint8_t gi_EE_Temp_Max_Night;
+uint8_t gi_EE_Temp_Mixing_Start;
 
-uint8_t gi_mind, gi_maxd, gi_minn, gi_maxn, gi_temperaturaStartuMieszania;
-uint8_t gi_nocStart, gi_nocEnd, gi_dzienStart, gi_dzienEnd;
+uint8_t gi_Temp_Min_Day;
+uint8_t gi_Temp_Max_Day;
+uint8_t gi_Temp_Min_Night;
+uint8_t gi_Temp_Max_Night;
+uint8_t gi_Temp_Mixing_Start;
 
-uint8_t gi_EEusedWietrzenie, gi_EEnewWietrzenie;
+uint8_t gi_EE_Hour_Night_Start;
+uint8_t gi_EE_Hour_Night_End;
+uint8_t gi_EE_Hour_Day_Start;
+uint8_t gi_EE_Hour_Day_End;
+uint8_t gi_EE_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
+
+uint8_t gi_Hour_Night_Start;
+uint8_t gi_Hour_Night_End;
+uint8_t gi_Hour_Day_Start;
+uint8_t gi_Hour_Day_End;
+uint8_t gi_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
+
+uint8_t gi_EE_Vent_Used_RPM;
+uint8_t gi_EE_Vent_New_RPM;
+uint8_t gi_EE_Vent_New_Desired_RPM;
+uint8_t gi_EE_Vent_Used_Desired_RPM;
 
 int vi_counter = 0; //for display
 int vi_currentScreen = 0;
+
 #define NUMBER_OF_SCREENS 5
 #define SCREEN_MAIN 0
 #define SCREEN_CONFIG_GODZ 1
@@ -61,7 +84,6 @@ const byte ROWS = 4; // Four rows
 const byte COLS = 4; // Four
 // Define the Keymap
 char keys[ROWS][COLS] = { //
-
 		{ '1', '2', '3', 'A' }, //
 				{ '4', '5', '6', 'B' }, //
 				{ '7', '8', '9', 'C' }, //
@@ -97,53 +119,84 @@ void setupI2C() {
 	Wire.begin();                // join i2c bus as master
 }
 
+//wczytaj ustawienia wentylacji z EE lub wstaw default
+void initConfigWent() {
+	gi_desiredWentWietrzenieRPM[USED_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_Used_RPM);
+	if (gi_desiredWentWietrzenieRPM[USED_WENT] == 255) {
+		gi_desiredWentWietrzenieRPM[USED_WENT] = 1500;
+	}
+	gi_desiredWentWietrzenieRPM[NEW_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_New_RPM);
+	if (gi_desiredWentWietrzenieRPM[NEW_WENT] == 255) {
+		gi_desiredWentWietrzenieRPM[NEW_WENT] = 1600;
+	}
+
+	gi_desiredWentWietrzenieRPM[NEW_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_New_Desired_RPM);
+	if (gi_desiredWentRPM[NEW_WENT] == 255) {
+		gi_desiredWentRPM[NEW_WENT] = 610;
+	}
+
+	gi_desiredWentWietrzenieRPM[USED_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_Used_Desired_RPM);
+	if (gi_desiredWentRPM[USED_WENT] == 255) {
+		gi_desiredWentRPM[USED_WENT] = 510;
+	}
+
+	gi_wentStep = WENT_STEP2;
+
+}
+
+//wczytaj ustawienia temperatur z EE lub ustaw default
+void initConfigTemp() {
+	gi_Temp_Min_Day = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Min_Day));
+	if (gi_Temp_Min_Day == 255) {
+		gi_Temp_Min_Day = 29;
+	}
+	gi_Temp_Max_Day = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Max_Day));
+	if (gi_Temp_Max_Day == 255) {
+		gi_Temp_Max_Day = 31;
+	}
+	gi_Temp_Min_Night = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Min_Night));
+	if (gi_Temp_Min_Night == 255) {
+		gi_Temp_Min_Night = 60;
+	}
+	gi_Temp_Max_Night = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Max_Night));
+	if (gi_Temp_Max_Night == 255) {
+		gi_Temp_Max_Night = 80;
+	}
+	gi_Temp_Mixing_Start = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Mixing_Start));
+	if (gi_Temp_Mixing_Start == 255) {
+		gi_Temp_Mixing_Start = 55;
+	}
+}
+
+//wczytaj ustawienia strefy noc/dzien z EE lub ustaw defaulty
+void initConfigStrefy() {
+	gi_Hour_Night_Start = eeprom_read_byte((uint8_t*) (&gi_EE_Hour_Night_Start));
+	if (gi_Hour_Night_Start == 255) {
+		gi_Hour_Night_Start = 21;
+	}
+	gi_Hour_Night_End = eeprom_read_byte((uint8_t*) (&gi_EE_Hour_Night_End));
+	if (gi_Hour_Night_End == 255) {
+		gi_Hour_Night_End = 7;
+	}
+	gi_Hour_Day_Start = eeprom_read_byte((uint8_t*) (&gi_EE_Hour_Day_Start));
+	if (gi_Hour_Day_Start == 255) {
+		gi_Hour_Day_Start = 13;
+	}
+	gi_Hour_Day_End = eeprom_read_byte((uint8_t*) (&gi_EE_Hour_Day_End));
+	if (gi_Hour_Day_End == 255) {
+		gi_Hour_Day_End = 15;
+	}
+	gi_Minute_Night_Shift = eeprom_read_byte((uint8_t*) (&gi_Minute_Night_Shift));
+	if (gi_Minute_Night_Shift == 255) {
+		gi_Minute_Night_Shift = 5;
+	}
+
+}
+
 void initConfig() {
-
-	gi_mind = eeprom_read_byte((uint8_t *) &gi_EEmind);
-	if (gi_mind == 255) {
-		gi_mind = 29;
-	}
-
-	gi_maxd = eeprom_read_byte((uint8_t *) &gi_EEmaxd);
-	if (gi_maxd == 255) {
-		gi_maxd = 31;
-	}
-
-	gi_minn = eeprom_read_byte((uint8_t *) &gi_EEminn);
-	if (gi_minn == 255) {
-		gi_minn = 70;
-	}
-
-	gi_maxn = eeprom_read_byte((uint8_t *) &gi_EEmaxn);
-	if (gi_maxn == 255) {
-		gi_maxn = 86;
-	}
-
-	gi_temperaturaStartuMieszania = eeprom_read_byte((uint8_t *) &gi_EEtemperaturaStartuMieszania);
-	if (gi_temperaturaStartuMieszania == 255) {
-		gi_temperaturaStartuMieszania = 55;
-	}
-
-	gi_nocStart = eeprom_read_byte((uint8_t *) &gi_EEnocStart);
-	if (gi_nocStart == 255) {
-		gi_nocStart = 21;
-	}
-
-	gi_nocEnd = eeprom_read_byte((uint8_t *) &gi_EEnocEnd);
-	if (gi_nocEnd == 255) {
-		gi_nocEnd = 7;
-	}
-
-	gi_dzienStart = eeprom_read_byte((uint8_t *) &gi_EEdzienStart);
-	if (gi_dzienStart == 255) {
-		gi_dzienStart = 13;
-	}
-
-	gi_dzienEnd = eeprom_read_byte((uint8_t *) &gi_EEdzienEnd);
-	if (gi_dzienEnd == 255) {
-		gi_dzienEnd = 15;
-	}
-
+	initConfigTemp();
+	initConfigStrefy();
+	initConfigWent();
 }
 
 void setup(void) {
@@ -154,19 +207,13 @@ void setup(void) {
 	line = setupRTC(line);
 	setupI2C();
 	setupBuf();
-	setupPompa();
+	setupPompy();
 	line = setupSD(line);
-	setupWent();
 	delay(2000);
 	setupHttp();
 	GLCD.ClearScreen(PIXEL_OFF);
 }
 
-int setupWent() {
-	gi_desiredWentRPM[NEW_WENT] = 610;
-	gi_desiredWentRPM[USED_WENT] = 510;
-	gi_wentStep = WENT_STEP2;
-}
 int setupSD(int line) {
 
 	print0(line, "Initializing SD card...");
@@ -184,8 +231,9 @@ int setupSD(int line) {
 	return line + 1;
 }
 
-void setupPompa() {
-	pinMode(GI_PIN_POMPY, OUTPUT);
+void setupPompy() {
+	pinMode(GI_PIN_POMPY_MIESZAJACEJ, OUTPUT);
+	pinMode(GI_PIN_POMPY_PODLOGOWEJ, OUTPUT);
 }
 
 void setupBuf() {
@@ -256,34 +304,34 @@ int setupGLCD(int line) {
 void configTemp(char key) {
 	switch (key) {
 	case '1':
-		eeprom_write_byte(&gi_EEmind, --gi_mind);   //decMinDzienna
+		eeprom_write_byte(&gi_EE_Temp_Min_Day, --gi_Temp_Min_Day);   //decMinDzienna
 		break;
 	case '2':
-		eeprom_write_byte(&gi_EEmind, ++gi_mind);   //decMinDzienna
+		eeprom_write_byte(&gi_EE_Temp_Min_Day, ++gi_Temp_Min_Day);   //decMinDzienna
 		break;
 	case '3':
-		eeprom_write_byte(&gi_EEmaxd, --gi_maxd);   //decMaxDzienna
+		eeprom_write_byte(&gi_EE_Temp_Max_Day, --gi_Temp_Max_Day);   //decMaxDzienna
 		break;
 	case 'A':
-		eeprom_write_byte(&gi_EEmaxd, ++gi_maxd);   //incMaxDzienna
+		eeprom_write_byte(&gi_EE_Temp_Max_Day, ++gi_Temp_Max_Day);   //incMaxDzienna
 		break;
 	case '4':
-		eeprom_write_byte(&gi_EEminn, --gi_minn);   //decMinNocna
+		eeprom_write_byte(&gi_EE_Temp_Min_Night, --gi_Temp_Min_Night);   //decMinNocna
 		break;
 	case '5':
-		eeprom_write_byte(&gi_EEminn, ++gi_minn);   //incMinNocna
+		eeprom_write_byte(&gi_EE_Temp_Min_Night, ++gi_Temp_Min_Night);   //incMinNocna
 		break;
 	case '6':
-		eeprom_write_byte(&gi_EEmaxn, --gi_maxn);   //decMaxNocna
+		eeprom_write_byte(&gi_EE_Temp_Max_Night, --gi_Temp_Max_Night);   //decMaxNocna
 		break;
 	case 'B':
-		eeprom_write_byte(&gi_EEmaxn, ++gi_maxn);   //incMaxNocna
+		eeprom_write_byte(&gi_EE_Temp_Max_Night, ++gi_Temp_Max_Night);   //incMaxNocna
 		break;
 	case '7':
-		eeprom_write_byte(&gi_EEtemperaturaStartuMieszania, --gi_temperaturaStartuMieszania);   //dec PompaMiesz
+		eeprom_write_byte(&gi_EE_Temp_Mixing_Start, --gi_Temp_Mixing_Start);   //dec PompaMiesz
 		break;
 	case '8':
-		eeprom_write_byte(&gi_EEtemperaturaStartuMieszania, ++gi_temperaturaStartuMieszania);   //inc PompaMiesz
+		eeprom_write_byte(&gi_EE_Temp_Mixing_Start, ++gi_Temp_Mixing_Start);   //inc PompaMiesz
 		break;
 
 	}
@@ -315,28 +363,34 @@ void configWent(char key) {
 void configGodz(char key) {
 	switch (key) {
 	case '1':
-		eeprom_write_byte(&gi_EEdzienStart, --gi_dzienStart);   //dec dzien start
+		eeprom_write_byte(&gi_EE_Hour_Day_Start, --gi_Hour_Day_Start);   //dec dzien start
 		break;
 	case '2':
-		eeprom_write_byte(&gi_EEdzienStart, ++gi_dzienStart);   //inc dzien start
+		eeprom_write_byte(&gi_EE_Hour_Day_Start, ++gi_Hour_Day_Start);   //inc dzien start
 		break;
 	case '3':
-		eeprom_write_byte(&gi_EEdzienEnd, --gi_dzienEnd);   //dec dzien end
+		eeprom_write_byte(&gi_EE_Hour_Day_End, --gi_Hour_Day_End);   //dec dzien end
 		break;
 	case 'A':
-		eeprom_write_byte(&gi_EEdzienEnd, ++gi_dzienEnd);   //dec dzien end
+		eeprom_write_byte(&gi_EE_Hour_Day_End, ++gi_Hour_Day_End);   //dec dzien end
 		break;
 	case '4':
-		eeprom_write_byte(&gi_EEnocStart, --gi_nocStart);   //dec noc start
+		eeprom_write_byte(&gi_EE_Hour_Night_Start, --gi_Hour_Night_Start);   //dec noc start
 		break;
 	case '5':
-		eeprom_write_byte(&gi_EEnocStart, ++gi_nocStart);   //inc noc start
+		eeprom_write_byte(&gi_EE_Hour_Night_Start, ++gi_Hour_Night_Start);   //inc noc start
 		break;
 	case '6':
-		eeprom_write_byte(&gi_EEnocEnd, --gi_nocEnd);   //dec noc end
+		eeprom_write_byte(&gi_EE_Hour_Night_End, --gi_Hour_Night_End);   //dec noc end
 		break;
 	case 'B':
-		eeprom_write_byte(&gi_EEnocEnd, ++gi_nocEnd);   //dec noc end
+		eeprom_write_byte(&gi_EE_Hour_Night_End, ++gi_Hour_Night_End);   //dec noc end
+		break;
+	case '7':
+		eeprom_write_byte(&gi_EE_Minute_Night_Shift, --gi_Minute_Night_Shift);   //
+		break;
+	case '8':
+		eeprom_write_byte(&gi_EE_Minute_Night_Shift, ++gi_Minute_Night_Shift);   //
 		break;
 
 	}
@@ -376,7 +430,7 @@ void startWietrzenie() {
 		gi_desiredOldWentRPM[NEW_WENT] = gi_desiredWentRPM[NEW_WENT];
 		gi_desiredWentRPM[USED_WENT] = gi_desiredWentWietrzenieRPM[USED_WENT];
 		gi_desiredWentRPM[NEW_WENT] = gi_desiredWentWietrzenieRPM[NEW_WENT];
-		setWents();// wyslij
+		setWents();  // wyslij
 		vb_wietrzenie = true;
 	}
 }
@@ -386,12 +440,12 @@ void stopWietrzenie() {
 		//TODO zapisac to w eeprom
 		gi_desiredWentRPM[USED_WENT] = gi_desiredOldWentRPM[USED_WENT];
 		gi_desiredWentRPM[NEW_WENT] = gi_desiredOldWentRPM[NEW_WENT];
-		setWents();// wyslij
+		setWents();  // wyslij
 		vb_wietrzenie = false;
 	}
 }
 
-void checkWietrzenie(){
+void checkWietrzenie() {
 	// jeżeli godzina 00 do 01 lub 05-06 lub 13-15 wietrz
 	//else nie wietrz
 }
@@ -418,7 +472,7 @@ void loop(void) {
 //	if (vi_counter < 5) {
 	switch (vi_currentScreen) {
 	case SCREEN_MAIN:
-		printTemps();
+		printTemps(vi_counter);
 		printWent();
 		break;
 	case SCREEN_CONFIG_GODZ:
@@ -495,7 +549,7 @@ void setWents() {
 void nextScreen() {
 	clearScreenWithoutTime();
 	vb_tempsPrinted = false;
-	vb_wentPrinted = false;
+	vb_wentsPrinted = false;
 	vi_currentScreen++;
 	if (vi_currentScreen >= NUMBER_OF_SCREENS)
 		vi_currentScreen = 0;
@@ -504,7 +558,7 @@ void nextScreen() {
 void prevScreen() {
 	clearScreenWithoutTime();
 	vb_tempsPrinted = false;
-	vb_wentPrinted = false;
+	vb_wentsPrinted = false;
 	vi_currentScreen--;
 	if (vi_currentScreen < 0)
 		vi_currentScreen = NUMBER_OF_SCREENS - 1;
@@ -537,29 +591,29 @@ void checkAndChangeBuffor() {
 	int grzejDo = 0;
 	int czekajDo = 0;
 	if (vb_taryfaNocna) { //noc lub południe
-		grzejDo = gi_maxn;
-		czekajDo = gi_minn;
+		grzejDo = gi_Temp_Max_Night;
+		czekajDo = gi_Temp_Min_Night;
 		if (vb_buforGrzeje) {
-			if (temp >= gi_maxn) {
+			if (temp >= gi_Temp_Max_Night) {
 				wylaczGrzalki();
 				vb_buforGrzeje = false;
 			}
 		} else { //nie grzeje
-			if (temp < gi_minn) {
+			if (temp < gi_Temp_Min_Night) {
 				vb_buforGrzeje = true;
 				wlaczGrzalki();
 			}
 		}
 	} else { //dzień
-		grzejDo = gi_maxd;
-		czekajDo = gi_mind;
+		grzejDo = gi_Temp_Max_Day;
+		czekajDo = gi_Temp_Min_Day;
 		if (vb_buforGrzeje) {
-			if (temp >= gi_maxd) {
+			if (temp >= gi_Temp_Max_Day) {
 				wylaczGrzalki();
 				vb_buforGrzeje = false;
 			}
 		} else { //nie grzeje
-			if (temp < gi_mind) {
+			if (temp < gi_Temp_Min_Day) {
 				vb_buforGrzeje = true;
 				wlaczGrzalki();
 			}
@@ -573,7 +627,7 @@ void obslugaPompyMieszajacej(float temp) {
 	if (!vb_taryfaNocna) {
 		wylaczPompaBuf(); //w dzien nie mieszamy
 	} else {
-		if (vb_buforGrzeje && (temp > gi_temperaturaStartuMieszania)) {
+		if (vb_buforGrzeje && (temp > gi_Temp_Mixing_Start)) {
 			wlaczPompaBuf(); //grzeje i zagrzal juz CWU do gi_temperaturaStartuMieszania wiec grzej dol
 		} else {
 			wylaczPompaBuf(); // albo nie grzeje albo sie CWU wychlodzilo to nie mieszamy dalej
@@ -599,12 +653,12 @@ void printBottomStatus(char* s) {
 }
 
 void wlaczPompaBuf() {
-	digitalWrite(GI_PIN_POMPY, LOW);
+	digitalWrite(GI_PIN_POMPY_MIESZAJACEJ, LOW);
 	vb_pompaMieszajacaPracuje = true;
 }
 
 void wylaczPompaBuf() {
-	digitalWrite(GI_PIN_POMPY, HIGH);
+	digitalWrite(GI_PIN_POMPY_MIESZAJACEJ, HIGH);
 	vb_pompaMieszajacaPracuje = false;
 }
 
@@ -624,10 +678,13 @@ void ustawPinyGrzalek(uint8_t stan) {
 
 // od 21 do 7 i od 13 do 15 => taryfa nocna
 void checkAndChangeTariff() {
-	int h = hour();
-	vb_taryfaNocna = (h >= gi_nocStart) //21 do 23
-	|| (h < gi_nocEnd) //od 00 do 6:59
-			|| (h >= gi_dzienStart && h < gi_dzienEnd); // od 13 do 14:59
+	time_t current = now();//get current time
+		int h = hour(current - (gi_Minute_Night_Shift * SECS_PER_MIN));//get hour shifted
+	//int m = minute();
+
+	vb_taryfaNocna = (h >= gi_Hour_Night_Start) //21 do 23
+	|| (h < gi_Hour_Night_End) //od 00 do 6:59
+			|| (h >= gi_Hour_Day_Start && h < gi_Hour_Day_End); // od 13 do 14:59
 }
 void print0(int line, char* str) {
 // set the cursor to column 0, line 1
@@ -648,26 +705,26 @@ void print0(int line, float f) {
 void printConfigGodz() {
 	char buf[40];
 	GLCD.DrawString(F("Strefy czas"), gTextfmt_center, 9);
-	snprintf(buf, sizeof(buf), "D %02d-%02d N %02d-%02d", gi_dzienStart, gi_dzienEnd, gi_nocStart, gi_nocEnd);
-	GLCD.DrawString(buf, 0, 17, eraseFULL_LINE);
-	GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+"), 0, 26);
+	snprintf(buf, sizeof(buf), "D%02d-%02d N%02d-%02d s%02d", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start, gi_Hour_Night_End,gi_Minute_Night_Shift);
+	GLCD.DrawString(buf, 0, 17);//, eraseFULL_LINE);
+	GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+\ns7-8+"), 0, 26);
 }
 
 void printConfigTemp() {
 	char buf[40];
-	GLCD.DrawString(F("Temperatury"), gTextfmt_center, 9);
-	snprintf(buf, sizeof(buf), "D %02d-%02d N %02d-%02d", gi_mind, gi_maxd, gi_minn, gi_maxn);
-	GLCD.DrawString(buf, 0, 17, eraseFULL_LINE);
-	GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+"), 0, 26);
-	snprintf(buf, sizeof(buf), "PompMiesz %02d 7-8+", gi_temperaturaStartuMieszania);
-	GLCD.DrawString(buf, 0, 42, eraseFULL_LINE);
+	GLCD.DrawString(F("Temperatury Klawisze"), gTextfmt_center, 9);
+	snprintf(buf, sizeof(buf), "D.%02d-%02d 1-2+:3-A+\nN.%02d-%02d 4-5+:6-B+", gi_Temp_Min_Day, gi_Temp_Max_Day, gi_Temp_Min_Night, gi_Temp_Max_Night);
+	GLCD.DrawString(buf, 0, 17);//, eraseFULL_LINE);
+	//GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+"), 0, 26);
+	snprintf(buf, sizeof(buf), "PompMiesz.%02d 7-8+", gi_Temp_Mixing_Start);
+	GLCD.DrawString(buf, 0, 35);//, eraseFULL_LINE);
 }
 
 void printConfigWent() {
 	char buf[40];
 	GLCD.DrawString(F("Wentylatory"), gTextfmt_center, 9);
 	snprintf(buf, sizeof(buf), "N %04d U %04d S:%03d", gi_desiredWentRPM[NEW_WENT], gi_desiredWentRPM[USED_WENT], gi_wentStep);
-	GLCD.DrawString(buf, 0, 17, eraseFULL_LINE);
+	GLCD.DrawString(buf, 0, 17);//, eraseFULL_LINE);
 	GLCD.DrawString(F("Zmiana klawisze\nN 1-2+ U 4-5+\nA wysyla B krok"), 0, 26);
 }
 
@@ -783,7 +840,7 @@ bool getTime(const char *str) {
 //from openGLCD digital clock example
 
 //draw buffor and print temps
-void printTemps() {
+void printTemps(int counter) {
 	if (!vb_tempsPrinted) {
 		GLCD.DrawRoundRect(0, 9, 27, 40, 3, PIXEL_ON);   //bufor
 		GLCD.DrawHLine(27, 25, 5, PIXEL_ON);   //linia out
@@ -808,9 +865,9 @@ void printTemps() {
 	GLCD.print(gf_currentTemps[PODLOGA_IN], 1);
 	GLCD.SelectFont(System5x7);
 
-	if (vb_pompaPodlogowaPracuje && !vb_pompaPodlogowaRysuj) {
+	if (vb_pompaPodlogowaPracuje && !vb_pompaPodlogowaRysuj && counter%5) {
 		vb_pompaPodlogowaRysuj = true;
-	} else {
+	} else if(counter%9){
 		vb_pompaPodlogowaRysuj = false;
 	}
 	if (vb_pompaPodlogowaRysuj)
@@ -841,7 +898,7 @@ void printWent() {
 #define y0 16
 #define ymid 32
 #define y1 47
-	if (!vb_wentPrinted) {
+	if (!vb_wentsPrinted) {
 		GLCD.DrawRoundRect(x0, y0 - 1, x1 - x0, y1 - y0 + 3, 3, PIXEL_ON);   //bufor
 		GLCD.DrawLine(xmid, y0, xmid - 12, ymid);
 		GLCD.DrawLine(xmid, y0, xmid + 12, ymid);
@@ -879,7 +936,7 @@ void printWent() {
 	GLCD.print(gi_currentWentRPM[USED_WENT]);
 
 	GLCD.SelectFont(System5x7);
-	vb_wentPrinted = true;
+	vb_wentsPrinted = true;
 }
 
 void printAddress(DeviceAddress deviceAddress) {
@@ -1058,13 +1115,13 @@ void printHtmlWent(EthernetClient client) {
 void printHtmlConfig(EthernetClient client) {
 	char buf[40];
 	client.println(F("\"Strefy czas\":"));
-	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\",", gi_dzienStart, gi_dzienEnd, gi_nocStart, gi_nocEnd);
+	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\",", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start, gi_Hour_Night_End);
 	client.println(buf);
 
 	client.println(F("\"Temperatury\":"));
-	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\",", gi_mind, gi_maxd, gi_minn, gi_maxn);
+	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\",", gi_Temp_Min_Day, gi_Temp_Max_Day, gi_Temp_Min_Night, gi_Temp_Max_Night);
 	client.println(buf);
-	snprintf(buf, sizeof(buf), "\"PompMiesz\":\"%02d\",", gi_temperaturaStartuMieszania);
+	snprintf(buf, sizeof(buf), "\"PompMiesz\":\"%02d\",", gi_Temp_Mixing_Start);
 	client.println(buf);
 
 	client.println(F("\"Wentylatory\":"));
