@@ -1081,6 +1081,7 @@ void setupHttp() {
 //from webServerExample
 
 void printHtmlBufor(EthernetClient client) {
+	client.print("\"VER\":1.0");
 	for (int i = 0; i < TEMPCOUNT; i++) {
 		float tempC = sensors.getTempC(gDA_sensors[i]);
 		if (i < 4) {
@@ -1114,7 +1115,7 @@ void printHtmlWent(EthernetClient client) {
 
 void printHtmlConfig(EthernetClient client) {
 	char buf[40];
-	client.println(F("\"Strefy czas\":"));
+	client.println(F(",\"Strefy czas\":"));
 	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\",", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start, gi_Hour_Night_End);
 	client.println(buf);
 
