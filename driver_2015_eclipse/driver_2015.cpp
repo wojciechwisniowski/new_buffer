@@ -16,6 +16,7 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
+#include "ApplicationMonitor.h"
 
 #define GI_PIN_ONE_WIRE_BUS 40 //termometry 40 dla buf
 #define GI_PIN_GRZALEK_1 42
@@ -23,6 +24,8 @@
 #define GI_PIN_GRZALEK_3 44
 #define GI_PIN_POMPY_MIESZAJACEJ 45//pompa mieszajaca bufor
 #define GI_PIN_POMPY_PODLOGOWEJ 46//pompa od podłogówki
+
+Watchdog::CApplicationMonitor ApplicationMonitor;
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(GI_PIN_ONE_WIRE_BUS);
@@ -64,10 +67,10 @@ uint8_t gi_Hour_Day_Start;
 uint8_t gi_Hour_Day_End;
 uint8_t gi_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
 
-uint8_t gi_EE_Vent_Used_RPM;
-uint8_t gi_EE_Vent_New_RPM;
-uint8_t gi_EE_Vent_New_Desired_RPM;
-uint8_t gi_EE_Vent_Used_Desired_RPM;
+uint16_t gi_EE_Vent_Used_RPM;
+uint16_t gi_EE_Vent_New_RPM;
+uint16_t gi_EE_Vent_New_Desired_RPM;
+uint16_t gi_EE_Vent_Used_Desired_RPM;
 
 int vi_counter = 0; //for display
 int vi_currentScreen = 0;
@@ -121,23 +124,23 @@ void setupI2C() {
 
 //wczytaj ustawienia wentylacji z EE lub wstaw default
 void initConfigWent() {
-	gi_desiredWentWietrzenieRPM[USED_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_Used_RPM);
-	if (gi_desiredWentWietrzenieRPM[USED_WENT] == 255) {
-		gi_desiredWentWietrzenieRPM[USED_WENT] = 1500;
+	gi_desiredWentWietrzenieRPM[USED_WENT] = eeprom_read_word((uint16_t *) &gi_EE_Vent_Used_RPM);
+	if (gi_desiredWentWietrzenieRPM[USED_WENT] == 0xFFFF||gi_desiredWentWietrzenieRPM[USED_WENT]  == 0) {
+		gi_desiredWentWietrzenieRPM[USED_WENT] = 960;
 	}
-	gi_desiredWentWietrzenieRPM[NEW_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_New_RPM);
-	if (gi_desiredWentWietrzenieRPM[NEW_WENT] == 255) {
-		gi_desiredWentWietrzenieRPM[NEW_WENT] = 1600;
-	}
-
-	gi_desiredWentWietrzenieRPM[NEW_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_New_Desired_RPM);
-	if (gi_desiredWentRPM[NEW_WENT] == 255) {
-		gi_desiredWentRPM[NEW_WENT] = 610;
+	gi_desiredWentWietrzenieRPM[NEW_WENT] = eeprom_read_word((uint16_t *) &gi_EE_Vent_New_RPM);
+	if (gi_desiredWentWietrzenieRPM[NEW_WENT] == 0xFFFF ||gi_desiredWentWietrzenieRPM[NEW_WENT] == 0) {
+		gi_desiredWentWietrzenieRPM[NEW_WENT] = 1110;
 	}
 
-	gi_desiredWentWietrzenieRPM[USED_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_Used_Desired_RPM);
-	if (gi_desiredWentRPM[USED_WENT] == 255) {
-		gi_desiredWentRPM[USED_WENT] = 510;
+	gi_desiredWentRPM[NEW_WENT] = eeprom_read_word((uint16_t *) &gi_EE_Vent_New_Desired_RPM);
+	if (gi_desiredWentRPM[NEW_WENT] == 0xFFFF || gi_desiredWentRPM[NEW_WENT] == 0) {
+		gi_desiredWentRPM[NEW_WENT] = 620;
+	}
+
+	gi_desiredWentRPM[USED_WENT] = eeprom_read_word((uint16_t *) &gi_EE_Vent_Used_Desired_RPM);
+	if (gi_desiredWentRPM[USED_WENT] == 0xFFFF || gi_desiredWentRPM[USED_WENT] == 0) {
+		gi_desiredWentRPM[USED_WENT] = 500;
 	}
 
 	gi_wentStep = WENT_STEP2;
@@ -199,7 +202,15 @@ void initConfig() {
 	initConfigWent();
 }
 
+void setupApplicationMonitor(){
+	  //ApplicationMonitor.Dump(Serial);
+	  ApplicationMonitor.EnableWatchdog(Watchdog::CApplicationMonitor::Timeout_8s);
+	  //ApplicationMonitor.DisableWatchdog();
+}
+
 void setup(void) {
+	setupApplicationMonitor();
+
 	int line = 0;
 	initConfig();
 	line = setupGLCD(line);
@@ -445,12 +456,27 @@ void stopWietrzenie() {
 	}
 }
 
+//chwilowo drut wietrzymy o 00, 5 i o 14
 void checkWietrzenie() {
+	int h = hour();
+	if (h == 0 || h == 5 || h == 14) {
+		if (!vb_wietrzenie) {
+			startWietrzenie();
+		}
+	} else {  //godziny inne niz 00,5,14
+		if (vb_wietrzenie) {
+			stopWietrzenie();
+		}
+
+	}
 	// jeżeli godzina 00 do 01 lub 05-06 lub 13-15 wietrz
 	//else nie wietrz
 }
 
 void loop(void) {
+	ApplicationMonitor.IAmAlive();
+	//ApplicationMonitor.SetData(); - here we can set the data to be sotred in case of hang
+
 	checkKey();
 
 	if (vi_counter % 17 == 0) {
@@ -507,6 +533,8 @@ void changeWentStep() {
 }
 void incWentNew() {
 	incWent(NEW_WENT, NEW_WENT_MAX);
+	//TODO zapisac do eeprom
+	//eeprom_write_word(&gi_EE_Vent_New_RPM, ++gi_Minute_Night_Shift);   //
 }
 
 void incWentUSED() {
@@ -526,6 +554,8 @@ void incWent(int went, int max) {
 	gi_desiredWentRPM[went] = old + gi_wentStep;
 	if (gi_desiredWentRPM[went] > max)
 		gi_desiredWentRPM[went] = max;
+
+
 }
 
 void decWent(int went, int max) {
@@ -678,8 +708,8 @@ void ustawPinyGrzalek(uint8_t stan) {
 
 // od 21 do 7 i od 13 do 15 => taryfa nocna
 void checkAndChangeTariff() {
-	time_t current = now();//get current time
-		int h = hour(current - (gi_Minute_Night_Shift * SECS_PER_MIN));//get hour shifted
+	time_t current = now(); //get current time
+	int h = hour(current - (gi_Minute_Night_Shift * SECS_PER_MIN)); //get hour shifted
 	//int m = minute();
 
 	vb_taryfaNocna = (h >= gi_Hour_Night_Start) //21 do 23
@@ -705,8 +735,8 @@ void print0(int line, float f) {
 void printConfigGodz() {
 	char buf[40];
 	GLCD.DrawString(F("Strefy czas"), gTextfmt_center, 9);
-	snprintf(buf, sizeof(buf), "D%02d-%02d N%02d-%02d s%02d", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start, gi_Hour_Night_End,gi_Minute_Night_Shift);
-	GLCD.DrawString(buf, 0, 17);//, eraseFULL_LINE);
+	snprintf(buf, sizeof(buf), "D%02d-%02d N%02d-%02d s%02d", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start, gi_Hour_Night_End, gi_Minute_Night_Shift);
+	GLCD.DrawString(buf, 0, 17); //, eraseFULL_LINE);
 	GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+\ns7-8+"), 0, 26);
 }
 
@@ -714,17 +744,17 @@ void printConfigTemp() {
 	char buf[40];
 	GLCD.DrawString(F("Temperatury Klawisze"), gTextfmt_center, 9);
 	snprintf(buf, sizeof(buf), "D.%02d-%02d 1-2+:3-A+\nN.%02d-%02d 4-5+:6-B+", gi_Temp_Min_Day, gi_Temp_Max_Day, gi_Temp_Min_Night, gi_Temp_Max_Night);
-	GLCD.DrawString(buf, 0, 17);//, eraseFULL_LINE);
+	GLCD.DrawString(buf, 0, 17); //, eraseFULL_LINE);
 	//GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+"), 0, 26);
 	snprintf(buf, sizeof(buf), "PompMiesz.%02d 7-8+", gi_Temp_Mixing_Start);
-	GLCD.DrawString(buf, 0, 35);//, eraseFULL_LINE);
+	GLCD.DrawString(buf, 0, 35);	//, eraseFULL_LINE);
 }
 
 void printConfigWent() {
 	char buf[40];
 	GLCD.DrawString(F("Wentylatory"), gTextfmt_center, 9);
 	snprintf(buf, sizeof(buf), "N %04d U %04d S:%03d", gi_desiredWentRPM[NEW_WENT], gi_desiredWentRPM[USED_WENT], gi_wentStep);
-	GLCD.DrawString(buf, 0, 17);//, eraseFULL_LINE);
+	GLCD.DrawString(buf, 0, 17);	//, eraseFULL_LINE);
 	GLCD.DrawString(F("Zmiana klawisze\nN 1-2+ U 4-5+\nA wysyla B krok"), 0, 26);
 }
 
@@ -865,9 +895,9 @@ void printTemps(int counter) {
 	GLCD.print(gf_currentTemps[PODLOGA_IN], 1);
 	GLCD.SelectFont(System5x7);
 
-	if (vb_pompaPodlogowaPracuje && !vb_pompaPodlogowaRysuj && counter%5) {
+	if (vb_pompaPodlogowaPracuje && !vb_pompaPodlogowaRysuj && counter % 5) {
 		vb_pompaPodlogowaRysuj = true;
-	} else if(counter%9){
+	} else if (counter % 9) {
 		vb_pompaPodlogowaRysuj = false;
 	}
 	if (vb_pompaPodlogowaRysuj)
@@ -1080,8 +1110,8 @@ void setupHttp() {
 
 //from webServerExample
 
-void printHtmlBufor(EthernetClient client) {
-	client.print("\"VER\":1.0");
+void printHtmlBufor(EthernetClient& client) {
+	client.print("\"VER\":1.1");
 	for (int i = 0; i < TEMPCOUNT; i++) {
 		float tempC = sensors.getTempC(gDA_sensors[i]);
 		if (i < 4) {
@@ -1098,7 +1128,7 @@ void printHtmlBufor(EthernetClient client) {
 	client.println(gf_currentTemps[PODLOGA_IN]);
 }
 
-void printHtmlWent(EthernetClient client) {
+void printHtmlWent(EthernetClient& client) {
 	client.print(",\"NEW_IN\":");
 	client.println(gf_currentTemps_reku[NEW_IN]);
 	client.print(",\"USED_IN\":");
@@ -1112,8 +1142,33 @@ void printHtmlWent(EthernetClient client) {
 	client.print(",\"USED_WENT\":");
 	client.println(gi_currentWentRPM[USED_WENT]);
 }
+void printTimeStamp(EthernetClient& client) {
+	char buf[13];
+	client.print(F(",\"TIME\":"));
+	// format the time in a buffer
+	snprintf(buf, sizeof(buf), "\"%02d:%02d:%02d\"", hour(), minute(), second());
+	client.println(buf);
+	client.print(F(",\"DATE\":"));
+	snprintf(buf, sizeof(buf), "\"%02d.%02d.%04d\"", day(), month(), year());
+	client.println(buf);
+	client.print(F(",\"TS\":"));
+	client.println(now());
+	client.print(F(",\"TARIFF\":"));
+	if (vb_taryfaNocna) {
+		client.println(F("\"N\""));
+	} else {
+		client.println(F("\"D\""));
+	}
+}
 
-void printHtmlConfig(EthernetClient client) {
+void printErrorReport(EthernetClient& client){
+	client.print(F(",\"ERROR\":\""));
+	ApplicationMonitor.Dump(client,true);
+	client.print(F("\""));
+
+}
+
+void printHtmlConfig(EthernetClient& client) {
 	char buf[40];
 	client.println(F(",\"Strefy czas\":"));
 	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\",", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start, gi_Hour_Night_End);
@@ -1126,11 +1181,11 @@ void printHtmlConfig(EthernetClient client) {
 	client.println(buf);
 
 	client.println(F("\"Wentylatory\":"));
-	snprintf(buf, sizeof(buf), "\"N %04d U %04d S:%03d\",", gi_desiredWentRPM[NEW_WENT], gi_desiredWentRPM[USED_WENT], gi_wentStep);
+	snprintf(buf, sizeof(buf), "\"N %04d U %04d S:%03d\"", gi_desiredWentRPM[NEW_WENT], gi_desiredWentRPM[USED_WENT], gi_wentStep);
 	client.println(buf);
 }
 
-void printHtmlLogFileList(EthernetClient client) {
+void printHtmlLogFileList(EthernetClient& client) {
 	File root;
 	root = SD.open("/");
 	client.println(F("\"LogFiles\":["));
@@ -1138,7 +1193,7 @@ void printHtmlLogFileList(EthernetClient client) {
 	client.println(F("]"));
 }
 
-void printDirectory(EthernetClient client, File dir, int numTabs) {
+void printDirectory(EthernetClient& client, File dir, int numTabs) {
 	while (true) {
 
 		File entry = dir.openNextFile();
@@ -1167,9 +1222,9 @@ void printDirectory(EthernetClient client, File dir, int numTabs) {
 
 void printHTTPHeader(EthernetClient& client) {
 	// send a standard http response header
-	client.println("HTTP/1.1 200 OK");
-	client.println("Content-Type: application/json");
-	client.println("Connection: close"); // the connection will be closed after completion of the response
+	client.println(F("HTTP/1.1 200 OK"));
+	client.println(F("Content-Type: application/json"));
+	client.println(F("Connection: close")); // the connection will be closed after completion of the response
 	//client.println("Refresh: 5"); // refresh the page automatically every 5 sec
 	client.println();
 //	client.println("<!DOCTYPE HTML>");
@@ -1179,9 +1234,9 @@ void printHTTPHeader(EthernetClient& client) {
 
 void printHTTPHeaderLOG(EthernetClient& client) {
 	// send a standard http response header
-	client.println("HTTP/1.1 200 OK");
-	client.println("Content-Type: text/csv");
-	client.println("Connection: close"); // the connection will be closed after completion of the response
+	client.println(F("HTTP/1.1 200 OK"));
+	client.println(F("Content-Type: text/csv"));
+	client.println(F("Connection: close")); // the connection will be closed after completion of the response
 	client.println();
 }
 
@@ -1192,7 +1247,9 @@ void printRestStatus(EthernetClient& client) {
 	printHtmlBufor(client);
 	printHtmlWent(client);
 	printHtmlConfig(client);
-	printHtmlLogFileList(client);
+	printTimeStamp(client);
+	printErrorReport(client);
+	//printHtmlLogFileList(client);
 	client.println("}");
 }
 
@@ -1222,9 +1279,9 @@ void loopServer() {
 		//Serial.println("new client");
 		// an http request ends with a blank line
 		boolean currentLineIsBlank = true;
-		boolean reading = false;
-		char readString[14]; //string for fetching data from address
-		int i = 0;
+		// boolean reading = false;
+		// char readString[14]; //string for fetching data from address
+		//int i = 0;
 		while (client.connected()) {
 			if (client.available()) {
 				char c = client.read();
@@ -1241,19 +1298,19 @@ void loopServer() {
 				} else if (c != '\r') {	// you've gotten a character on the current line
 					currentLineIsBlank = false;
 				}
-				//get log file
-				if (reading && c == ' ') {
-					reading = false;
-				}
-				if (reading) {
-					readString[i++] = c;
-				}
-				if (c == '?')
-					reading = true;
-				if (!reading && i > 0) {
-					printLogFile(client, readString);
-				}
-				//get log file
+//				//get log file
+//				if (reading && c == ' ') {
+//					reading = false;
+//				}//zabezpieczenie przed przepełnieniem bufora
+//				if (reading && i<14) {
+//					readString[i++] = c;
+//				}
+//				if (c == '?')
+//					reading = true;
+//				if (!reading && i > 0) {
+//					printLogFile(client, readString);
+//				}
+//				//get log file
 
 			}
 		}
