@@ -13,7 +13,7 @@ void setupI2C() {
 }
 
 void setup() {
-  digitalWrite(RST_PIN, HIGH); 
+  digitalWrite(RST_PIN, LOW); 
   pinMode(RST_PIN, OUTPUT);
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
@@ -32,9 +32,9 @@ void loop() {
 void resetMaster(){
     ledSignal(3,500); // three slower
     // reset signal on pin RST_PIN
-    digitalWrite(RST_PIN, LOW);   
-    delay(500);               
-    digitalWrite(RST_PIN, HIGH); 
+    digitalWrite(RST_PIN, HIGH);   
+    delay(1000);               
+    digitalWrite(RST_PIN, LOW); 
     gi_counter = 0;                   
 
 }
