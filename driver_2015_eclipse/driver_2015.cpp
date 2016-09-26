@@ -67,20 +67,23 @@ uint8_t gi_Hour_Day_Start;
 uint8_t gi_Hour_Day_End;
 uint8_t gi_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
 
-uint16_t gi_EE_Vent_Used_RPM;
-uint16_t gi_EE_Vent_New_RPM;
-uint16_t gi_EE_Vent_New_Desired_RPM;
-uint16_t gi_EE_Vent_Used_Desired_RPM;
+uint8_t gi_EE_Vent_Used_Airing_RPM; //obroty dla used dla wietrzenia (zakodowane na 8 bitach czyli obroty to wartość * 10)
+uint8_t gi_EE_Vent_New_Airing_RPM; //obroty dla new dla wietrzenia (zakodowane na 8 bitach czyli obroty to wartość * 10)
+uint8_t gi_EE_Vent_New_Desired_RPM; //obroty dla pozostalego czasu dla new (zakodowane na 8 bitach czyli obroty to wartość * 10)
+uint8_t gi_EE_Vent_Used_Desired_RPM; //obroty dla pozostalego czasu dla used (zakodowane na 8 bitach czyli obroty to wartość * 10)
+
+int gi_nightWentAdd = 200; //w taryfie nocnej obroty wentylatorów wieksze o
 
 int vi_counter = 0; //for display
 int vi_currentScreen = 0;
 
-#define NUMBER_OF_SCREENS 5
+#define NUMBER_OF_SCREENS 6
 #define SCREEN_MAIN 0
 #define SCREEN_CONFIG_GODZ 1
 #define SCREEN_CONFIG_TEMP 2
 #define SCREEN_CONFIG_WENT 3
 #define SCREEN_CONFIG_FILE 4
+#define SCREEN_CONFIG_GODZ2 5
 
 //keypad globals
 const byte ROWS = 4; // Four rows
@@ -124,23 +127,24 @@ void setupI2C() {
 
 //wczytaj ustawienia wentylacji z EE lub wstaw default
 void initConfigWent() {
-	gi_desiredWentWietrzenieRPM[USED_WENT] = eeprom_read_word((uint16_t *) &gi_EE_Vent_Used_RPM);
-	if (gi_desiredWentWietrzenieRPM[USED_WENT] == 0xFFFF||gi_desiredWentWietrzenieRPM[USED_WENT]  == 0) {
-		gi_desiredWentWietrzenieRPM[USED_WENT] = 960;
-	}
-	gi_desiredWentWietrzenieRPM[NEW_WENT] = eeprom_read_word((uint16_t *) &gi_EE_Vent_New_RPM);
-	if (gi_desiredWentWietrzenieRPM[NEW_WENT] == 0xFFFF ||gi_desiredWentWietrzenieRPM[NEW_WENT] == 0) {
-		gi_desiredWentWietrzenieRPM[NEW_WENT] = 1110;
+	gi_desiredWentWietrzenieRPM[USED_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_Used_Airing_RPM);
+	if (gi_desiredWentWietrzenieRPM[USED_WENT] == 255) {
+		gi_desiredWentWietrzenieRPM[USED_WENT] = 160;                //1600 w nocy 1800
 	}
 
-	gi_desiredWentRPM[NEW_WENT] = eeprom_read_word((uint16_t *) &gi_EE_Vent_New_Desired_RPM);
-	if (gi_desiredWentRPM[NEW_WENT] == 0xFFFF || gi_desiredWentRPM[NEW_WENT] == 0) {
-		gi_desiredWentRPM[NEW_WENT] = 620;
+	gi_desiredWentWietrzenieRPM[NEW_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_New_Airing_RPM);
+	if (gi_desiredWentWietrzenieRPM[NEW_WENT] == 0x255) {
+		gi_desiredWentWietrzenieRPM[NEW_WENT] = 170;                //1700 w nocy 1900
 	}
 
-	gi_desiredWentRPM[USED_WENT] = eeprom_read_word((uint16_t *) &gi_EE_Vent_Used_Desired_RPM);
-	if (gi_desiredWentRPM[USED_WENT] == 0xFFFF || gi_desiredWentRPM[USED_WENT] == 0) {
-		gi_desiredWentRPM[USED_WENT] = 500;
+	gi_desiredWentRPM[NEW_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_New_Desired_RPM);
+	if (gi_desiredWentRPM[NEW_WENT] == 255) {
+		gi_desiredWentRPM[NEW_WENT] = 120;                //1200
+	}
+
+	gi_desiredWentRPM[USED_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_Used_Desired_RPM);
+	if (gi_desiredWentRPM[USED_WENT] == 255) {
+		gi_desiredWentRPM[USED_WENT] = 110;                //1100
 	}
 
 	gi_wentStep = WENT_STEP2;
@@ -175,7 +179,7 @@ void initConfigTemp() {
 void initConfigStrefy() {
 	gi_Hour_Night_Start = eeprom_read_byte((uint8_t*) (&gi_EE_Hour_Night_Start));
 	if (gi_Hour_Night_Start == 255) {
-		gi_Hour_Night_Start = 21;
+		gi_Hour_Night_Start = 22;
 	}
 	gi_Hour_Night_End = eeprom_read_byte((uint8_t*) (&gi_EE_Hour_Night_End));
 	if (gi_Hour_Night_End == 255) {
@@ -202,10 +206,10 @@ void initConfig() {
 	initConfigWent();
 }
 
-void setupApplicationMonitor(){
-	  //ApplicationMonitor.Dump(Serial);
-	  ApplicationMonitor.EnableWatchdog(Watchdog::CApplicationMonitor::Timeout_8s);
-	  //ApplicationMonitor.DisableWatchdog();
+void setupApplicationMonitor() {
+	//ApplicationMonitor.Dump(Serial);
+	ApplicationMonitor.EnableWatchdog(Watchdog::CApplicationMonitor::Timeout_8s);
+	//ApplicationMonitor.DisableWatchdog();
 }
 
 void setup(void) {
@@ -368,6 +372,12 @@ void configWent(char key) {
 	case 'B':
 		changeWentStep();
 		break;
+	case 'C':
+		startWietrzenie();
+		break;
+	case 'D':
+		stopWietrzenie();
+		break;
 	}
 }
 
@@ -403,7 +413,69 @@ void configGodz(char key) {
 	case '8':
 		eeprom_write_byte(&gi_EE_Minute_Night_Shift, ++gi_Minute_Night_Shift);   //
 		break;
+	case 'C':
+		//void  setTime(int hr,int min,int sec,int dy, int mnth, int yr){
+		setTime(hour() + 1, minute(), second(), day(), month(), year());
+		break;
+	case 'D':
+		//void  setTime(int hr,int min,int sec,int dy, int mnth, int yr){
+		setTime(hour() - 1, minute(), second(), day(), month(), year());
+		break;
+	case '9':
+		//void  setTime(int hr,int min,int sec,int dy, int mnth, int yr){
+		setTime(hour(), minute() + 1, second(), day(), month(), year());
+		break;
+	case '0':
+		//void  setTime(int hr,int min,int sec,int dy, int mnth, int yr){
+		setTime(hour(), minute() - 1, second(), day(), month(), year());
+		break;
 
+	}
+}
+
+void configGodz2(char key) {
+	switch (key) {
+	case '1':
+		//void  setTime(int hr,int min,int sec,int dy, int mnth, int yr){
+		setTime(hour() + 1, minute(), second(), day(), month(), year());
+		break;
+	case '2':
+		setTime(hour() - 1, minute(), second(), day(), month(), year());
+		break;
+	case '3':
+		setTime(hour(), minute() + 1, second(), day(), month(), year());
+		break;
+	case '4':
+		setTime(hour(), minute() - 1, second(), day(), month(), year());
+		break;
+	case '5':
+		setTime(hour(), minute(), second() + 1, day(), month(), year());
+		break;
+	case '6':
+		setTime(hour(), minute(), second() - 1, day(), month(), year());
+		break;
+	case '7':
+		setTime(hour(), minute(), second(), day(), month(), year() + 1);
+		break;
+	case '8':
+		setTime(hour(), minute(), second(), day(), month(), year() - 1);
+		break;
+	case '9':
+		setTime(hour(), minute(), second(), day(), month() + 1, year());
+		break;
+	case '0':
+		setTime(hour(), minute(), second(), day(), month() - 1, year());
+		break;
+	case 'A':
+		setTime(hour(), minute(), second(), day() + 1, month(), year());
+		break;
+	case 'B':
+		setTime(hour(), minute(), second(), day() - 1, month(), year());
+		break;
+	case 'C':
+		RTC.set(now());
+		GLCD.DrawString(F("RTC - set"), gTextfmt_left, gTextfmt_bottom, eraseTO_EOL);
+		break;
 	}
 }
 
@@ -428,6 +500,10 @@ void checkKey() {
 			case SCREEN_CONFIG_GODZ:
 				configGodz(key);
 				break;
+			case SCREEN_CONFIG_GODZ2:
+				configGodz2(key);
+				break;
+
 			}
 			break;
 		}
@@ -436,9 +512,9 @@ void checkKey() {
 
 void startWietrzenie() {
 	if (!vb_wietrzenie) {
-		//TODO zapisac to w eeprom
 		gi_desiredOldWentRPM[USED_WENT] = gi_desiredWentRPM[USED_WENT];
 		gi_desiredOldWentRPM[NEW_WENT] = gi_desiredWentRPM[NEW_WENT];
+
 		gi_desiredWentRPM[USED_WENT] = gi_desiredWentWietrzenieRPM[USED_WENT];
 		gi_desiredWentRPM[NEW_WENT] = gi_desiredWentWietrzenieRPM[NEW_WENT];
 		setWents();  // wyslij
@@ -448,7 +524,6 @@ void startWietrzenie() {
 
 void stopWietrzenie() {
 	if (vb_wietrzenie) {
-		//TODO zapisac to w eeprom
 		gi_desiredWentRPM[USED_WENT] = gi_desiredOldWentRPM[USED_WENT];
 		gi_desiredWentRPM[NEW_WENT] = gi_desiredOldWentRPM[NEW_WENT];
 		setWents();  // wyslij
@@ -456,20 +531,20 @@ void stopWietrzenie() {
 	}
 }
 
-//chwilowo drut wietrzymy o 00, 5 i o 14
 void checkWietrzenie() {
 	int h = hour();
-	if (h == 0 || h == 5 || h == 14) {
+
+	if (h >= 22 || h == 4 || h == 5 || h == 13 || h == 14) {  // jeżeli godzina 22 do 24 i  4 do 5 i 13 do 14
 		if (!vb_wietrzenie) {
 			startWietrzenie();
 		}
-	} else {  //godziny inne niz 00,5,14
+	} else {  //godziny inne
 		if (vb_wietrzenie) {
 			stopWietrzenie();
 		}
 
 	}
-	// jeżeli godzina 00 do 01 lub 05-06 lub 13-15 wietrz
+
 	//else nie wietrz
 }
 
@@ -504,6 +579,10 @@ void loop(void) {
 	case SCREEN_CONFIG_GODZ:
 		printConfigGodz();
 		break;
+	case SCREEN_CONFIG_GODZ2:
+		printConfigGodz2();
+		break;
+
 	case SCREEN_CONFIG_TEMP:
 		printConfigTemp();
 		break;
@@ -531,50 +610,61 @@ void changeWentStep() {
 	else if (gi_wentStep == WENT_STEP3)
 		gi_wentStep = WENT_STEP1;
 }
+
+//TODO refactor
 void incWentNew() {
 	incWent(NEW_WENT, NEW_WENT_MAX);
-	//TODO zapisac do eeprom
-	//eeprom_write_word(&gi_EE_Vent_New_RPM, ++gi_Minute_Night_Shift);   //
+	eeprom_write_byte(&gi_EE_Vent_New_Airing_RPM, gi_desiredWentRPM[NEW_WENT]);
 }
 
 void incWentUSED() {
 	incWent(USED_WENT, USED_WENT_MAX);
+	eeprom_write_byte(&gi_EE_Vent_Used_Airing_RPM, gi_desiredWentRPM[USED_WENT]);
 }
 
 void decWentNew() {
 	decWent(NEW_WENT, NEW_WENT_MAX);
+	eeprom_write_byte(&gi_EE_Vent_New_Airing_RPM, gi_desiredWentRPM[NEW_WENT]);
 }
 
 void decWentUSED() {
 	decWent(USED_WENT, USED_WENT_MAX);
+	eeprom_write_byte(&gi_EE_Vent_Used_Airing_RPM, gi_desiredWentRPM[USED_WENT]);
 }
 
 void incWent(int went, int max) {
 	int old = gi_desiredWentRPM[went];
-	gi_desiredWentRPM[went] = old + gi_wentStep;
+	gi_desiredWentRPM[went] = old + (gi_wentStep/10);
 	if (gi_desiredWentRPM[went] > max)
 		gi_desiredWentRPM[went] = max;
-
 
 }
 
 void decWent(int went, int max) {
 	int old = gi_desiredWentRPM[went];
-	if (old > gi_wentStep)
-		gi_desiredWentRPM[went] = old - gi_wentStep;
+	if (old > (gi_wentStep/10))
+		gi_desiredWentRPM[went] = old - (gi_wentStep/10);
 }
 
 void setWents() {
 	char buf[10];
+	int vi_desiredWentNew = gi_desiredWentRPM[NEW_WENT] * 10;
+	int vi_desiredWentUsed = gi_desiredWentRPM[USED_WENT] * 10;
+	if (vb_taryfaNocna) {
+		vi_desiredWentNew = vi_desiredWentNew + gi_nightWentAdd;
+		vi_desiredWentUsed = vi_desiredWentUsed + gi_nightWentAdd;
+	}
 
 	Wire.beginTransmission(REKUPERATYOR_ID); // transmit to device #4
-	snprintf(buf, sizeof(buf), "%04d%04dx", gi_desiredWentRPM[NEW_WENT], gi_desiredWentRPM[USED_WENT]);
+	snprintf(buf, sizeof(buf), "%04d%04dx", vi_desiredWentNew, vi_desiredWentUsed);
 	Wire.write(buf);        // sends 8
 	Wire.endTransmission();    // stop transmitting
 
 	GLCD.DrawString(F("sent"), gTextfmt_left, gTextfmt_bottom, eraseTO_EOL);
 	GLCD.DrawString(buf, 60, gTextfmt_bottom, eraseTO_EOL);
 }
+
+
 
 void nextScreen() {
 	clearScreenWithoutTime();
@@ -716,7 +806,7 @@ void checkAndChangeTariff() {
 	|| (h < gi_Hour_Night_End) //od 00 do 6:59
 			|| (h >= gi_Hour_Day_Start && h < gi_Hour_Day_End); // od 13 do 14:59
 }
-void print0(int line, char* str) {
+void print0(int line, char const * str) {
 // set the cursor to column 0, line 1
 // (note: line 1 is the second row, since counting begins with 0):
 	GLCD.CursorTo(0, line);
@@ -733,15 +823,23 @@ void print0(int line, float f) {
 }
 
 void printConfigGodz() {
-	char buf[40];
+	char buf[60];
 	GLCD.DrawString(F("Strefy czas"), gTextfmt_center, 9);
-	snprintf(buf, sizeof(buf), "D%02d-%02d N%02d-%02d s%02d", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start, gi_Hour_Night_End, gi_Minute_Night_Shift);
+	snprintf(buf, sizeof(buf), "D%02d-%02d 1-2+:3-A+\nN%02d-%02d 4-5+:6-B+ \nnight shift%02d 7-8+\nCD h+- 90 m+-", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start,
+			gi_Hour_Night_End, gi_Minute_Night_Shift);
 	GLCD.DrawString(buf, 0, 17); //, eraseFULL_LINE);
-	GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+\ns7-8+"), 0, 26);
+	//GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+\ns7-8+"), 0, 26);
+}
+
+void printConfigGodz2() {
+	char buf[60];
+	GLCD.DrawString(F("Czas"), gTextfmt_center, 9);
+	snprintf(buf, sizeof(buf), "H: 1,2 M: 3,4 S: 5,6\n y: 7,8 m:9,0 d: A,B\n C - set clock\n%02d.%02d.%04d", day(), month(), year());
+	GLCD.DrawString(buf, 0, 17); //, eraseFULL_LINE);
 }
 
 void printConfigTemp() {
-	char buf[40];
+	char buf[45];
 	GLCD.DrawString(F("Temperatury Klawisze"), gTextfmt_center, 9);
 	snprintf(buf, sizeof(buf), "D.%02d-%02d 1-2+:3-A+\nN.%02d-%02d 4-5+:6-B+", gi_Temp_Min_Day, gi_Temp_Max_Day, gi_Temp_Min_Night, gi_Temp_Max_Night);
 	GLCD.DrawString(buf, 0, 17); //, eraseFULL_LINE);
@@ -753,9 +851,9 @@ void printConfigTemp() {
 void printConfigWent() {
 	char buf[40];
 	GLCD.DrawString(F("Wentylatory"), gTextfmt_center, 9);
-	snprintf(buf, sizeof(buf), "N %04d U %04d S:%03d", gi_desiredWentRPM[NEW_WENT], gi_desiredWentRPM[USED_WENT], gi_wentStep);
+	snprintf(buf, sizeof(buf), "N %04d U %04d S:%03d", gi_desiredWentRPM[NEW_WENT]*10, gi_desiredWentRPM[USED_WENT]*10, gi_wentStep);
 	GLCD.DrawString(buf, 0, 17);	//, eraseFULL_LINE);
-	GLCD.DrawString(F("Zmiana klawisze\nN 1-2+ U 4-5+\nA wysyla B krok"), 0, 26);
+	GLCD.DrawString(F("Zmiana klawisze\nN 1-2+ U 4-5+\nA wysyla B krok\n C sw, Dew"), 0, 26);
 }
 
 void printConfigFiles() {
@@ -1161,9 +1259,9 @@ void printTimeStamp(EthernetClient& client) {
 	}
 }
 
-void printErrorReport(EthernetClient& client){
+void printErrorReport(EthernetClient& client) {
 	client.print(F(",\"ERROR\":\""));
-	ApplicationMonitor.Dump(client,true);
+	ApplicationMonitor.Dump(client, true);
 	client.print(F("\""));
 
 }
@@ -1181,7 +1279,7 @@ void printHtmlConfig(EthernetClient& client) {
 	client.println(buf);
 
 	client.println(F("\"Wentylatory\":"));
-	snprintf(buf, sizeof(buf), "\"N %04d U %04d S:%03d\"", gi_desiredWentRPM[NEW_WENT], gi_desiredWentRPM[USED_WENT], gi_wentStep);
+	snprintf(buf, sizeof(buf), "\"N %04d U %04d S:%03d\"", gi_desiredWentRPM[NEW_WENT]*10, gi_desiredWentRPM[USED_WENT]*10, gi_wentStep);
 	client.println(buf);
 }
 
@@ -1298,19 +1396,6 @@ void loopServer() {
 				} else if (c != '\r') {	// you've gotten a character on the current line
 					currentLineIsBlank = false;
 				}
-//				//get log file
-//				if (reading && c == ' ') {
-//					reading = false;
-//				}//zabezpieczenie przed przepełnieniem bufora
-//				if (reading && i<14) {
-//					readString[i++] = c;
-//				}
-//				if (c == '?')
-//					reading = true;
-//				if (!reading && i > 0) {
-//					printLogFile(client, readString);
-//				}
-//				//get log file
 
 			}
 		}
