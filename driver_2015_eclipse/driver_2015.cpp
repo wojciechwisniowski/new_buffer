@@ -25,6 +25,8 @@
 #define GI_PIN_POMPY_MIESZAJACEJ 45//pompa mieszajaca bufor
 #define GI_PIN_POMPY_PODLOGOWEJ 46//pompa od podłogówki
 
+#define DOG_ID 5   //id na szynie I2C
+
 Watchdog::CApplicationMonitor ApplicationMonitor;
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -563,6 +565,9 @@ void loop(void) {
 		String went = getWentString(); // Send request to get went's temps and rpms
 		parseRekuperatorMSG(went);
 	}
+	if (vi_counter % 41 == 0){ // pat watch dog - sending 8 thrash chars just to say I am alive
+		patDog();
+	}
 	if (vi_counter % 51 == 0) { // log to file
 		log();
 	}
@@ -570,7 +575,7 @@ void loop(void) {
 		checkWietrzenie();
 	}
 
-//	if (vi_counter < 5) {
+//if (vi_counter < 5) {
 	switch (vi_currentScreen) {
 	case SCREEN_MAIN:
 		printTemps(vi_counter);
@@ -596,7 +601,7 @@ void loop(void) {
 
 	printDigitalClock();
 	vi_counter++;
-	delay(70);
+	delay(50);
 	if (vi_counter == 1000)
 		vi_counter = 0;
 	loopServer();
@@ -634,7 +639,7 @@ void decWentUSED() {
 
 void incWent(int went, int max) {
 	int old = gi_desiredWentRPM[went];
-	gi_desiredWentRPM[went] = old + (gi_wentStep/10);
+	gi_desiredWentRPM[went] = old + (gi_wentStep / 10);
 	if (gi_desiredWentRPM[went] > max)
 		gi_desiredWentRPM[went] = max;
 
@@ -642,8 +647,8 @@ void incWent(int went, int max) {
 
 void decWent(int went, int max) {
 	int old = gi_desiredWentRPM[went];
-	if (old > (gi_wentStep/10))
-		gi_desiredWentRPM[went] = old - (gi_wentStep/10);
+	if (old > (gi_wentStep / 10))
+		gi_desiredWentRPM[went] = old - (gi_wentStep / 10);
 }
 
 void setWents() {
@@ -664,7 +669,13 @@ void setWents() {
 	GLCD.DrawString(buf, 60, gTextfmt_bottom, eraseTO_EOL);
 }
 
-
+void patDog(){
+	char buf[10];
+	Wire.beginTransmission(DOG_ID); // transmit to device #5
+	snprintf(buf, sizeof(buf), "%04d%04dx",gi_desiredWentRPM[NEW_WENT] * 10,gi_desiredWentRPM[NEW_WENT] * 10 );//wyslij smieci
+	Wire.write(buf);        // sends 8
+	Wire.endTransmission();    // stop transmitting
+}
 
 void nextScreen() {
 	clearScreenWithoutTime();
@@ -845,14 +856,14 @@ void printConfigTemp() {
 	GLCD.DrawString(buf, 0, 17); //, eraseFULL_LINE);
 	//GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+"), 0, 26);
 	snprintf(buf, sizeof(buf), "PompMiesz.%02d 7-8+", gi_Temp_Mixing_Start);
-	GLCD.DrawString(buf, 0, 35);	//, eraseFULL_LINE);
+	GLCD.DrawString(buf, 0, 35);//, eraseFULL_LINE);
 }
 
 void printConfigWent() {
 	char buf[40];
 	GLCD.DrawString(F("Wentylatory"), gTextfmt_center, 9);
-	snprintf(buf, sizeof(buf), "N %04d U %04d S:%03d", gi_desiredWentRPM[NEW_WENT]*10, gi_desiredWentRPM[USED_WENT]*10, gi_wentStep);
-	GLCD.DrawString(buf, 0, 17);	//, eraseFULL_LINE);
+	snprintf(buf, sizeof(buf), "N %04d U %04d S:%03d", gi_desiredWentRPM[NEW_WENT] * 10, gi_desiredWentRPM[USED_WENT] * 10, gi_wentStep);
+	GLCD.DrawString(buf, 0, 17);//, eraseFULL_LINE);
 	GLCD.DrawString(F("Zmiana klawisze\nN 1-2+ U 4-5+\nA wysyla B krok\n C sw, Dew"), 0, 26);
 }
 
@@ -897,7 +908,7 @@ void printFile() {
 }
 
 void printDirectory(File dir, int numTabs, int line) {
-//	gText mTA = gText(0, 9, GLCD.Width - 1, GLCD.Height - 8); // create a text area covering the center 32 pixels of the display
+//gText mTA = gText(0, 9, GLCD.Width - 1, GLCD.Height - 8); // create a text area covering the center 32 pixels of the display
 	GLCD.CursorToXY(0, line);
 	GLCD.SelectFont(Wendy3x5);
 	while (true) {
@@ -924,6 +935,11 @@ void printDirectory(File dir, int numTabs, int line) {
 
 }
 
+//force print digital clock
+void refreshDigitalClock(){
+	gt_prevtime = 0;
+	gt_prevDay = 0;
+}
 //from openGLCD digital clock example
 void printDigitalClock() {
 	char buf[11];
@@ -1147,20 +1163,20 @@ void log() {
 
 //void printLog() {
 //// re-open the file for reading:
-//	myFile = SD.open("test.txt");
-//	if (myFile) {
-//		Serial.println("test.txt:");
+//myFile = SD.open("test.txt");
+//if (myFile) {
+//Serial.println("test.txt:");
 //
-//		// read from the file until there's nothing else in it:
-//		while (myFile.available()) {
-//			Serial.write(myFile.read());
-//		}
-//		// close the file:
-//		myFile.close();
-//	} else {
-//		// if the file didn't open, print an error:
-//		Serial.println("error opening test.txt");
-//	}
+//// read from the file until there's nothing else in it:
+//while (myFile.available()) {
+//Serial.write(myFile.read());
+//}
+//// close the file:
+//myFile.close();
+//} else {
+//// if the file didn't open, print an error:
+//Serial.println("error opening test.txt");
+//}
 //
 //}
 //sd
@@ -1279,7 +1295,7 @@ void printHtmlConfig(EthernetClient& client) {
 	client.println(buf);
 
 	client.println(F("\"Wentylatory\":"));
-	snprintf(buf, sizeof(buf), "\"N %04d U %04d S:%03d\"", gi_desiredWentRPM[NEW_WENT]*10, gi_desiredWentRPM[USED_WENT]*10, gi_wentStep);
+	snprintf(buf, sizeof(buf), "\"N %04d U %04d S:%03d\"", gi_desiredWentRPM[NEW_WENT] * 10, gi_desiredWentRPM[USED_WENT] * 10, gi_wentStep);
 	client.println(buf);
 }
 
@@ -1299,9 +1315,9 @@ void printDirectory(EthernetClient& client, File dir, int numTabs) {
 			// no more files
 			break;
 		}
-//		for (uint8_t i = 0; i < numTabs; i++) {
-//			client.print('\t');
-//		}
+//for (uint8_t i = 0; i < numTabs; i++) {
+//client.print('\t');
+//}
 		client.print("{\"name\":\"");
 		client.print(entry.name());
 		if (entry.isDirectory()) {
@@ -1325,8 +1341,8 @@ void printHTTPHeader(EthernetClient& client) {
 	client.println(F("Connection: close")); // the connection will be closed after completion of the response
 	//client.println("Refresh: 5"); // refresh the page automatically every 5 sec
 	client.println();
-//	client.println("<!DOCTYPE HTML>");
-//	client.println("<html>");
+//client.println("<!DOCTYPE HTML>");
+//client.println("<html>");
 	client.println("{");
 }
 
@@ -1387,13 +1403,13 @@ void loopServer() {
 				// if you've gotten to the end of the line (received a newline
 				// character) and the line is blank, the http request has ended,
 				// so you can send a reply
-				if (c == '\n' && currentLineIsBlank) {	// send a standard http response header
+				if (c == '\n' && currentLineIsBlank) {// send a standard http response header
 					printRestStatus(client);
 					break;
 				}
-				if (c == '\n') {	// you're starting a new line
+				if (c == '\n') {// you're starting a new line
 					currentLineIsBlank = true;
-				} else if (c != '\r') {	// you've gotten a character on the current line
+				} else if (c != '\r') {// you've gotten a character on the current line
 					currentLineIsBlank = false;
 				}
 
