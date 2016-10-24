@@ -42,6 +42,8 @@ float gf_currentTemps[TEMPCOUNT];
 float gf_currentTemps_reku[TEMPCOUNT_REKU];
 int gi_currentWentRPM[WENTCOUNT];//0 new 1 used
 int gi_desiredWentRPM[WENTCOUNT];//0 new 1 used
+int gi_desiredOldWentRPM[WENTCOUNT];//0 new 1 used
+int gi_desiredWentWietrzenieRPM[WENTCOUNT];//0 new 1 used
 
 //typedef struct {
 //	uint8_t  vt_ID[OW_ROMCODE_SIZE]; //identyfikator termometru
@@ -66,4 +68,5 @@ int gi_desiredWentRPM[WENTCOUNT];//0 new 1 used
 // ,{ {0x28,0x6E,0x61,0x0E,0x02,0x00,0x00,0x48}\
 //  ,0,1,"PPO",89}\
 //}
+
 

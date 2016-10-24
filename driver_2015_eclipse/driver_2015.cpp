@@ -131,12 +131,12 @@ void setupI2C() {
 void initConfigWent() {
 	gi_desiredWentWietrzenieRPM[USED_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_Used_Airing_RPM);
 	if (gi_desiredWentWietrzenieRPM[USED_WENT] == 255) {
-		gi_desiredWentWietrzenieRPM[USED_WENT] = 160;                //1600 w nocy 1800
+		gi_desiredWentWietrzenieRPM[USED_WENT] = 160;         //1600 w nocy 1800
 	}
 
 	gi_desiredWentWietrzenieRPM[NEW_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_New_Airing_RPM);
-	if (gi_desiredWentWietrzenieRPM[NEW_WENT] == 0x255) {
-		gi_desiredWentWietrzenieRPM[NEW_WENT] = 170;                //1700 w nocy 1900
+	if (gi_desiredWentWietrzenieRPM[NEW_WENT] == 255) {
+		gi_desiredWentWietrzenieRPM[NEW_WENT] = 170;          //1700 w nocy 1900
 	}
 
 	gi_desiredWentRPM[NEW_WENT] = eeprom_read_byte((uint8_t *) &gi_EE_Vent_New_Desired_RPM);
@@ -314,41 +314,41 @@ int setupGLCD(int line) {
 
 // Select the font for the default text area
 	GLCD.SelectFont(System5x7);
-	GLCD.print(F("System5x7"));   // keep string in flash on AVR boards with IDE 1.x
+	GLCD.print(F("System5x7")); // keep string in flash on AVR boards with IDE 1.x
 	return line + 1;
 }
 
 void configTemp(char key) {
 	switch (key) {
 	case '1':
-		eeprom_write_byte(&gi_EE_Temp_Min_Day, --gi_Temp_Min_Day);   //decMinDzienna
+		eeprom_write_byte(&gi_EE_Temp_Min_Day, --gi_Temp_Min_Day); //decMinDzienna
 		break;
 	case '2':
-		eeprom_write_byte(&gi_EE_Temp_Min_Day, ++gi_Temp_Min_Day);   //decMinDzienna
+		eeprom_write_byte(&gi_EE_Temp_Min_Day, ++gi_Temp_Min_Day); //decMinDzienna
 		break;
 	case '3':
-		eeprom_write_byte(&gi_EE_Temp_Max_Day, --gi_Temp_Max_Day);   //decMaxDzienna
+		eeprom_write_byte(&gi_EE_Temp_Max_Day, --gi_Temp_Max_Day); //decMaxDzienna
 		break;
 	case 'A':
-		eeprom_write_byte(&gi_EE_Temp_Max_Day, ++gi_Temp_Max_Day);   //incMaxDzienna
+		eeprom_write_byte(&gi_EE_Temp_Max_Day, ++gi_Temp_Max_Day); //incMaxDzienna
 		break;
 	case '4':
-		eeprom_write_byte(&gi_EE_Temp_Min_Night, --gi_Temp_Min_Night);   //decMinNocna
+		eeprom_write_byte(&gi_EE_Temp_Min_Night, --gi_Temp_Min_Night); //decMinNocna
 		break;
 	case '5':
-		eeprom_write_byte(&gi_EE_Temp_Min_Night, ++gi_Temp_Min_Night);   //incMinNocna
+		eeprom_write_byte(&gi_EE_Temp_Min_Night, ++gi_Temp_Min_Night); //incMinNocna
 		break;
 	case '6':
-		eeprom_write_byte(&gi_EE_Temp_Max_Night, --gi_Temp_Max_Night);   //decMaxNocna
+		eeprom_write_byte(&gi_EE_Temp_Max_Night, --gi_Temp_Max_Night); //decMaxNocna
 		break;
 	case 'B':
-		eeprom_write_byte(&gi_EE_Temp_Max_Night, ++gi_Temp_Max_Night);   //incMaxNocna
+		eeprom_write_byte(&gi_EE_Temp_Max_Night, ++gi_Temp_Max_Night); //incMaxNocna
 		break;
 	case '7':
-		eeprom_write_byte(&gi_EE_Temp_Mixing_Start, --gi_Temp_Mixing_Start);   //dec PompaMiesz
+		eeprom_write_byte(&gi_EE_Temp_Mixing_Start, --gi_Temp_Mixing_Start); //dec PompaMiesz
 		break;
 	case '8':
-		eeprom_write_byte(&gi_EE_Temp_Mixing_Start, ++gi_Temp_Mixing_Start);   //inc PompaMiesz
+		eeprom_write_byte(&gi_EE_Temp_Mixing_Start, ++gi_Temp_Mixing_Start); //inc PompaMiesz
 		break;
 
 	}
@@ -386,34 +386,34 @@ void configWent(char key) {
 void configGodz(char key) {
 	switch (key) {
 	case '1':
-		eeprom_write_byte(&gi_EE_Hour_Day_Start, --gi_Hour_Day_Start);   //dec dzien start
+		eeprom_write_byte(&gi_EE_Hour_Day_Start, --gi_Hour_Day_Start); //dec dzien start
 		break;
 	case '2':
-		eeprom_write_byte(&gi_EE_Hour_Day_Start, ++gi_Hour_Day_Start);   //inc dzien start
+		eeprom_write_byte(&gi_EE_Hour_Day_Start, ++gi_Hour_Day_Start); //inc dzien start
 		break;
 	case '3':
-		eeprom_write_byte(&gi_EE_Hour_Day_End, --gi_Hour_Day_End);   //dec dzien end
+		eeprom_write_byte(&gi_EE_Hour_Day_End, --gi_Hour_Day_End); //dec dzien end
 		break;
 	case 'A':
-		eeprom_write_byte(&gi_EE_Hour_Day_End, ++gi_Hour_Day_End);   //dec dzien end
+		eeprom_write_byte(&gi_EE_Hour_Day_End, ++gi_Hour_Day_End); //dec dzien end
 		break;
 	case '4':
-		eeprom_write_byte(&gi_EE_Hour_Night_Start, --gi_Hour_Night_Start);   //dec noc start
+		eeprom_write_byte(&gi_EE_Hour_Night_Start, --gi_Hour_Night_Start); //dec noc start
 		break;
 	case '5':
-		eeprom_write_byte(&gi_EE_Hour_Night_Start, ++gi_Hour_Night_Start);   //inc noc start
+		eeprom_write_byte(&gi_EE_Hour_Night_Start, ++gi_Hour_Night_Start); //inc noc start
 		break;
 	case '6':
-		eeprom_write_byte(&gi_EE_Hour_Night_End, --gi_Hour_Night_End);   //dec noc end
+		eeprom_write_byte(&gi_EE_Hour_Night_End, --gi_Hour_Night_End); //dec noc end
 		break;
 	case 'B':
-		eeprom_write_byte(&gi_EE_Hour_Night_End, ++gi_Hour_Night_End);   //dec noc end
+		eeprom_write_byte(&gi_EE_Hour_Night_End, ++gi_Hour_Night_End); //dec noc end
 		break;
 	case '7':
-		eeprom_write_byte(&gi_EE_Minute_Night_Shift, --gi_Minute_Night_Shift);   //
+		eeprom_write_byte(&gi_EE_Minute_Night_Shift, --gi_Minute_Night_Shift); //
 		break;
 	case '8':
-		eeprom_write_byte(&gi_EE_Minute_Night_Shift, ++gi_Minute_Night_Shift);   //
+		eeprom_write_byte(&gi_EE_Minute_Night_Shift, ++gi_Minute_Night_Shift); //
 		break;
 	case 'C':
 		//void  setTime(int hr,int min,int sec,int dy, int mnth, int yr){
@@ -536,7 +536,7 @@ void stopWietrzenie() {
 void checkWietrzenie() {
 	int h = hour();
 
-	if (h >= 22 || h == 4 || h == 5 || h == 13 || h == 14) {  // jeżeli godzina 22 do 24 i  4 do 5 i 13 do 14
+	if (h >= 22 || h == 4 || h == 5 || h == 13 || h == 14) { // jeżeli godzina 22 do 24 i  4 do 5 i 13 do 14
 		if (!vb_wietrzenie) {
 			startWietrzenie();
 		}
@@ -565,7 +565,7 @@ void loop(void) {
 		String went = getWentString(); // Send request to get went's temps and rpms
 		parseRekuperatorMSG(went);
 	}
-	if (vi_counter % 41 == 0){ // pat watch dog - sending 8 thrash chars just to say I am alive
+	if (vi_counter % 41 == 0) { // pat watch dog - sending 8 thrash chars just to say I am alive
 		patDog();
 	}
 	if (vi_counter % 51 == 0) { // log to file
@@ -669,10 +669,10 @@ void setWents() {
 	GLCD.DrawString(buf, 60, gTextfmt_bottom, eraseTO_EOL);
 }
 
-void patDog(){
+void patDog() {
 	char buf[10];
 	Wire.beginTransmission(DOG_ID); // transmit to device #5
-	snprintf(buf, sizeof(buf), "%04d%04dx",gi_desiredWentRPM[NEW_WENT] * 10,gi_desiredWentRPM[NEW_WENT] * 10 );//wyslij smieci
+	snprintf(buf, sizeof(buf), "%04d%04dx", gi_desiredWentRPM[NEW_WENT] * 10, gi_desiredWentRPM[NEW_WENT] * 10); //wyslij smieci
 	Wire.write(buf);        // sends 8
 	Wire.endTransmission();    // stop transmitting
 }
@@ -705,7 +705,7 @@ void clearScreenWithoutTime() {
 }
 
 String getWentString() {
-	Wire.requestFrom(REKUPERATYOR_ID, 20);    // request 6 bytes from slave device #4
+	Wire.requestFrom(REKUPERATYOR_ID, 20); // request 6 bytes from slave device #4
 	char buf[21];
 	int i = 0;
 	while (Wire.available())    // slave may send less than requested
@@ -856,14 +856,14 @@ void printConfigTemp() {
 	GLCD.DrawString(buf, 0, 17); //, eraseFULL_LINE);
 	//GLCD.DrawString(F("Zmiana klawisze\nD1-2+3-A+ N4-5+6-B+"), 0, 26);
 	snprintf(buf, sizeof(buf), "PompMiesz.%02d 7-8+", gi_Temp_Mixing_Start);
-	GLCD.DrawString(buf, 0, 35);//, eraseFULL_LINE);
+	GLCD.DrawString(buf, 0, 35);	//, eraseFULL_LINE);
 }
 
 void printConfigWent() {
 	char buf[40];
 	GLCD.DrawString(F("Wentylatory"), gTextfmt_center, 9);
 	snprintf(buf, sizeof(buf), "N %04d U %04d S:%03d", gi_desiredWentRPM[NEW_WENT] * 10, gi_desiredWentRPM[USED_WENT] * 10, gi_wentStep);
-	GLCD.DrawString(buf, 0, 17);//, eraseFULL_LINE);
+	GLCD.DrawString(buf, 0, 17);	//, eraseFULL_LINE);
 	GLCD.DrawString(F("Zmiana klawisze\nN 1-2+ U 4-5+\nA wysyla B krok\n C sw, Dew"), 0, 26);
 }
 
@@ -936,7 +936,7 @@ void printDirectory(File dir, int numTabs, int line) {
 }
 
 //force print digital clock
-void refreshDigitalClock(){
+void refreshDigitalClock() {
 	gt_prevtime = 0;
 	gt_prevDay = 0;
 }
@@ -1043,7 +1043,7 @@ void printWent() {
 #define ymid 32
 #define y1 47
 	if (!vb_wentsPrinted) {
-		GLCD.DrawRoundRect(x0, y0 - 1, x1 - x0, y1 - y0 + 3, 3, PIXEL_ON);   //bufor
+		GLCD.DrawRoundRect(x0, y0 - 1, x1 - x0, y1 - y0 + 3, 3, PIXEL_ON); //bufor
 		GLCD.DrawLine(xmid, y0, xmid - 12, ymid);
 		GLCD.DrawLine(xmid, y0, xmid + 12, ymid);
 		GLCD.DrawLine(xmid, y1, xmid - 12, ymid);
@@ -1225,7 +1225,7 @@ void setupHttp() {
 //from webServerExample
 
 void printHtmlBufor(EthernetClient& client) {
-	client.print("\"VER\":1.1");
+	client.println(F("\"VER\":1.3"));
 	for (int i = 0; i < TEMPCOUNT; i++) {
 		float tempC = sensors.getTempC(gDA_sensors[i]);
 		if (i < 4) {
@@ -1284,19 +1284,45 @@ void printErrorReport(EthernetClient& client) {
 
 void printHtmlConfig(EthernetClient& client) {
 	char buf[40];
-	client.println(F(",\"Strefy czas\":"));
-	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\",", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start, gi_Hour_Night_End);
+	client.print(F(",\"Strefy czas\":"));
+	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\"", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start, gi_Hour_Night_End);
 	client.println(buf);
 
-	client.println(F("\"Temperatury\":"));
-	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\",", gi_Temp_Min_Day, gi_Temp_Max_Day, gi_Temp_Min_Night, gi_Temp_Max_Night);
+	client.print(F(",\"Temperatury\":"));
+	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\"", gi_Temp_Min_Day, gi_Temp_Max_Day, gi_Temp_Min_Night, gi_Temp_Max_Night);
 	client.println(buf);
-	snprintf(buf, sizeof(buf), "\"PompMiesz\":\"%02d\",", gi_Temp_Mixing_Start);
+	snprintf(buf, sizeof(buf), ",\"PompMiesz\":\"%02d\"", gi_Temp_Mixing_Start);
 	client.println(buf);
 
-	client.println(F("\"Wentylatory\":"));
+	client.print(F(",\"Wentylatory\":"));
 	snprintf(buf, sizeof(buf), "\"N %04d U %04d S:%03d\"", gi_desiredWentRPM[NEW_WENT] * 10, gi_desiredWentRPM[USED_WENT] * 10, gi_wentStep);
 	client.println(buf);
+}
+
+void printHtmlStatus(EthernetClient& client) {
+	char buf[40];
+	client.print(F(",\"Buf grzeje\":"));
+	snprintf(buf, sizeof(buf), "\"%02d\"", vb_buforGrzeje);
+	client.println(buf);
+
+	client.print(F(",\"pompaMieszPracuje\":"));
+	snprintf(buf, sizeof(buf), "\"%02d\"", vb_pompaMieszajacaPracuje);
+	client.println(buf);
+
+	client.print(F(",\"pompaPodlPracuje\":"));
+	snprintf(buf, sizeof(buf), "\"%02d\"", vb_pompaPodlogowaPracuje);
+	client.println(buf);
+
+	client.print(F(",\"wietrzenie\":"));
+	snprintf(buf, sizeof(buf), "\"%02d\"", vb_wietrzenie);
+	client.println(buf);
+}
+
+void printHtmlInput(EthernetClient& client, char* input) {
+	char buf[40];
+	client.print(F(",\"input\":\""));
+	client.print(input);
+	client.println(F("\""));
 }
 
 void printHtmlLogFileList(EthernetClient& client) {
@@ -1354,7 +1380,7 @@ void printHTTPHeaderLOG(EthernetClient& client) {
 	client.println();
 }
 
-void printRestStatus(EthernetClient& client) {
+void printRestStatus(EthernetClient& client, char* input) {
 	// send a standard http response header
 	printHTTPHeader(client);
 	// output the value of each analog input pin
@@ -1362,7 +1388,9 @@ void printRestStatus(EthernetClient& client) {
 	printHtmlWent(client);
 	printHtmlConfig(client);
 	printTimeStamp(client);
-	printErrorReport(client);
+	printHtmlStatus(client);
+	printHtmlInput(client, input);
+	//printErrorReport(client);
 	//printHtmlLogFileList(client);
 	client.println("}");
 }
@@ -1384,32 +1412,38 @@ void printLogFile(EthernetClient& client, char* fileName) {
 	}
 }
 
+void parseInpt(String input) {
+
+}
+
 //TODO przetestowac czy dziala pobieranie pliku z logami
 //TODO dopisac pobranie listy plikow z logami?
 void loopServer() {
+	char readString[100];
+	int i = 0;
 	// listen for incoming clients
 	EthernetClient client = server.available();
 	if (client) {
-		//Serial.println("new client");
 		// an http request ends with a blank line
 		boolean currentLineIsBlank = true;
-		// boolean reading = false;
-		// char readString[14]; //string for fetching data from address
-		//int i = 0;
 		while (client.connected()) {
 			if (client.available()) {
 				char c = client.read();
-				//Serial.write(c);
+				if (i < 100) {
+					readString[i++] = c;
+				}
+
 				// if you've gotten to the end of the line (received a newline
 				// character) and the line is blank, the http request has ended,
 				// so you can send a reply
-				if (c == '\n' && currentLineIsBlank) {// send a standard http response header
-					printRestStatus(client);
+				if (c == '\n' && currentLineIsBlank) {				// send a standard http response header
+					//parseInput(readString);
+					printRestStatus(client, readString);
 					break;
 				}
-				if (c == '\n') {// you're starting a new line
+				if (c == '\n') {				// you're starting a new line
 					currentLineIsBlank = true;
-				} else if (c != '\r') {// you've gotten a character on the current line
+				} else if (c != '\r') {	// you've gotten a character on the current line
 					currentLineIsBlank = false;
 				}
 
