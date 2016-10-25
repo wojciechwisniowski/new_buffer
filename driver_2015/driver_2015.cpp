@@ -594,6 +594,9 @@ void loop(void) {
         parseRekuperatorMSG(went);
     }
     if (vi_counter % 41 == 0) { // pat watch dog - sending 8 thrash chars just to say I am alive
+    	if(hour()== 21 && minute()==59){//auto reset at 21:59
+    		delay(60000);//60s sleep
+    	}
         patDog();
     }
     if (vi_counter % 51 == 0) { // log to file
@@ -1256,7 +1259,7 @@ void setupHttp() {
 //from webServerExample
 
 void printHtmlBufor(EthernetClient& client) {
-    client.println(F("\"VER\":1.3"));
+    client.println(F("\"VER\":1.4"));
     for (int i = 0; i < TEMPCOUNT; i++) {
         float tempC = sensors.getTempC((uint8_t*)gDA_sensors[i]);
         if (i < 4) {
