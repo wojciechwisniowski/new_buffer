@@ -80,6 +80,33 @@ int gi_nightWentAdd = 200; //w taryfie nocnej obroty wentylatorów wieksze o
 int vi_counter = 0; //for display
 int vi_currentScreen = 0;
 
+
+float gf_currentTemps[TEMPCOUNT];
+float gf_currentTemps_reku[TEMPCOUNT_REKU];
+int gi_currentWentRPM[WENTCOUNT];//0 new 1 used
+int gi_desiredWentRPM[WENTCOUNT];//0 new 1 used
+int gi_desiredOldWentRPM[WENTCOUNT];//0 new 1 used
+int gi_desiredWentWietrzenieRPM[WENTCOUNT];//0 new 1 used
+
+
+DeviceAddress gDA_sensors[TEMPCOUNT] = { //identyfikatory czujników
+
+{0x28,0xFF,0x72,0x34,0x63,0x14,0x03,0x94}//0
+,{0x28,0xFF,0xEE,0x61,0x63,0x14,0x03,0x5B}//1
+,{0x28,0xFF,0x61,0x19,0x62,0x14,0x03,0xE0}//2
+,{0x28,0xFF,0x35,0x3F,0x62,0x14,0x03,0x13}//3
+,{0x28,0xFF,0xF4,0x99,0x54,0x14,0x00,0xB1}//4 podOut
+,{0x28,0xFF,0x4C,0x8D,0x54,0x14,0x00,0xF6}//5 podIn
+};
+
+DeviceAddress gDA_sensorsReku[TEMPCOUNT_REKU] = { //identyfikatory czujników
+
+{0x28,0xFF,0x68,0x50,0x73,0x04,0x00,0x8F}//0 new in
+,{0x28,0xFF,0xBA,0x50,0x73,0x04,0x00,0x52}//1 new out
+,{0x28,0xFF,0xA5,0x50,0x73,0x04,0x00,0x41}//2 used in
+,{0x28,0xFF,0x2D,0x47,0x77,0x04,0x00,0x94}//3 used out
+};
+
 #define NUMBER_OF_SCREENS 6
 #define SCREEN_MAIN 0
 #define SCREEN_CONFIG_GODZ 1
@@ -998,7 +1025,7 @@ void printTemps(int counter) {
     }
     char buf[6];
     for (int i = 0; i < TEMPCOUNT; i++) {
-        float tempC = sensors.getTempC(gDA_sensors[i]);
+        float tempC = sensors.getTempC((uint8_t*)gDA_sensors[i]);
         if (i < 4) {
             GLCD.CursorToXY(2, 12 + 9 * i);
             GLCD.print(tempC, 1);
@@ -1231,7 +1258,7 @@ void setupHttp() {
 void printHtmlBufor(EthernetClient& client) {
     client.println(F("\"VER\":1.3"));
     for (int i = 0; i < TEMPCOUNT; i++) {
-        float tempC = sensors.getTempC(gDA_sensors[i]);
+        float tempC = sensors.getTempC((uint8_t*)gDA_sensors[i]);
         if (i < 4) {
             client.print(",\"BUFOR_");
             client.print(i);

@@ -6,8 +6,9 @@
 //time
 #include <Time.h>  
 #include <Wire.h>  
+#include "driver_2015_term_get.h"
 //#include <DS1307RTC.h>  // a basic DS1307 library that returns time as a time_t
-#include <DS3232RTC.h>  // better RTC
+//#include <DS3232RTC.h>  // better RTC
 //time
 
 // Data wire is plugged into port 2 on the Arduino
@@ -33,14 +34,14 @@ void setupSerial(){
 
 //from Time RTC example
 void setupRTC()  {
-  setSyncProvider(RTC.get);   // the function to get the time from the RTC
-  if(timeStatus()!= timeSet){
-     print0(0,"Unable to sync with the RTC");
-     delay(1000);
-  } else {
-     print0(0,"RTC has set the system time");      
-     delay(1000);
-  }
+//  setSyncProvider(RTC.get);   // the function to get the time from the RTC
+//  if(timeStatus()!= timeSet){
+//     print0(0,"Unable to sync with the RTC");
+//     delay(1000);
+//  } else {
+//     print0(0,"RTC has set the system time");
+//     delay(1000);
+//  }
 }
 
 //from Dallas Temp example Simple

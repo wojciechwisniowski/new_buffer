@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include "driver_2016_mini.h"
 
 #define DOG_ID 5   //id na szynie I2C
 #define RST_PIN 2  // reset PIN

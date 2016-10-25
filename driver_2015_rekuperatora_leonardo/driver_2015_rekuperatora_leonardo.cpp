@@ -42,8 +42,9 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Wire.h>
-#include <AH_MCP41xxx.h>
+#include <pins_arduino.h>
 #include "termometry_rek.h"
+#include "driver_2015_rekuperatora_leonardo.h"
 #define ONE_WIRE_BUS 10 //termometry 10 dla went
 
 //wolne piny 6,7,8,9,13
@@ -70,7 +71,7 @@ LiquidCrystal lcd(12, 6, 5, 4, A4, A5);//zmieniamy 11->6
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
 
-byte resistance = 0;
+//byte resistance = 0;
 
 //AH_MCP41xxx mcp42010;
 

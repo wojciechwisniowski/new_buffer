@@ -172,7 +172,7 @@ void Request::setError(const char* err) {
 }
 
 void Request::init(const char* buf) {
-//void parse(const char* buf,const Print& client) {
+//void parse(const char* buf,const Print& ) {
     int i = 0;
     int j = 0;
     char c = buf[i++];
@@ -255,11 +255,11 @@ void Request::init(const char* buf) {
 //                        if (strcmp("GET", method) == 0) {
 //                            if (resource[0] != '\0')
 //                                debug("doGET");
-//                            //doGET(resource, value, client);
+//                            //doGET(resource, value);
 //                        } else if (strcmp("POST", method) == 0) {
 //                            if (resource[0] != '\0')
 //                                debug("doPOST");
-//                            //doPOST(resource, value, client);
+//                            //doPOST(resource, value);
 //                        }
 //                    }
                 }
@@ -268,73 +268,73 @@ void Request::init(const char* buf) {
     }
 }
 
-void doGET(const char* resource, const char* value, const Print& client) {
+void doGET(const char* resource, const char* value) {
     switch (resource[0]) {
     case 'W':
-        doGETWent(resource, value, client);
+        doGETWent(resource, value);
         break;
     case 'T':
-        doGETTemp(resource, value, client);
+        doGETTemp(resource, value);
         break;
     }
 }
 
-void doGETWent(const char* resource, const char* value, const Print& client) {
+void doGETWent(const char* resource, const char* value) {
     if (strcmp(WN, resource) == 0) {
-        getWN(client);
+        getWN();
     } else if (strcmp(WU, resource) == 0) {
-        getWU(client);
+        getWU();
     } else if (strcmp(WWN, resource) == 0) {
-        getWWN(client);
+        getWWN();
     } else if (strcmp(WWU, resource) == 0) {
-        getWWU(client);
+        getWWU();
     }
 }
 
-void doGETTemp(const char* resource, const char* value, const Print& client) {
+void doGETTemp(const char* resource, const char* value) {
     if (strcmp(TMD, resource) == 0) {
-        getTMD(client);
+        getTMD();
     } else if (strcmp(TXD, resource) == 0) {
-        getTXD(client);
+        getTXD();
     } else if (strcmp(TMN, resource) == 0) {
-        getTMN(client);
+        getTMN();
     } else if (strcmp(TXN, resource) == 0) {
-        getTXN(client);
+        getTXN();
     }
 }
 
-void doPOST(const char* resource, const char* value, const Print& client) {
+void doPOST(const char* resource, const char* value) {
     switch (resource[0]) {
     case 'W':
-        doPOSTWent(resource, value, client);
+        doPOSTWent(resource, value);
         break;
     case 'T':
-        doPOSTTemp(resource, value, client);
+        doPOSTTemp(resource, value);
         break;
     }
 }
 
-void doPOSTTemp(const char* resource, const char* value, const Print& client) {
+void doPOSTTemp(const char* resource, const char* value) {
     if (strcmp(TMD, resource) == 0) {
-        setTMD(value, client);
+        setTMD(value);
     } else if (strcmp(TXD, resource) == 0) {
-        setTXD(value, client);
+        setTXD(value);
     } else if (strcmp(TMN, resource) == 0) {
-        setTMN(value, client);
+        setTMN(value);
     } else if (strcmp(TXN, resource) == 0) {
-        setTXN(value, client);
+        setTXN(value);
     }
 }
 
-void doPOSTWent(const char* resource, const char* value, const Print& client) {
+void doPOSTWent(const char* resource, const char* value) {
     if (strcmp(WN, resource) == 0) {
-        setWN(value, client);
+        setWN(value);
     } else if (strcmp(WU, resource) == 0) {
-        setWU(value, client);
+        setWU(value);
     } else if (strcmp(WWN, resource) == 0) {
-        setWWN(value, client);
+        setWWN(value);
     } else if (strcmp(WWU, resource) == 0) {
-        setWWU(value, client);
+        setWWU(value);
     }
 }
 

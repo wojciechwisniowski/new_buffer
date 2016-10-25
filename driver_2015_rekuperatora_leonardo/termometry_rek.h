@@ -5,7 +5,12 @@
 #define REKUPERATYOR_ID 4 //id na szynie I2C
 
 #define NEW_WENT 0
+#define NEW_WENT_MAX 2700
 #define USED_WENT 1
+#define USED_WENT_MAX 2650
+#define WENT_STEP1 100
+#define WENT_STEP2 200
+#define WENT_STEP3 500
 #define NEW_IN 0
 #define NEW_OUT 1
 #define USED_IN 2
@@ -58,5 +63,4 @@ int gi_desiredWentRPM[WENTCOUNT];//0 new 1 used
 // ,{ {0x28,0x6E,0x61,0x0E,0x02,0x00,0x00,0x48}\
 //  ,0,1,"PPO",89}\
 //}
-
 

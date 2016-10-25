@@ -25,9 +25,9 @@ const char*requestSetTMD = "POST /TMD/29 HTTP/1.1 \n\rHost: 176.115.13.101:8080\
 const char*requestSetTXD = "POST /TXD/35 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rUser-Agent: cos";
 const char*requestSetTMN = "POST /TMN/60 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rUser-Agent: cos";
 const char*requestSetTXN = "POST /TXN/80 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rUser-Agent: cos";
-#include "MyPrint.h"
-#else
-#include <Print.h>
+
+
+
 #endif
 
 const char* WN = "WN"; // went new
@@ -42,13 +42,13 @@ const char* TMN = "TMN"; // temp min night
 const char* TXN = "TXN"; // temp max night
 const char* AUTH = "d3c6d3c="; //ww:ww
 
-void parse(const char* req, const Print& client);
-void doGET(const char* resource, const char* value, const Print& client);
-void doGETWent(const char* resource, const char* value, const Print& client);
-void doGETTemp(const char* resource, const char* value, const Print& client);
-void doPOST(const char* resource, const char* value, const Print& client);
-void doPOSTTemp(const char* resource, const char* value, const Print& client);
-void doPOSTWent(const char* resource, const char* value, const Print& client);
+void parse(const char* req);
+void doGET(const char* resource, const char* value);
+void doGETWent(const char* resource, const char* value);
+void doGETTemp(const char* resource, const char* value);
+void doPOST(const char* resource, const char* value);
+void doPOSTTemp(const char* resource, const char* value);
+void doPOSTWent(const char* resource, const char* value);
 
 #ifndef TEST_REST
 #else
