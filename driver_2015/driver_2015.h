@@ -1,3 +1,36 @@
+#ifndef _driver_2015_H_
+#define _driver_2015_H_
+
+#include <Time.h>
+#include <DS3232RTC.h>  // better RTC
+#include <Wire.h>
+#include <EEPROM.h>
+#include <avr/eeprom.h>
+#include <SPI.h>
+
+//#include "ApplicationMonitor.h"
+
+#include "power_tariffs.h"//no our includes inside
+#include "screens.h"//no our includes inside
+#include "termometry.h"//no our includes inside
+#include "screens_status.h"//no our includes inside
+#include "power_tariffs.h"//no our includes inside
+#include "vents.h"//no our includes inside
+#include "driver_net.h"
+#include "driver_buffer.h"
+
+#include "driver_SD.h"
+//#include "screens_status.h"//no our includes inside
+
+#include "driver_keyboard.h"
+//#include "power_tariffs_api.h"//no our includes inside
+
+//#include "screens.h"//no our includes inside
+
+
+
+
+
 char* getTMD();
 char* getTMN();
 char* getTXD();
@@ -31,51 +64,15 @@ char* setTMN(char* value );
 char* setTXN(char* value );
 char* logError(char* s);
 
-void decWentNew();
 
-void incWentNew();
-void decWentUSED();
-void incWentUSED();
-void setWents();
-void changeWentStep();
-void startWietrzenie();
-void stopWietrzenie();
 void checkAndChangeTariff();
-void checkAndChangeBuffor();
-String getWentString();
-void clearScreenWithoutTime();
-void incWent(int went, int max);
-void decWent(int went, int max);
-void loopServer();
-void nextScreen();
-void prevScreen();
 
-void obslugaPompyMieszajacej(float temp);
-void wylaczPompaBuf();
-void wlaczPompaBuf();
-void ustawPinyGrzalek(uint8_t stan);
-int setupGLCD(int line);
-void setupDS();
-void setupBuf();
-void setupHttp();
-void setupPompy();
+
+
 int setupRTC(int line);
-int setupSD(int line);
 
-void printConfigGodz();
-void printConfigGodz2();
-void printConfigTemp();
-void printConfigWent();
-void printConfigFiles();
-void printDigitalClock();
-void print0(int line, char const * str);
-void printBottomStatus(char* s);
-void printGrzalkiStatus(int grzejDo, int czekajDo);
-void printWent();
-void printTemps(int counter);
 void patDog();
-void wylaczGrzalki();
-void wlaczGrzalki();
 void logCurrentStatusToFile();
 
 
+#endif /* _driver_2015_H_ */
