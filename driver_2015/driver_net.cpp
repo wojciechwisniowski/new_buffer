@@ -7,7 +7,6 @@
 
 #include "driver_net.h"
 
-
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = { 0x00, 0xAA, 0xBB, 0xCC, 0xDA, 0x11 };
@@ -59,19 +58,22 @@ void setupHttp() {
 void printHtmlBufor(EthernetClient& client) {
 	client.println(F("\"VER\":1.5"));
 	for (int i = 0; i < TEMPCOUNT; i++) {
-		float tempC = sensors.getTempC((uint8_t*) gDA_sensors[i]);
+
+		float tempC = getTempC(i);
+
 		if (i < 4) {
 			client.print(",\"BUFOR_");
 			client.print(i);
 			client.print("\":");
 			client.println(tempC);
 		}
-		gf_currentTemps[i] = tempC;
+		//TODO czemu tu jest ustawiane ??????????
+		setCurrentTemps(i, tempC);
 	}
 	client.print(",\"PODLOGA_OUT\":");
-	client.println(gf_currentTemps[PODLOGA_OUT]);
+	client.println(getCurrentTemps(PODLOGA_OUT));
 	client.print(",\"PODLOGA_IN\":");
-	client.println(gf_currentTemps[PODLOGA_IN]);
+	client.println(getCurrentTemps(PODLOGA_IN));
 }
 
 void printHtmlWent(EthernetClient& client) {
@@ -117,13 +119,13 @@ void printTimeStamp(EthernetClient& client) {
 void printHtmlConfig(EthernetClient& client) {
 	char buf[40];
 	client.print(F(",\"Strefy czas\":"));
-	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\"", gi_Hour_Day_Start, gi_Hour_Day_End, gi_Hour_Night_Start, gi_Hour_Night_End);
+	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\"", getHourDayStart(), getHourDayEnd(), getHourNightStart(), getHourNightEnd());
 	client.println(buf);
 
 	client.print(F(",\"Temperatury\":"));
-	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\"", gi_Temp_Min_Day, gi_Temp_Max_Day, gi_Temp_Min_Night, gi_Temp_Max_Night);
+	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\"", getTempMinDay(), getTempMaxDay(), getTempMinNight(), getTempMaxNight());
 	client.println(buf);
-	snprintf(buf, sizeof(buf), ",\"PompMiesz\":\"%02d\"", gi_Temp_Mixing_Start);
+	snprintf(buf, sizeof(buf), ",\"PompMiesz\":\"%02d\"", getTempMixingStart());
 	client.println(buf);
 
 	client.print(F(",\"Wentylatory\":"));
@@ -138,11 +140,11 @@ void printHtmlStatus(EthernetClient& client) {
 	client.println(buf);
 
 	client.print(F(",\"pompaMieszPracuje\":"));
-	snprintf(buf, sizeof(buf), "\"%02d\"", vb_pompaMieszajacaPracuje);
+	snprintf(buf, sizeof(buf), "\"%02d\"", isMixingPumpWorking());
 	client.println(buf);
 
 	client.print(F(",\"pompaPodlPracuje\":"));
-	snprintf(buf, sizeof(buf), "\"%02d\"", vb_pompaPodlogowaPracuje);
+	snprintf(buf, sizeof(buf), "\"%02d\"", isFloorPumpWorking());
 	client.println(buf);
 
 	client.print(F(",\"wietrzenie\":"));
@@ -246,16 +248,14 @@ void printLogFile(EthernetClient& client, char* fileName) {
 void parseInpt(String input) {
 }
 
-
-
 //TODO przetestowac czy dziala pobieranie pliku z logami
 //TODO dopisac pobranie listy plikow z logami?
 void loopServer() {
-	char readString[100];
-	int i = 0;
 	// listen for incoming clients
 	EthernetClient client = server.available();
 	if (client) {
+	char readString[100];
+	int i = 0;
 		// an http request ends with a blank line
 		boolean currentLineIsBlank = true;
 		while (client.connected()) {
@@ -291,8 +291,4 @@ void loopServer() {
 // give the web browser time to receive the data
 //from webServerExample
 //REST API
-
-
-
-
 

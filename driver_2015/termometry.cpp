@@ -35,7 +35,37 @@ DeviceAddress gDA_sensors[TEMPCOUNT] = { //identyfikatory czujników
 				, { 0x28, 0xFF, 0x4C, 0x8D, 0x54, 0x14, 0x00, 0xF6 } //5 podIn
 		};
 
+float getTempC(int nr) {
+	return sensors.getTempC((uint8_t*) gDA_sensors[nr]);
+}
 
+uint8_t getTempMinDay() {
+	return gi_Temp_Min_Day;
+}
+uint8_t getTempMaxDay() {
+	return gi_Temp_Max_Day;
+}
+uint8_t getTempMinNight() {
+	return gi_Temp_Min_Night;
+}
+uint8_t getTempMaxNight() {
+	return gi_Temp_Max_Night;
+}
+uint8_t getTempMixingStart() {
+	return gi_Temp_Mixing_Start;
+}
+
+void requestTemperatures() {
+	sensors.requestTemperatures();  // Send the command to get temperatures
+}
+
+float getCurrentTemps(int i) {
+	return gf_currentTemps[i];
+}
+
+void setCurrentTemps(int i, float value){
+	gf_currentTemps[i] = value;
+}
 
 //wczytaj ustawienia temperatur z EE lub ustaw default
 void initConfigTemp() {
@@ -55,21 +85,16 @@ void initConfigTemp() {
 	if (gi_Temp_Max_Night == 255) {
 		gi_Temp_Max_Night = 80;
 	}
-	gi_Temp_Mixing_Start = eeprom_read_byte(
-			(uint8_t*) (&gi_EE_Temp_Mixing_Start));
+	gi_Temp_Mixing_Start = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Mixing_Start));
 	if (gi_Temp_Mixing_Start == 255) {
 		gi_Temp_Mixing_Start = 55;
 	}
 }
 
-
 //from Dallas Temp example Simple
 void setupDS() {
 	sensors.begin();   // Start up the library
 }
-
-
-
 
 void decMinDzienna() {
 	eeprom_write_byte(&gi_EE_Temp_Min_Day, --gi_Temp_Min_Day); //decMinDzienna

@@ -12,7 +12,6 @@
 #include <Time.h>
 #include <Wire.h>
 #include "screens_status.h"//no our includes inside
-#include "termometry.h"//no our includes inside
 #include "power_tariffs.h"//no our includes inside
 
 #define WENTCOUNT 2 //ilość wentylatorów

@@ -12,18 +12,24 @@
 #include <Arduino.h>
 #include <Time.h>
 
-extern uint8_t gi_EE_Hour_Night_Start;
-extern uint8_t gi_EE_Hour_Night_End;
-extern uint8_t gi_EE_Hour_Day_Start;
-extern uint8_t gi_EE_Hour_Day_End;
-extern uint8_t gi_EE_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
+//extern uint8_t gi_EE_Hour_Night_Start;
+//extern uint8_t gi_EE_Hour_Night_End;
+//extern uint8_t gi_EE_Hour_Day_Start;
+//extern uint8_t gi_EE_Hour_Day_End;
+//extern uint8_t gi_EE_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
+//
+//extern uint8_t gi_Hour_Night_Start;
+//extern uint8_t gi_Hour_Night_End;
+//extern uint8_t gi_Hour_Day_Start;
+//extern uint8_t gi_Hour_Day_End;
+//extern uint8_t gi_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
+//extern boolean vb_taryfaNocna;
 
-extern uint8_t gi_Hour_Night_Start;
-extern uint8_t gi_Hour_Night_End;
-extern uint8_t gi_Hour_Day_Start;
-extern uint8_t gi_Hour_Day_End;
-extern uint8_t gi_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
-extern boolean vb_taryfaNocna;
+uint8_t getHourDayStart();
+uint8_t getHourDayEnd();
+uint8_t getHourNightStart();
+uint8_t getHourNightEnd();
+uint8_t getMinuteNightShift();
 
 void initConfigStrefy();
 void checkAndChangeTariff();

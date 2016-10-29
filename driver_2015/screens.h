@@ -13,20 +13,14 @@
 #include <openGLCD.h>
 #include <Time.h>
 #include "power_tariffs.h"
+#include "driver_keyboard.h"
+#include "driver_buffer.h"
 
-#define NUMBER_OF_SCREENS 6
-#define SCREEN_MAIN 0
-#define SCREEN_CONFIG_GODZ 1
-#define SCREEN_CONFIG_TEMP 2
-#define SCREEN_CONFIG_WENT 3
-#define SCREEN_CONFIG_FILE 4
-#define SCREEN_CONFIG_GODZ2 5
-
-extern int vi_currentScreen;
-extern boolean vb_tempsPrinted; //optymalizacja rysowania
-extern boolean vb_wentsPrinted; //optymalizacja rysowania
-extern int gt_prevDay;
-extern time_t gt_prevtime;
+//extern int vi_currentScreen;
+//extern boolean vb_tempsPrinted; //optymalizacja rysowania
+//extern boolean vb_wentsPrinted; //optymalizacja rysowania
+//extern int gt_prevDay;
+//extern time_t gt_prevtime;
 
 void nextScreen();
 void prevScreen();
@@ -41,8 +35,9 @@ void printDigitalClock();
 void printGrzalkiStatus(int grzejDo, int czekajDo);
 void printWent();
 void printTemps(int counter);
-
+void printScreen(int vi_counter);
 void clearScreenWithoutTime();
+void handleKeyOnCurrentScreen(char key);
 
 int setupGLCD(int line);
 

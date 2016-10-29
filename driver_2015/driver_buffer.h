@@ -18,13 +18,13 @@
 #define GI_PIN_POMPY_MIESZAJACEJ 45//pompa mieszajaca bufor
 #define GI_PIN_POMPY_PODLOGOWEJ 46//pompa od podłogówki
 
+boolean isMixingPumpWorking();
+boolean isMixingPumpDrawing();
+boolean isFloorPumpWorking();
+boolean isFloorPumpDrawing();
 
-extern boolean vb_pompaMieszajacaPracuje;
-extern boolean vb_pompaMieszajacaRysuj;
-extern boolean vb_pompaPodlogowaPracuje;
-extern boolean vb_pompaPodlogowaRysuj;
-extern boolean vb_buforGrzeje;
-
+void setMixingPumpDrawing(boolean);
+void setFloorPumpDrawing(boolean);
 
 void setupBuf();
 void setupPompy();
@@ -37,6 +37,7 @@ void ustawPinyGrzalek(uint8_t stan);
 void checkAndChangeBuffor();
 
 boolean isBufforHeating();
+
 
 void printGrzalkiStatus(int grzejDo, int czekajDo);
 

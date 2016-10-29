@@ -6,17 +6,10 @@
  */
 #include "vents.h"
 
-
-
-
-
-
-
 uint8_t gi_EE_Vent_Used_Airing_RPM; //obroty dla used dla wietrzenia (zakodowane na 8 bitach czyli obroty to wartość * 10)
 uint8_t gi_EE_Vent_New_Airing_RPM; //obroty dla new dla wietrzenia (zakodowane na 8 bitach czyli obroty to wartość * 10)
 uint8_t gi_EE_Vent_New_Desired_RPM; //obroty dla pozostalego czasu dla new (zakodowane na 8 bitach czyli obroty to wartość * 10)
 uint8_t gi_EE_Vent_Used_Desired_RPM; //obroty dla pozostalego czasu dla used (zakodowane na 8 bitach czyli obroty to wartość * 10)
-
 
 int gi_nightWentAdd = 200; //w taryfie nocnej obroty wentylatorów wieksze o
 
@@ -173,8 +166,7 @@ String getWentString() {
 	Wire.requestFrom(REKUPERATYOR_ID, 20); // request 6 bytes from slave device #4
 	char buf[21];
 	int i = 0;
-	while (Wire.available())    // slave may send less than requested
-	{
+	while (Wire.available()) { // slave may send less than requested
 		char c = Wire.read(); // receive a byte as character
 		buf[i++] = c;
 	}

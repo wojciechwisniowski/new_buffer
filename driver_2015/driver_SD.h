@@ -16,8 +16,8 @@
 #include "vents.h"
 #include "driver_buffer.h"
 
-extern boolean gb_fileOpen;
-
 int setupSD(int line);
+
+
 
 #endif /* DRIVER_SD_H_ */

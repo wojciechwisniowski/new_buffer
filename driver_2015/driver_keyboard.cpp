@@ -2,6 +2,8 @@
 
 //add your function definitions for the project driver_keyboard here
 //keypad globals
+const byte ROWS = 4; // Four rows
+const byte COLS = 4; // Four
 
 // Define the Keymap
 char keys[ROWS][COLS] = { //
@@ -16,6 +18,10 @@ byte colPins[COLS] = { A12, A13, A14, A15 };
 //Create the Keypad
 Keypad kpd = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 //keypad globals
+
+Keypad getKpd() {
+	return kpd;
+}
 
 void configWent(char key) {
 	switch (key) {
@@ -53,41 +59,31 @@ void configTemp(char key) {
 		break;
 	case '2':
 		incMinDzienna();
-
 		break;
 	case '3':
 		decMaxDzienna();
-
 		break;
 	case 'A':
 		incMaxDzienna();
-
 		break;
 	case '4':
 		decMinNocna();
-
 		break;
 	case '5':
 		incMinNocna();
-
 		break;
 	case '6':
 		decMaxNocna();
-
 		break;
 	case 'B':
 		incMaxNocna();
-
 		break;
 	case '7':
 		decPompaMiesz();
-
 		break;
 	case '8':
 		incPompaMiesz();
-
 		break;
-
 	}
 }
 
@@ -196,7 +192,7 @@ void configGodz2(char key) {
 }
 
 void checkKey(char key) {
-	//char key = kpd.getKey();
+
 	if (key) {  // Check for a valid key.
 		switch (key) {
 		case '#':
@@ -206,21 +202,7 @@ void checkKey(char key) {
 			prevScreen();
 			break;
 		default:
-			switch (vi_currentScreen) {
-			case SCREEN_CONFIG_WENT:
-				configWent(key);
-				break;
-			case SCREEN_CONFIG_TEMP:
-				configTemp(key);
-				break;
-			case SCREEN_CONFIG_GODZ:
-				configGodz(key);
-				break;
-			case SCREEN_CONFIG_GODZ2:
-				configGodz2(key);
-				break;
-
-			}
+			handleKeyOnCurrentScreen(key);
 			break;
 		}
 	}
@@ -232,14 +214,6 @@ void keypadEvent(KeypadEvent key) {
 	switch (kpd.getState()) {
 	case PRESSED:
 		checkKey(key);
-//		switch (key) {
-//		case '#':
-//			nextScreen();
-//			break;
-//		case '*':
-//			prevScreen();
-//			break;
-//		}
 		break;
 	case RELEASED:
 		switch (key) {

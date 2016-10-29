@@ -12,8 +12,28 @@ boolean vb_pompaPodlogowaPracuje = true;
 boolean vb_pompaPodlogowaRysuj = true;
 boolean vb_buforGrzeje = false;
 
+boolean isMixingPumpWorking() {
+	return vb_pompaMieszajacaPracuje;
+}
+boolean isMixingPumpDrawing() {
+	return vb_pompaMieszajacaRysuj;
+}
+boolean isFloorPumpWorking() {
+	return vb_pompaPodlogowaPracuje;
+}
+boolean isFloorPumpDrawing() {
+	return vb_pompaPodlogowaRysuj;
+}
+
 boolean isBufforHeating() {
 	return vb_buforGrzeje;
+}
+
+void setMixingPumpDrawing(boolean value) {
+	vb_pompaMieszajacaRysuj = value;
+}
+void setFloorPumpDrawing(boolean value) {
+	vb_pompaPodlogowaRysuj = value;
 }
 
 void setupPompy() {
@@ -28,38 +48,27 @@ void setupBuf() {
 }
 
 void checkAndChangeBuffor() {
-	float temp = gf_currentTemps[1]; //temperatrua z ciut powyzej polowy zbiornika
-	int grzejDo = 0;
-	int czekajDo = 0;
-	if (isNightTariff()) { //noc lub południe
-		grzejDo = gi_Temp_Max_Night;
-		czekajDo = gi_Temp_Min_Night;
-		if (vb_buforGrzeje) {
-			if (temp >= gi_Temp_Max_Night) {
-				wylaczGrzalki();
-				vb_buforGrzeje = false;
-			}
-		} else { //nie grzeje
-			if (temp < gi_Temp_Min_Night) {
-				vb_buforGrzeje = true;
-				wlaczGrzalki();
-			}
+	float temp = getCurrentTemps(1); //temperatrua z ciut powyzej polowy zbiornika
+	int grzejDo;
+	int czekajDo;
+	if (isNightTariff()) { // noc lub poludnie
+		grzejDo = getTempMaxNight();
+		czekajDo = getTempMinNight();
+	} else { // dzien
+		grzejDo = getTempMaxDay();
+		czekajDo = getTempMinDay();
+	}
+
+	if (vb_buforGrzeje) { // jak grzeje to spradz czy nie nagrzal
+		if (temp >= grzejDo) { // nagrzal to wylacz
+			wylaczGrzalki();
 		}
-	} else { //dzień
-		grzejDo = gi_Temp_Max_Day;
-		czekajDo = gi_Temp_Min_Day;
-		if (vb_buforGrzeje) {
-			if (temp >= gi_Temp_Max_Day) {
-				wylaczGrzalki();
-				vb_buforGrzeje = false;
-			}
-		} else { //nie grzeje
-			if (temp < gi_Temp_Min_Day) {
-				vb_buforGrzeje = true;
-				wlaczGrzalki();
-			}
+	} else { //nie grzeje
+		if (temp < czekajDo) { // temperatura ponizej ustawionej  -> wlacz grzalki
+			wlaczGrzalki();
 		}
 	}
+
 	printGrzalkiStatus(grzejDo, czekajDo);
 	obslugaPompyMieszajacej(temp);
 }
@@ -68,7 +77,7 @@ void obslugaPompyMieszajacej(float temp) {
 	if (!isNightTariff()) {
 		wylaczPompaBuf(); //w dzien nie mieszamy
 	} else {
-		if (vb_buforGrzeje && (temp > gi_Temp_Mixing_Start)) {
+		if (vb_buforGrzeje && (temp > getTempMixingStart())) {
 			wlaczPompaBuf(); //grzeje i zagrzal juz CWU do gi_temperaturaStartuMieszania wiec grzej dol
 		} else {
 			wylaczPompaBuf(); // albo nie grzeje albo sie CWU wychlodzilo to nie mieszamy dalej
@@ -99,9 +108,11 @@ void wylaczPompaBuf() {
 
 void wylaczGrzalki() {
 	ustawPinyGrzalek(HIGH);
+	vb_buforGrzeje = false;
 }
 
 void wlaczGrzalki() {
+	vb_buforGrzeje = true;
 	ustawPinyGrzalek(LOW);
 }
 

@@ -19,6 +19,23 @@ uint8_t gi_Hour_Day_End;
 uint8_t gi_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
 boolean vb_taryfaNocna = false;
 
+uint8_t getMinuteNightShift() {
+	return gi_Minute_Night_Shift;
+}
+
+uint8_t getHourDayStart() {
+	return gi_Hour_Day_Start;
+}
+uint8_t getHourDayEnd() {
+	return gi_Hour_Day_End;
+}
+uint8_t getHourNightStart() {
+	return gi_Hour_Night_Start;
+}
+uint8_t getHourNightEnd() {
+	return gi_Hour_Night_End;
+}
+
 void decDzienStart() {
 	eeprom_write_byte(&gi_EE_Hour_Day_Start, --gi_Hour_Day_Start); //dec dzien start
 }

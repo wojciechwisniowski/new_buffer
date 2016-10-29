@@ -26,7 +26,6 @@ int setupSD(int line) {
 	return line + 1;
 }
 
-
 //sd
 /*
  SD card read/write
@@ -62,12 +61,12 @@ void logCurrentStatusToFile() {
 				myFile2.println("hour,minute,second,t0,t1,t2,t3,t4-podlOut,t5-podlIn,buforGrzeje,pompaMiesza,pompaPodlogowa,tNI_r,tNO_r,tUI_r,tUO_r,RPM_NEW,RPM_USED");
 			}
 			char t0[6], t1[6], t2[6], t3[6], t4[6], t5[6], tNI_r[6], tNO_r[6], tUI_r[6], tUO_r[6];
-			dtostrf(gf_currentTemps[0], 3, 2, t0);
-			dtostrf(gf_currentTemps[1], 3, 2, t1);
-			dtostrf(gf_currentTemps[2], 3, 2, t2);
-			dtostrf(gf_currentTemps[3], 3, 2, t3);
-			dtostrf(gf_currentTemps[PODLOGA_OUT], 3, 2, t4);
-			dtostrf(gf_currentTemps[PODLOGA_IN], 3, 2, t5);
+			dtostrf(getCurrentTemps(0), 3, 2, t0);
+			dtostrf(getCurrentTemps(1), 3, 2, t1);
+			dtostrf(getCurrentTemps(2), 3, 2, t2);
+			dtostrf(getCurrentTemps(3), 3, 2, t3);
+			dtostrf(getCurrentTemps(PODLOGA_OUT), 3, 2, t4);
+			dtostrf(getCurrentTemps(PODLOGA_IN), 3, 2, t5);
 			dtostrf(getCurrentTemReku(NEW_IN), 3, 2, tNI_r);
 			dtostrf(getCurrentTemReku(NEW_OUT), 3, 2, tNO_r);
 			dtostrf(getCurrentTemReku(USED_IN), 3, 2, tUI_r);
@@ -75,8 +74,8 @@ void logCurrentStatusToFile() {
 			//
 			sprintf(buf, "%02d:%02d:%02d,%s,%s,%s,%s,%s,%s,%01d,%01d,%01d,%s,%s,%s,%s,%04d,%04d", hour(), minute(), second(),   //
 					t0, t1, t2, t3, t4, t5, isBufforHeating() ? "1" : "0",   //
-					vb_pompaMieszajacaPracuje ? "1" : "0",   //
-					vb_pompaPodlogowaPracuje ? "1" : "0",   //
+					isMixingPumpWorking() ? "1" : "0",   //
+					isFloorPumpWorking() ? "1" : "0",   //
 					tNI_r, tNO_r, tUI_r, tUO_r,   //
 					getCurrentVentRPM(NEW_WENT), getCurrentVentRPM(USED_WENT));
 
