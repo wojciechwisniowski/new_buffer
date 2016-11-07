@@ -7,12 +7,11 @@
 
 #ifndef VENTS_H_
 #define VENTS_H_
-#include <Arduino.h>
-#include <EEPROM.h>
-#include <Time.h>
-#include <Wire.h>
+
 #include "screens_status.h"//no our includes inside
 #include "power_tariffs.h"//no our includes inside
+#include <stdio.h>
+#include <stdlib.h>
 
 #define WENTCOUNT 2 //ilość wentylatorów
 #define TEMPCOUNT_REKU 4 //termometry requ
@@ -33,6 +32,8 @@
 #define USED_OUT 3
 
 
+int getNightWentAdd();
+
 void changeWentStep();
 
 void decWentUSED();
@@ -41,14 +42,13 @@ void decWentNew();
 void incWentNew();
 void incWentUSED();
 
-void setWents();
-void startWietrzenie();
-void stopWietrzenie();
-void checkWietrzenie();
-String getWentString();
+
+void startWietrzenie( void *());
+void stopWietrzenie( void *());
+void checkWietrzenie(int,void *());
 
 void initConfigWent();
-void parseRekuperatorMSG(String msg);
+void parseRekuperatorMSG(const char * msg);
 
 void incWent(int went, int max);
 
@@ -60,7 +60,7 @@ int getCurrentVentRPM(int nr);
 int getDesiredWentRPM(int nr);
 int getWentStep();
 
-boolean isAiring();
+bool isAiring();
 
 
 

@@ -44,10 +44,10 @@ void configWent(char key) {
 		changeWentStep();
 		break;
 	case 'C':
-		startWietrzenie();
+		startWietrzenie(&setWents);
 		break;
 	case 'D':
-		stopWietrzenie();
+		stopWietrzenie(&setWents);
 		break;
 	}
 }

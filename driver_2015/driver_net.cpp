@@ -56,7 +56,7 @@ void setupHttp() {
 //from webServerExample
 
 void printHtmlBufor(EthernetClient& client) {
-	client.println(F("\"VER\":1.5"));
+	client.println(F("\"VER\":1.6"));
 	for (int i = 0; i < TEMPCOUNT; i++) {
 
 		float tempC = getTempC(i);

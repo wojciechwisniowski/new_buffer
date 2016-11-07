@@ -1,16 +1,7 @@
 #include "rest.h"
 
-#define TEST_REST
-//#define DEBUG
-
-#ifndef TEST_REST
-//#include <Print.h>
-#include "driver_2015.h"
-#else
 
 #include "driver2015mock.h"
-
-#endif
 
 #include "minunit.h"
 #include <stdio.h>
@@ -19,116 +10,24 @@
 /**
  * Created by wisnia on 04.10.16.
  */
-
 #ifdef DEBUG
 #define debug(message) do { printf("%s\n", message); } while (0)
 #else
 #define debug(message)
 #endif
 
-int tests_run = 0;
 
+const char* WN = "WN"; // went new
+const char* WU = "WU"; // went used
+const char* WWN = "WWN"; // went airing new
+const char* WWU = "WWU"; // went airing used
 
-static char * test_requestError() {
-    Request a(request1);
-    a.setError("TESTERROR");
-    mu_assert((char*)"Set errorFlag on request failed", a.isError());
-    mu_assert((char*)"Set error on request failed", !strcmp("TESTERROR", a.getError()));
-}
+const char* TMD = "TMD"; // temp min day
+const char* TXD = "TXD"; // temp max day
 
-static char * test_request1() {
-    Request a(request1);
-    debug("request parsed");
-
-    debug(a.getError());
-    debug(a.getResource());
-    debug(a.getValue());
-    debug(a.getMethod());
-
-
-    mu_assert((char*)"Parsing request failed - bad method", !strcmp("GET", a.getMethod()));
-    mu_assert((char*)"Parsing request failed - bad resource", !strcmp("ala", a.getResource()));
-    mu_assert((char*)"Parsing request failed - bad value", !strcmp("ola", a.getValue()));
-
-}
-
-static char * test_request2() {
-    Request a(request2);
-    debug("request parsed");
-
-    debug(a.getError());
-    debug(a.getResource());
-    debug(a.getValue());
-    debug(a.getMethod());
-
-
-    mu_assert((char*)"Parsing request failed - bad method", !strcmp("POST", a.getMethod()));
-    mu_assert((char*)"Parsing request failed - bad resource", !strcmp("WW", a.getResource()));
-    mu_assert((char*)"Parsing request failed - bad value", !strcmp("MM", a.getValue()));
-
-}
-
-
-static char * all_tests() {
-    mu_run_test(test_requestError);
-    mu_run_test(test_request1);
-    mu_run_test(test_request2);
-    return 0;
-}
-
-int main(int argc, char **argv) {
-    Request a(request2);
-    printf("%s\n", "request parsed");
-
-    printf("%s\n", a.getError());
-    printf("%s\n", a.getResource());
-    printf("%s\n", a.getValue());
-    printf("%s\n", a.getMethod());
-
-    char *result = all_tests();
-    if (result != 0) {
-        printf("%s\n", result);
-    } else {
-        printf("ALL TESTS PASSED\n");
-    }
-    printf("Tests run: %d\n", tests_run);
-
-    return result != 0;
-
-}
-
-//int main(int argc, char** argv) {
-////	MyPrint ec;
-////	ec.println("Start2");
-////	parse(request, ec);
-//
-//
-//}
-//	parse(request);
-//	log(request2);
-//	parse(request2);
-//
-//	parse(requestGetWN);
-//	parse(requestGetWU);
-//	parse(requestGetWWN);
-//	parse(requestGetWWU);
-//
-//	parse(requestSetWN);
-//	parse(requestSetWU);
-//	parse(requestSetWWN);
-//	parse(requestSetWWU);
-//
-//	parse(requestGetTMD);
-//	parse(requestGetTXD);
-//	parse(requestGetTMN);
-//	parse(requestGetTXN);
-//
-//	parse(requestSetTMD);
-//	parse(requestSetTXD);
-//	parse(requestSetTMN);
-//	parse(requestSetTXN);
-//
-//}
+const char* TMN = "TMN"; // temp min night
+const char* TXN = "TXN"; // temp max night
+const char* AUTH = "d3c6d3c="; //ww:ww
 
 int Request::isError() {
     return errorFlag;

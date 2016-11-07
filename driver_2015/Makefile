@@ -1,5 +1,4 @@
-SOURCES = rest.cpp \
-          driver2015mock.cpp 
+SOURCES = driver_2015_test.cpp 
           
 
 OBJECTS := $(addsuffix .o, $(addprefix .build/, $(basename $(SOURCES))))

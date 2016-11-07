@@ -5,125 +5,158 @@
  *      Author: root
  */
 #include "termometry.h"
+#include "prod.h"
 
 float gf_currentTemps[TEMPCOUNT];
-uint8_t gi_EE_Temp_Min_Day;
-uint8_t gi_EE_Temp_Max_Day;
-uint8_t gi_EE_Temp_Min_Night;
-uint8_t gi_EE_Temp_Max_Night;
-uint8_t gi_EE_Temp_Mixing_Start;
+int gi_EE_Temp_Min_Day;
+int gi_EE_Temp_Max_Day;
+int gi_EE_Temp_Min_Night;
+int gi_EE_Temp_Max_Night;
+int gi_EE_Temp_Mixing_Start;
 
-uint8_t gi_Temp_Min_Day;
-uint8_t gi_Temp_Max_Day;
-uint8_t gi_Temp_Min_Night;
-uint8_t gi_Temp_Max_Night;
-uint8_t gi_Temp_Mixing_Start;
+int gi_Temp_Min_Day;
+int gi_Temp_Max_Day;
+int gi_Temp_Min_Night;
+int gi_Temp_Max_Night;
+int gi_Temp_Mixing_Start;
 
-// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
-OneWire oneWire(GI_PIN_ONE_WIRE_BUS);
+const int ci_minTemp = 5;
+const int ci_maxTemp = 95;
 
-// Pass our oneWire reference to Dallas Temperature.
-DallasTemperature sensors(&oneWire);
+const int ci_minDayTempDefault = 29;
+const int ci_maxDayTempDefault = 31;
+const int ci_minNightTempDefault = 60;
+const int ci_maxNightTempDefault = 80;
+const int ci_mixingPumpStartTempDefault = 55;
 
-DeviceAddress gDA_sensors[TEMPCOUNT] = { //identyfikatory czujników
-
-		{ 0x28, 0xFF, 0x72, 0x34, 0x63, 0x14, 0x03, 0x94 } //0
-				, { 0x28, 0xFF, 0xEE, 0x61, 0x63, 0x14, 0x03, 0x5B } //1
-				, { 0x28, 0xFF, 0x61, 0x19, 0x62, 0x14, 0x03, 0xE0 } //2
-				, { 0x28, 0xFF, 0x35, 0x3F, 0x62, 0x14, 0x03, 0x13 } //3
-				, { 0x28, 0xFF, 0xF4, 0x99, 0x54, 0x14, 0x00, 0xB1 } //4 podOut
-				, { 0x28, 0xFF, 0x4C, 0x8D, 0x54, 0x14, 0x00, 0xF6 } //5 podIn
-		};
-
-float getTempC(int nr) {
-	return sensors.getTempC((uint8_t*) gDA_sensors[nr]);
-}
-
-uint8_t getTempMinDay() {
+int getTempMinDay() {
 	return gi_Temp_Min_Day;
 }
-uint8_t getTempMaxDay() {
+int getTempMaxDay() {
 	return gi_Temp_Max_Day;
 }
-uint8_t getTempMinNight() {
+int getTempMinNight() {
 	return gi_Temp_Min_Night;
 }
-uint8_t getTempMaxNight() {
+int getTempMaxNight() {
 	return gi_Temp_Max_Night;
 }
-uint8_t getTempMixingStart() {
+int getTempMixingStart() {
 	return gi_Temp_Mixing_Start;
-}
-
-void requestTemperatures() {
-	sensors.requestTemperatures();  // Send the command to get temperatures
 }
 
 float getCurrentTemps(int i) {
 	return gf_currentTemps[i];
 }
 
-void setCurrentTemps(int i, float value){
+void setCurrentTemps(int i, float value) {
 	gf_currentTemps[i] = value;
 }
 
 //wczytaj ustawienia temperatur z EE lub ustaw default
 void initConfigTemp() {
-	gi_Temp_Min_Day = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Min_Day));
-	if (gi_Temp_Min_Day == 255) {
-		gi_Temp_Min_Day = 29;
+	int vi_t = readTemFromEprom((int*) (&gi_EE_Temp_Min_Day));
+	if (checkTemp(vi_t)) {
+		setMinDayTemp(vi_t);
+	} else {
+		setMinDayTemp(ci_minDayTempDefault);
 	}
-	gi_Temp_Max_Day = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Max_Day));
-	if (gi_Temp_Max_Day == 255) {
-		gi_Temp_Max_Day = 31;
+
+	vi_t = readTemFromEprom((int*) (&gi_EE_Temp_Max_Day));
+	if (checkTemp(vi_t)) {
+		setMaxDayTemp(vi_t);
+	} else {
+		setMaxDayTemp(ci_maxDayTempDefault);
 	}
-	gi_Temp_Min_Night = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Min_Night));
-	if (gi_Temp_Min_Night == 255) {
-		gi_Temp_Min_Night = 60;
+
+	vi_t = readTemFromEprom((int*) (&gi_EE_Temp_Min_Night));
+	if (checkTemp(vi_t)) {
+		setMinNightTemp(vi_t);
+	} else {
+		setMinNightTemp(ci_minNightTempDefault);
 	}
-	gi_Temp_Max_Night = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Max_Night));
-	if (gi_Temp_Max_Night == 255) {
-		gi_Temp_Max_Night = 80;
+	vi_t = readTemFromEprom((int*) (&gi_EE_Temp_Max_Night));
+	if (checkTemp(vi_t)) {
+		setMaxNightTemp(vi_t);
+	} else {
+		setMaxNightTemp(ci_maxNightTempDefault);
 	}
-	gi_Temp_Mixing_Start = eeprom_read_byte((uint8_t*) (&gi_EE_Temp_Mixing_Start));
-	if (gi_Temp_Mixing_Start == 255) {
-		gi_Temp_Mixing_Start = 55;
+	vi_t = readTemFromEprom((int*) (&gi_EE_Temp_Mixing_Start));
+	if (checkTemp(vi_t)) {
+		setMixingPumpStartTemp(vi_t);
+	} else {
+		setMixingPumpStartTemp(ci_mixingPumpStartTempDefault);
 	}
 }
 
-//from Dallas Temp example Simple
-void setupDS() {
-	sensors.begin();   // Start up the library
+bool checkTemp(int temp) {
+	return temp >= ci_minTemp && temp <= ci_maxTemp;
+}
+
+void setMinDayTemp(int temp) {
+	if (checkTemp(temp)) {
+		gi_Temp_Min_Day = temp;
+		writeTemToEprom(&gi_EE_Temp_Min_Day, temp);
+	}
+}
+
+void setMaxDayTemp(int temp) {
+	if (checkTemp(temp)) {
+		gi_Temp_Max_Day = temp;
+		writeTemToEprom(&gi_EE_Temp_Max_Day, temp);
+	}
+}
+
+void setMinNightTemp(int temp) {
+	if (checkTemp(temp)) {
+		gi_Temp_Min_Night = temp;
+		writeTemToEprom(&gi_EE_Temp_Min_Night, temp);
+	}
+}
+
+void setMaxNightTemp(int temp) {
+	if (checkTemp(temp)) {
+		gi_Temp_Max_Night = temp;
+		writeTemToEprom(&gi_EE_Temp_Max_Night, temp);
+	}
+}
+
+void setMixingPumpStartTemp(int temp) {
+	if (checkTemp(temp)) {
+		gi_Temp_Mixing_Start = temp;
+		writeTemToEprom(&gi_EE_Temp_Mixing_Start, temp);
+	}
 }
 
 void decMinDzienna() {
-	eeprom_write_byte(&gi_EE_Temp_Min_Day, --gi_Temp_Min_Day); //decMinDzienna
+	setMinDayTemp(getTempMinDay() - 1);
 }
 void incMinDzienna() {
-	eeprom_write_byte(&gi_EE_Temp_Min_Day, ++gi_Temp_Min_Day); //incMinDzienna
+	setMinDayTemp(getTempMinDay() + 1);
 }
 void decMaxDzienna() {
-	eeprom_write_byte(&gi_EE_Temp_Max_Day, --gi_Temp_Max_Day); //decMaxDzienna
+	setMaxDayTemp(getTempMaxDay() - 1);
 }
 void incMaxDzienna() {
-	eeprom_write_byte(&gi_EE_Temp_Max_Day, ++gi_Temp_Max_Day); //incMaxDzienna
+	setMaxDayTemp(getTempMaxDay() + 1);
 }
 void decMinNocna() {
-	eeprom_write_byte(&gi_EE_Temp_Min_Night, --gi_Temp_Min_Night); //decMinNocna
+	setMinNightTemp(getTempMinNight() - 1);
 }
 void incMinNocna() {
-	eeprom_write_byte(&gi_EE_Temp_Min_Night, ++gi_Temp_Min_Night); //incMinNocna
+	setMinNightTemp(getTempMinNight() + 1);
 }
 void decMaxNocna() {
-	eeprom_write_byte(&gi_EE_Temp_Max_Night, --gi_Temp_Max_Night); //decMaxNocna
+	setMaxNightTemp(getTempMaxNight() - 1);
 }
 void incMaxNocna() {
-	eeprom_write_byte(&gi_EE_Temp_Max_Night, ++gi_Temp_Max_Night); //incMaxNocna
+	setMaxNightTemp(getTempMaxNight() + 1);
 }
 void decPompaMiesz() {
-	eeprom_write_byte(&gi_EE_Temp_Mixing_Start, --gi_Temp_Mixing_Start); //dec PompaMiesz
+	setMixingPumpStartTemp(getTempMixingStart() - 1);
+
 }
 void incPompaMiesz() {
-	eeprom_write_byte(&gi_EE_Temp_Mixing_Start, ++gi_Temp_Mixing_Start); //inc PompaMiesz
+	setMixingPumpStartTemp(getTempMixingStart() + 1);
 }
 

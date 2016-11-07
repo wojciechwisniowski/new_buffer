@@ -51,7 +51,9 @@ void loop(void) {
 		checkAndChangeBuffor();
 	}
 	if (vi_counter % 21 == 0) {
-		parseRekuperatorMSG(getWentString());   // Send request to get went's temps and rpms
+		char buf[21];
+		getWentString(buf);
+		parseRekuperatorMSG(buf);   // Send request to get went's temps and rpms
 	}
 	if (vi_counter % 41 == 0) { // pat watch dog - sending 8 thrash chars just to say I am alive
 		checkDog();
@@ -60,7 +62,7 @@ void loop(void) {
 		logCurrentStatusToFile();
 	}
 	if (vi_counter % 61 == 0) { // chek wietrzenie
-		checkWietrzenie();
+		checkWietrzenie(hour(), &setWents);
 	}
 
 	printScreen(vi_counter);
