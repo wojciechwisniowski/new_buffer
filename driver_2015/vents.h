@@ -20,9 +20,9 @@
 #define REKUPERATYOR_ID 4 //id na szynie I2C
 
 #define NEW_WENT 0
-#define NEW_WENT_MAX 2700
+#define NEW_WENT_MAX 270
 #define USED_WENT 1
-#define USED_WENT_MAX 2650
+#define USED_WENT_MAX 265
 #define WENT_STEP1 100
 #define WENT_STEP2 200
 #define WENT_STEP3 500
@@ -32,35 +32,42 @@
 #define USED_OUT 3
 
 
-int getNightWentAdd();
+int getNightWentAdd();//
 
-void changeWentStep();
+void changeWentStep();//
 
-void decWentUSED();
-void decWentNew();
+void decWentUSED();//
+void decWentNew();//
 
-void incWentNew();
-void incWentUSED();
+void incWentNew();//
+void incWentUSED();//
 
 
 void startWietrzenie( void *());
 void stopWietrzenie( void *());
 void checkWietrzenie(int,void *());
 
-void initConfigWent();
+void initConfigWent();//
 void parseRekuperatorMSG(const char * msg);
 
 void incWent(int went, int max);
-
-
 void decWent(int went, int max);
 
 float getCurrentTemReku(int nr);
 int getCurrentVentRPM(int nr);
+
 int getDesiredWentRPM(int nr);
+void setDesiredVentRPM(int nr,int rpm);
+
+int getDesiredAiringVentRPM(int nr);
+void setDesiredAiringVentRPM(int nr,int rpm);
+
+
 int getWentStep();
 
 bool isAiring();
+
+bool checkRPM(int rpm);
 
 
 

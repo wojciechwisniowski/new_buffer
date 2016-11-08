@@ -15,8 +15,19 @@ int gi_EE_Vent_Used_Desired_RPM; //obroty dla pozostalego czasu dla used (zakodo
 
 const int gi_nightWentAdd = 100; //w taryfie nocnej obroty wentylatorów wieksze o
 
+const int ci_minRPM = 0; // 0 RPM
+const int ci_maxRPM = 260; // 2600 RPM
+const int ci_dumyRPM = 255; // 2550 RPM - invalid value bad read from EEPROM
+
+const int ci_defaultUsedAiringRPM = 140;
+const int ci_defaultNewAiringRPM = 160;
+const int ci_defaultNewRPM = 100;
+const int ci_defaultUsedRPM = 90;
+
+
 int gi_currentWentRPM[WENTCOUNT]; //0 new 1 used
-int gi_desiredWentRPM[WENTCOUNT]; //0 new 1 used
+
+int gi_desiredWentRPM[WENTCOUNT]; //0 new 1 used // RPMs are kept as 1/10 of real RPMs so the value 160 - means that fan is spinning 1600
 int gi_desiredOldWentRPM[WENTCOUNT]; //0 new 1 used
 int gi_desiredWentWietrzenieRPM[WENTCOUNT]; //0 new 1 used
 float gf_currentTemps_reku[TEMPCOUNT_REKU];
@@ -59,7 +70,7 @@ void incWentUSED() {
 	writeTemToEprom(&gi_EE_Vent_Used_Airing_RPM, gi_desiredWentRPM[USED_WENT]);
 }
 
-void startWietrzenie(void (* setW)()) {
+void startWietrzenie(void (*setW)()) {
 	if (!vb_wietrzenie) {
 		gi_desiredOldWentRPM[USED_WENT] = gi_desiredWentRPM[USED_WENT];
 		gi_desiredOldWentRPM[NEW_WENT] = gi_desiredWentRPM[NEW_WENT];
@@ -71,7 +82,7 @@ void startWietrzenie(void (* setW)()) {
 	}
 }
 
-void stopWietrzenie(void (* setW)()) {
+void stopWietrzenie(void (*setW)()) {
 	if (vb_wietrzenie) {
 		gi_desiredWentRPM[USED_WENT] = gi_desiredOldWentRPM[USED_WENT];
 		gi_desiredWentRPM[NEW_WENT] = gi_desiredOldWentRPM[NEW_WENT];
@@ -80,7 +91,7 @@ void stopWietrzenie(void (* setW)()) {
 	}
 }
 
-void checkWietrzenie(int h,  void (* setW)()) {
+void checkWietrzenie(int h, void (*setW)()) {
 
 	if (h >= 22 || h == 4 || h == 5 || h == 13 || h == 14) { // jeżeli godzina 22 do 24 i  4 do 5 i 13 do 14
 		if (!vb_wietrzenie) {
@@ -94,26 +105,47 @@ void checkWietrzenie(int h,  void (* setW)()) {
 	//else nie wietrz
 }
 
+int getDesiredAiringVentRPM(int nr) {
+	return gi_desiredWentWietrzenieRPM[nr];
+}
+void setDesiredAiringVentRPM(int nr, int rpm) {
+	gi_desiredWentWietrzenieRPM[nr] = rpm;
+}
+
+bool checkRPM(int rpm) {
+	return rpm >= ci_minRPM && rpm <= ci_maxRPM && rpm != ci_dumyRPM;
+}
+
 //wczytaj ustawienia wentylacji z EE lub wstaw default
 void initConfigWent() {
-	gi_desiredWentWietrzenieRPM[USED_WENT] = readTemFromEprom((int *) &gi_EE_Vent_Used_Airing_RPM);
-	if (gi_desiredWentWietrzenieRPM[USED_WENT] == 255) {
-		gi_desiredWentWietrzenieRPM[USED_WENT] = 160;         //1600 w nocy 1800
+
+	int vi_rpm = 0;
+	vi_rpm = readTemFromEprom((int *) &gi_EE_Vent_Used_Airing_RPM);
+	if (checkRPM(vi_rpm)) {
+		setDesiredAiringVentRPM(USED_WENT, vi_rpm);
+	} else {
+		setDesiredAiringVentRPM(USED_WENT, ci_defaultUsedAiringRPM);
 	}
 
-	gi_desiredWentWietrzenieRPM[NEW_WENT] = readTemFromEprom((int *) &gi_EE_Vent_New_Airing_RPM);
-	if (gi_desiredWentWietrzenieRPM[NEW_WENT] == 255) {
-		gi_desiredWentWietrzenieRPM[NEW_WENT] = 170;          //1700 w nocy 1900
+	vi_rpm = readTemFromEprom((int *) &gi_EE_Vent_New_Airing_RPM);
+	if (checkRPM(vi_rpm)) {
+		setDesiredAiringVentRPM(NEW_WENT, vi_rpm);
+	} else {
+		setDesiredAiringVentRPM(NEW_WENT, ci_defaultNewAiringRPM);
 	}
 
-	gi_desiredWentRPM[NEW_WENT] = readTemFromEprom((int *) &gi_EE_Vent_New_Desired_RPM);
-	if (gi_desiredWentRPM[NEW_WENT] == 255) {
-		gi_desiredWentRPM[NEW_WENT] = 120;                //1200
+	vi_rpm = readTemFromEprom((int *) &gi_EE_Vent_New_Desired_RPM);
+	if (checkRPM(vi_rpm)) {
+		setDesiredVentRPM(NEW_WENT, vi_rpm);
+	} else {
+		setDesiredVentRPM(NEW_WENT, ci_defaultNewRPM);
 	}
 
-	gi_desiredWentRPM[USED_WENT] = readTemFromEprom((int *) &gi_EE_Vent_Used_Desired_RPM);
-	if (gi_desiredWentRPM[USED_WENT] == 255) {
-		gi_desiredWentRPM[USED_WENT] = 110;                //1100
+	vi_rpm = readTemFromEprom((int *) &gi_EE_Vent_Used_Desired_RPM);
+	if (checkRPM(vi_rpm)) {
+		setDesiredVentRPM(USED_WENT, vi_rpm);
+	} else {
+		setDesiredVentRPM(USED_WENT, ci_defaultUsedRPM);
 	}
 
 	gi_wentStep = WENT_STEP2;
@@ -140,32 +172,32 @@ void initConfigWent() {
 void parseRekuperatorMSG(const char* msg) {
 	char buf[5];
 	int j = 0;
-	for (int i = 0; i < 3; i++)//0-3
+	for (int i = 0; i < 3; i++)                //0-3
 		buf[i] = msg[j++];
 	buf[3] = '\0';
 	gf_currentTemps_reku[NEW_IN] = atof(buf) / 10.0;
 
-	for (int i = 0; i < 3; i++)//3-6
+	for (int i = 0; i < 3; i++)                //3-6
 		buf[i] = msg[j++];
 	buf[3] = '\0';
 	gf_currentTemps_reku[NEW_OUT] = atof(buf) / 10.0;
 
-	for (int i = 0; i < 3; i++)//6-9
+	for (int i = 0; i < 3; i++)                //6-9
 		buf[i] = msg[j++];
 	buf[3] = '\0';
 	gf_currentTemps_reku[USED_IN] = atof(buf) / 10.0;
 
-	for (int i = 0; i < 3; i++)//9-12
+	for (int i = 0; i < 3; i++)                //9-12
 		buf[i] = msg[j++];
 	buf[3] = '\0';
 	gf_currentTemps_reku[USED_OUT] = atof(buf) / 10.0;
 
-	for (int i = 0; i < 4; i++)//12-16
+	for (int i = 0; i < 4; i++)                //12-16
 		buf[i] = msg[j++];
 	buf[4] = '\0';
 	gi_currentWentRPM[NEW_WENT] = atoi(buf);
 
-	for (int i = 0; i < 4; i++)//16-20
+	for (int i = 0; i < 4; i++)                //16-20
 		buf[i] = msg[j++];
 	buf[4] = '\0';
 	gi_currentWentRPM[USED_WENT] = atof(buf);
@@ -195,6 +227,10 @@ int getCurrentVentRPM(int nr) {
 
 int getDesiredWentRPM(int nr) {
 	return gi_desiredWentRPM[nr];
+}
+
+void setDesiredVentRPM(int nr, int rpm) {
+	gi_desiredWentRPM[nr] = rpm;
 }
 
 int getWentStep() {
