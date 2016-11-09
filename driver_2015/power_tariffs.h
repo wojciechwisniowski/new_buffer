@@ -5,35 +5,18 @@
  *      Author: root
  */
 
-#pragma once
 #ifndef POWER_TARIFFS_H_
 #define POWER_TARIFFS_H_
+#include "power_tariffs_prod.h"
 
-#include <Arduino.h>
-#include <Time.h>
+int getHourDayStart();
+int getHourDayEnd();
+int getHourNightStart();
+int getHourNightEnd();
+int getMinuteNightShift();
 
-//extern uint8_t gi_EE_Hour_Night_Start;
-//extern uint8_t gi_EE_Hour_Night_End;
-//extern uint8_t gi_EE_Hour_Day_Start;
-//extern uint8_t gi_EE_Hour_Day_End;
-//extern uint8_t gi_EE_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
-//
-//extern uint8_t gi_Hour_Night_Start;
-//extern uint8_t gi_Hour_Night_End;
-//extern uint8_t gi_Hour_Day_Start;
-//extern uint8_t gi_Hour_Day_End;
-//extern uint8_t gi_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
-//extern boolean vb_taryfaNocna;
-
-uint8_t getHourDayStart();
-uint8_t getHourDayEnd();
-uint8_t getHourNightStart();
-uint8_t getHourNightEnd();
-uint8_t getMinuteNightShift();
-
-void initConfigStrefy();
-void checkAndChangeTariff();
-boolean isNightTariff();
+void initConfigStrefy(); //
+bool isCheapTariff(int h, int dayOfTheWeek);
 
 void decDzienStart();
 void incDzienStart();
@@ -47,8 +30,5 @@ void incNocEnd();
 
 void decMinuteShift();
 void incMinuteShift();
-
-
-
 
 #endif /* POWER_TARIFFS_H_ */

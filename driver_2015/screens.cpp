@@ -92,7 +92,7 @@ void printDigitalClock() {
 			// draw the formatted string centered on the display
 			GLCD.DrawString(buf, gTextfmt_left, gTextfmt_top);
 		}
-		GLCD.DrawString(isNightTariff() ? F(" NOC ") : F("DZIEN"), gTextfmt_center, gTextfmt_top);
+		GLCD.DrawString(isCheapTariff(getHourIncludingNightShift(vt_now),dayOfWeek(vt_now)) ? F(" NOC ") : F("DZIEN"), gTextfmt_center, gTextfmt_top);
 	}
 	GLCD.SelectFont(System5x7);
 }

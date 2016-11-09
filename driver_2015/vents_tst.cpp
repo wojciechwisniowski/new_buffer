@@ -8,18 +8,14 @@
 #include "vents_tst.h"
 #include <string.h>
 
-char * vents_test_defaults(){
+char * vents_test_init() {
+	initConfigWent();
 	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 100 - after init", getDesiredWentRPM(NEW_WENT) == 100); //ci_defaultNewRPM =100
 	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 90 - after init", getDesiredWentRPM(USED_WENT) == 90); //ci_defaultUsedRPM = 90;
 	mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 140 - after init", getDesiredAiringVentRPM(USED_WENT) == 140); //ci_defaultUsedAiringRPM = 140;
 	mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT) != 160 - after init", getDesiredAiringVentRPM(NEW_WENT) == 160); //ci_defaultUsedAiringRPM = 160;
 	mu_assert((char* )"getWentStep() != 200 - after init", getWentStep() == 200); //
 
-}
-
-char * vents_test_init() {
-	initConfigWent();
-	vents_test_defaults();
 	return 0;
 }
 
@@ -34,7 +30,7 @@ char * vents_test_checkRPM() {
 	return 0;
 }
 char * vents_test_getNightWentAdd() {
-	mu_assert((char* )"getNightWentAdd()", getNightWentAdd() == 100);
+	mu_assert((char* )"getNightWentAdd()", getNightWentAdd() == 10);
 	return 0;
 }
 char * vents_test_changeWentStep() {
@@ -51,37 +47,97 @@ char * vents_test_changeWentStep() {
 
 char * vents_test_decIncWentUSED() {
 	initConfigWent();
-	vents_test_defaults();
-	decWentUSED();// should go 1/10 of vent setp down as default is 200 so -20
+	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 100 - after init", getDesiredWentRPM(NEW_WENT) == 100); //ci_defaultNewRPM =100
+	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 90 - after init", getDesiredWentRPM(USED_WENT) == 90); //ci_defaultUsedRPM = 90;
+	mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 140 - after init", getDesiredAiringVentRPM(USED_WENT) == 140); //ci_defaultUsedAiringRPM = 140;
+	mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT) != 160 - after init", getDesiredAiringVentRPM(NEW_WENT) == 160); //ci_defaultUsedAiringRPM = 160;
+	mu_assert((char* )"getWentStep() != 200 - after init", getWentStep() == 200); //
+
+	decWentUSED(); // should go 1/10 of vent setp down as default is 200 so -20
 	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 70 - after dec", getDesiredWentRPM(USED_WENT) == 70);
-	for(int i=0;i<10;i++)decWentUSED();// should go 1/10 of vent setp down as default is 200 so -20 * 50 -100
+	for (int i = 0; i < 10; i++)
+		decWentUSED(); // should go 1/10 of vent setp down as default is 200 so -20 * 50 -100
 
 	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 10 - after 10xdecWentUSED()", getDesiredWentRPM(USED_WENT) == 10);
 	incWentUSED();
 	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 30 - after incWentUSED()", getDesiredWentRPM(USED_WENT) == 30);
-	for(int i=0;i<20;i++)incWentUSED();
-	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 265 - after 20xincWentUSED()", getDesiredWentRPM(USED_WENT) == 265);
+	for (int i = 0; i < 20; i++)
+		incWentUSED();
+	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 265 - after 20xincWentUSED()", getDesiredWentRPM(USED_WENT) == 250);
 	return 0;
 }
 
 char * vents_test_decIncWentNEW() {
 	initConfigWent();
-	vents_test_defaults();
-	decWentNew();// should go 1/10 of vent setp down as default is 200 so -20
+	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 100 - after init", getDesiredWentRPM(NEW_WENT) == 100); //ci_defaultNewRPM =100
+	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 90 - after init", getDesiredWentRPM(USED_WENT) == 90); //ci_defaultUsedRPM = 90;
+	mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 140 - after init", getDesiredAiringVentRPM(USED_WENT) == 140); //ci_defaultUsedAiringRPM = 140;
+	mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT) != 160 - after init", getDesiredAiringVentRPM(NEW_WENT) == 160); //ci_defaultUsedAiringRPM = 160;
+	mu_assert((char* )"getWentStep() != 200 - after init", getWentStep() == 200); //
+
+	decWentNew(); // should go 1/10 of vent setp down as default is 200 so -20
 	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 80 - after dec", getDesiredWentRPM(NEW_WENT) == 80);
-	for(int i=0;i<10;i++)decWentNew();// should go 1/10 of vent setp down as default is 200 so -20 * 50 -100
+	for (int i = 0; i < 10; i++)
+		decWentNew(); // should go 1/10 of vent setp down as default is 200 so -20 * 50 -100
 
 	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 20 - after 10xdecWentNew()", getDesiredWentRPM(NEW_WENT) == 20);
 	incWentNew();
 	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 40 - after incWentNew()", getDesiredWentRPM(NEW_WENT) == 40);
-	for(int i=0;i<20;i++)incWentNew();
-	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 270 - after 20xincWentNEW()", getDesiredWentRPM(NEW_WENT) == 270);
+	for (int i = 0; i < 20; i++)
+		incWentNew();
+	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 270 - after 20xincWentNEW()", getDesiredWentRPM(NEW_WENT) == 260);
 	return 0;
 }
 
+char * vents_test_parseRekuperatorMSG() {
+	initConfigWent();
+	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 100 - after init", getDesiredWentRPM(NEW_WENT) == 100); //ci_defaultNewRPM =100
+	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 90 - after init", getDesiredWentRPM(USED_WENT) == 90); //ci_defaultUsedRPM = 90;
+	mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 140 - after init", getDesiredAiringVentRPM(USED_WENT) == 140); //ci_defaultUsedAiringRPM = 140;
+	mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT) != 160 - after init", getDesiredAiringVentRPM(NEW_WENT) == 160); //ci_defaultUsedAiringRPM = 160;
+	mu_assert((char* )"getWentStep() != 200 - after init", getWentStep() == 200); //
 
+	parseRekuperatorMSG("12045078032026002700");
+//	printf("NEW_IN:%f\n", getCurrentTemReku(NEW_IN));
+//	printf("NEW_OUT :%f\n", getCurrentTemReku(NEW_OUT));
+//	printf("USED_IN:%f\n", getCurrentTemReku(USED_IN));
+//	printf("USED_OUT:%f\n", getCurrentTemReku(USED_OUT));
 
+	mu_assert((char* )"getCurrentTemReku(NEW_IN) - parse", getCurrentTemReku(NEW_IN) == 12.0f);
+	mu_assert((char* )"getCurrentTemReku(NEW_OUT) - parse", getCurrentTemReku(NEW_OUT) == 45.0f);
+	mu_assert((char* )"getCurrentTemReku(USED_IN) - parse", getCurrentTemReku(USED_IN) == 78.0f);
+	mu_assert((char* )"getCurrentTemReku(USED_OUT) - parse", getCurrentTemReku(USED_OUT) == 32.0f);
+	mu_assert((char* )"getCurrentVentRPM(NEW_WENT) - parse", getCurrentVentRPM(NEW_WENT) == 2600);
+	mu_assert((char* )"getCurrentVentRPM(USED_WENT) - parse", getCurrentVentRPM(USED_WENT) == 2700);
+	return 0;
+}
 
+int gi_setWCalled = 0;
+void emptySetW() {
+	gi_setWCalled++;
+}
+
+char * vents_test_checkWietrzenie() {
+	initConfigWent();
+	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 100 - after init", getDesiredWentRPM(NEW_WENT) == 100); //ci_defaultNewRPM =100
+	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 90 - after init", getDesiredWentRPM(USED_WENT) == 90); //ci_defaultUsedRPM = 90;
+	mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 140 - after init", getDesiredAiringVentRPM(USED_WENT) == 140); //ci_defaultUsedAiringRPM = 140;
+	mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT) != 160 - after init", getDesiredAiringVentRPM(NEW_WENT) == 160); //ci_defaultUsedAiringRPM = 160;
+	mu_assert((char* )"getWentStep() != 200 - after init", getWentStep() == 200); //
+
+	mu_assert((char* )"is airing - init", !isAiring());
+	//if (h >= 22 || h == 4 || h == 5 || h == 13 || h == 14) { // jeżeli godzina 22 do 24 i  4 do 5 i 13 do 14
+	checkWietrzenie(22, 4, emptySetW);
+	mu_assert((char* )"is airing - at 22", isAiring());
+	mu_assert((char* )"setW called - at 22", gi_setWCalled == 1);
+	checkWietrzenie(22, 4, emptySetW);
+	mu_assert((char* )"setW called - at 22", gi_setWCalled == 1); //doesn't call setw twice if already airing
+
+	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 160 - when airing at 22", getDesiredWentRPM(NEW_WENT) == 160); //ci_defaultNewRPM =100
+	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 140 - when airing at 22", getDesiredWentRPM(USED_WENT) == 140); //ci_defaultUsedRPM = 90;
+
+	return 0;
+}
 
 char * vents_tests() {
 	mu_run_test(vents_test_init);
@@ -90,6 +146,8 @@ char * vents_tests() {
 	mu_run_test(vents_test_changeWentStep);
 	mu_run_test(vents_test_decIncWentUSED);
 	mu_run_test(vents_test_decIncWentNEW);
+	mu_run_test(vents_test_parseRekuperatorMSG);
+	mu_run_test(vents_test_checkWietrzenie);
 	return 0;
 }
 //void getWentString(char * buf) {

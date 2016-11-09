@@ -44,7 +44,7 @@ void configWent(char key) {
 		changeWentStep();
 		break;
 	case 'C':
-		startWietrzenie(&setWents);
+		startWietrzenie(getHourIncludingNightShift(now()), dayOfWeek(now()), &setWents);
 		break;
 	case 'D':
 		stopWietrzenie(&setWents);

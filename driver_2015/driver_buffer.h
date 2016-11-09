@@ -30,17 +30,14 @@ void setupBuf();
 void setupPompy();
 void wylaczGrzalki();
 void wlaczGrzalki();
-void obslugaPompyMieszajacej(float temp);
+void obslugaPompyMieszajacej(float temp, int h, int dayOfTheWeek);
 void wylaczPompaBuf();
 void wlaczPompaBuf();
 void ustawPinyGrzalek(uint8_t stan);
-void checkAndChangeBuffor();
+void checkAndChangeBuffor(int h, int dayOfTheWeek);
 
 boolean isBufforHeating();
 
-
 void printGrzalkiStatus(int grzejDo, int czekajDo);
-
-
 
 #endif /* DRIVER_BUFFER_H_ */

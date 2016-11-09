@@ -23,15 +23,9 @@ void getWentString(char * buf) {
 
 void setWents() {
 	char buf[10];
-	int vi_desiredWentNew = getDesiredWentRPM(NEW_WENT) * 10;
-	int vi_desiredWentUsed = getDesiredWentRPM(USED_WENT) * 10;
-	if (isNightTariff()) {
-		vi_desiredWentNew = vi_desiredWentNew + getNightWentAdd();
-		vi_desiredWentUsed = vi_desiredWentUsed + getNightWentAdd();
-	}
 
 	Wire.beginTransmission(REKUPERATYOR_ID); // transmit to device #4
-	snprintf(buf, sizeof(buf), "%04d%04dx", vi_desiredWentNew, vi_desiredWentUsed);
+	snprintf(buf, sizeof(buf), "%04d%04dx", getDesiredWentRPM(NEW_WENT) * 10, getDesiredWentRPM(USED_WENT) * 10);
 	Wire.write(buf);        // sends 8
 	Wire.endTransmission();    // stop transmitting
 

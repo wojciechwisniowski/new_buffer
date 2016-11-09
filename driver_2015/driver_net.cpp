@@ -102,7 +102,7 @@ void printTimeStamp(EthernetClient& client) {
 	client.print(F(",\"TS\":"));
 	client.println(now());
 	client.print(F(",\"TARIFF\":"));
-	if (isNightTariff()) {
+	if (isCheapTariff(getHourIncludingNightShift(now()), dayOfWeek(now()))) {
 		client.println(F("\"N\""));
 	} else {
 		client.println(F("\"D\""));
@@ -254,8 +254,8 @@ void loopServer() {
 	// listen for incoming clients
 	EthernetClient client = server.available();
 	if (client) {
-	char readString[100];
-	int i = 0;
+		char readString[100];
+		int i = 0;
 		// an http request ends with a blank line
 		boolean currentLineIsBlank = true;
 		while (client.connected()) {

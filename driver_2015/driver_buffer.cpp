@@ -47,11 +47,11 @@ void setupBuf() {
 	pinMode(GI_PIN_GRZALEK_3, OUTPUT);
 }
 
-void checkAndChangeBuffor() {
+void checkAndChangeBuffor(int h, int dayOfTheWeek) {
 	float temp = getCurrentTemps(1); //temperatrua z ciut powyzej polowy zbiornika
 	int grzejDo;
 	int czekajDo;
-	if (isNightTariff()) { // noc lub poludnie
+	if (isCheapTariff(h, dayOfTheWeek)) { // noc lub poludnie lub weekend
 		grzejDo = getTempMaxNight();
 		czekajDo = getTempMinNight();
 	} else { // dzien
@@ -70,11 +70,11 @@ void checkAndChangeBuffor() {
 	}
 
 	printGrzalkiStatus(grzejDo, czekajDo);
-	obslugaPompyMieszajacej(temp);
+	obslugaPompyMieszajacej(temp, h, dayOfTheWeek);
 }
 
-void obslugaPompyMieszajacej(float temp) {
-	if (!isNightTariff()) {
+void obslugaPompyMieszajacej(float temp, int h, int dayOfTheWeek) {
+	if (!isCheapTariff(h, dayOfTheWeek)) {
 		wylaczPompaBuf(); //w dzien nie mieszamy
 	} else {
 		if (vb_buforGrzeje && (temp > getTempMixingStart())) {

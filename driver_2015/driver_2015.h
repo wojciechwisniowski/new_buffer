@@ -40,7 +40,6 @@ char* setTMN(char* value);
 char* setTXN(char* value);
 char* logError(char* s);
 
-void checkAndChangeTariff();
 
 int setupRTC(int line);
 

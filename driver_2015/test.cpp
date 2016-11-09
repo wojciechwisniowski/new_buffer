@@ -12,6 +12,7 @@
 #include "rest_tst.h"
 #include "termometry_tst.h"
 #include "vents_tst.h"
+#include "power_tariffs_tst.h"
 
 int tests_run = 0;
 int all_tests_run = 0;
@@ -37,6 +38,8 @@ int main(int argc, char **argv) {
 	final_result += test_run(rest_tests, "REST");
 	final_result += test_run(termometers_tests, "TEMPS");
 	final_result += test_run(vents_tests, "VENTS");
+	final_result += test_run(power_tariffs, "POWER_TF");
+
 
 	printf("All tests run: %d\n", all_tests_run);
 	if (final_result != 0) {

@@ -45,10 +45,12 @@ void loop(void) {
 
 	checkKey(getKpd().getKey());
 
+	int h = getHourIncludingNightShift(now());
+	int dayOfTheWeek = dayOfWeek(now());
+
 	if (vi_counter % 17 == 0) {
 		requestTemperatures();
-		checkAndChangeTariff();
-		checkAndChangeBuffor();
+		checkAndChangeBuffor(h, dayOfTheWeek);
 	}
 	if (vi_counter % 21 == 0) {
 		char buf[21];
@@ -62,7 +64,7 @@ void loop(void) {
 		logCurrentStatusToFile();
 	}
 	if (vi_counter % 61 == 0) { // chek wietrzenie
-		checkWietrzenie(hour(), &setWents);
+		checkWietrzenie(h, dayOfTheWeek, &setWents);
 	}
 
 	printScreen(vi_counter);
@@ -96,8 +98,8 @@ void patDog() {
 void printConfigFiles() {
 	char fileName[13];
 	sprintf(fileName, "%04d%02d%02d.log", year(), month(), day());
-	// open the file. note that only one file can be open at a time,
-	// so you have to close this one before opening another.
+// open the file. note that only one file can be open at a time,
+// so you have to close this one before opening another.
 	File myFile = SD.open(fileName);
 
 	if (myFile) {

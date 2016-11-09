@@ -16,7 +16,6 @@
 #define WENTCOUNT 2 //ilość wentylatorów
 #define TEMPCOUNT_REKU 4 //termometry requ
 
-
 #define REKUPERATYOR_ID 4 //id na szynie I2C
 
 #define NEW_WENT 0
@@ -31,48 +30,39 @@
 #define USED_IN 2
 #define USED_OUT 3
 
+int getNightWentAdd(); //
 
-int getNightWentAdd();//
+void changeWentStep(); //
 
-void changeWentStep();//
+void decWentUSED(); //
+void decWentNew(); //
 
-void decWentUSED();//
-void decWentNew();//
+void incWentNew(); //
+void incWentUSED(); //
 
-void incWentNew();//
-void incWentUSED();//
+void startWietrzenie(int h, int dayOfTheWeek, void (*)());
+void stopWietrzenie(void (*)());
+void checkWietrzenie(int,int, void (*)());
 
+void initConfigWent(); //
+void parseRekuperatorMSG(const char * msg); //
 
-void startWietrzenie( void *());
-void stopWietrzenie( void *());
-void checkWietrzenie(int,void *());
-
-void initConfigWent();//
-void parseRekuperatorMSG(const char * msg);
-
-void incWent(int went, int max);
-void decWent(int went, int max);
+void incWent(int went); //
+void decWent(int went); //
 
 float getCurrentTemReku(int nr);
 int getCurrentVentRPM(int nr);
 
 int getDesiredWentRPM(int nr);
-void setDesiredVentRPM(int nr,int rpm);
+void setDesiredVentRPM(int nr, int rpm);
 
 int getDesiredAiringVentRPM(int nr);
-void setDesiredAiringVentRPM(int nr,int rpm);
-
+void setDesiredAiringVentRPM(int nr, int rpm);
 
 int getWentStep();
 
 bool isAiring();
 
 bool checkRPM(int rpm);
-
-
-
-
-
-
 
 #endif /* VENTS_H_ */
