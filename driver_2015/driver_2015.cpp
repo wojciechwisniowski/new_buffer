@@ -27,7 +27,7 @@ void setup(void) {
 	delay(2000);
 	setupHttp();
 	GLCD.ClearScreen(PIXEL_OFF);
-	getKpd().addEventListener(keypadEvent); //add an event listener for this keypad
+	//getKpd().addEventListener(keypadEvent); //add an event listener for this keypad
 }
 
 //from Time RTC example
@@ -43,8 +43,7 @@ int setupRTC(int line) {
 
 void loop(void) {
 
-	getKpd().getKey();
-	//checkKey();
+	checkKey(getKpd().getKey());
 
 	int h = getHourIncludingNightShift(now());
 	int dayOfTheWeek = dayOfWeek(now());
