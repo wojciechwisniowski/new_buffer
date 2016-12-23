@@ -36,6 +36,7 @@ void setFloorPumpDrawing(bool value) {
 	vb_pompaPodlogowaRysuj = value;
 }
 
+//sprawdza temperatury, pore dnia i włącza lub wyłacza graznie elektryczne
 void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), char * (*bottomStatusPrinter)(const char *),void (*heaterSetter)(bool)) {
 	float temp = getCurrentTemps(1); //temperatrua z ciut powyzej polowy zbiornika
 	int grzejDo;
