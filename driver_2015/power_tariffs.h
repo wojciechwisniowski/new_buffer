@@ -16,7 +16,10 @@ int getHourNightEnd();
 int getMinuteNightShift();
 
 void initConfigStrefy(); //
-bool isCheapTariff(int h, int dayOfTheWeek);
+bool isWeekend(int dayOfTheWeek);//
+bool isNightCheapTariff(int h);//
+bool isDayCheapTariff(int h);//
+bool isCheapTariff(int h, int dayOfTheWeek);//
 
 void decDzienStart();
 void incDzienStart();

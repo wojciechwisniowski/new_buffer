@@ -227,6 +227,7 @@ void doPOSTTemp(const char* resource, const char* value) {
 
 void doPOSTWent(const char* resource, const char* value) {
     if (strcmp(WN, resource) == 0) {
+
         setWN(value);
     } else if (strcmp(WU, resource) == 0) {
         setWU(value);

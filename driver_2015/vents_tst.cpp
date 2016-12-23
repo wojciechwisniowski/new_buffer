@@ -133,8 +133,8 @@ char * vents_test_checkWietrzenie() {
 	checkWietrzenie(22, 4, emptySetW);
 	mu_assert((char* )"setW called - at 22", gi_setWCalled == 1); //doesn't call setw twice if already airing
 
-	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 160 - when airing at 22", getDesiredWentRPM(NEW_WENT) == 160); //ci_defaultNewRPM =100
-	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 140 - when airing at 22", getDesiredWentRPM(USED_WENT) == 140); //ci_defaultUsedRPM = 90;
+	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 160 - when airing at 22", getDesiredWentRPM(NEW_WENT) == 170); //not 160 because night adds 10
+	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 140 - when airing at 22", getDesiredWentRPM(USED_WENT) == 150);//not 140 because night adds 10
 
 	return 0;
 }

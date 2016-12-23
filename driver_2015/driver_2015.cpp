@@ -43,14 +43,15 @@ int setupRTC(int line) {
 
 void loop(void) {
 
-	checkKey(getKpd().getKey());
+	getKpd().getKey();
+	//checkKey();
 
 	int h = getHourIncludingNightShift(now());
 	int dayOfTheWeek = dayOfWeek(now());
 
 	if (vi_counter % 17 == 0) {
 		requestTemperatures();
-		checkAndChangeBuffor(h, dayOfTheWeek);
+		checkAndChangeBuffor(h, dayOfTheWeek, setMixingPumpHW, printBottomStatus, setHeaterHW);
 	}
 	if (vi_counter % 21 == 0) {
 		char buf[21];

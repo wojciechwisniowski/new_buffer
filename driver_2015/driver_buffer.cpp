@@ -6,48 +6,37 @@
  */
 #include "driver_buffer.h"
 
-boolean vb_pompaMieszajacaPracuje = false;
-boolean vb_pompaMieszajacaRysuj = true;
-boolean vb_pompaPodlogowaPracuje = true;
-boolean vb_pompaPodlogowaRysuj = true;
-boolean vb_buforGrzeje = false;
+bool vb_pompaMieszajacaPracuje = false;
+bool vb_pompaMieszajacaRysuj = true;
+bool vb_pompaPodlogowaPracuje = true;
+bool vb_pompaPodlogowaRysuj = true;
+bool vb_buforGrzeje = false;
 
-boolean isMixingPumpWorking() {
+bool isMixingPumpWorking() {
 	return vb_pompaMieszajacaPracuje;
 }
-boolean isMixingPumpDrawing() {
+bool isMixingPumpDrawing() {
 	return vb_pompaMieszajacaRysuj;
 }
-boolean isFloorPumpWorking() {
+bool isFloorPumpWorking() {
 	return vb_pompaPodlogowaPracuje;
 }
-boolean isFloorPumpDrawing() {
+bool isFloorPumpDrawing() {
 	return vb_pompaPodlogowaRysuj;
 }
 
-boolean isBufforHeating() {
+bool isBufforHeating() {
 	return vb_buforGrzeje;
 }
 
-void setMixingPumpDrawing(boolean value) {
+void setMixingPumpDrawing(bool value) {
 	vb_pompaMieszajacaRysuj = value;
 }
-void setFloorPumpDrawing(boolean value) {
+void setFloorPumpDrawing(bool value) {
 	vb_pompaPodlogowaRysuj = value;
 }
 
-void setupPompy() {
-	pinMode(GI_PIN_POMPY_MIESZAJACEJ, OUTPUT);
-	pinMode(GI_PIN_POMPY_PODLOGOWEJ, OUTPUT);
-}
-
-void setupBuf() {
-	pinMode(GI_PIN_GRZALEK_1, OUTPUT);
-	pinMode(GI_PIN_GRZALEK_2, OUTPUT);
-	pinMode(GI_PIN_GRZALEK_3, OUTPUT);
-}
-
-void checkAndChangeBuffor(int h, int dayOfTheWeek) {
+void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), char * (*bottomStatusPrinter)(const char *),void (*heaterSetter)(bool)) {
 	float temp = getCurrentTemps(1); //temperatrua z ciut powyzej polowy zbiornika
 	int grzejDo;
 	int czekajDo;
@@ -61,64 +50,60 @@ void checkAndChangeBuffor(int h, int dayOfTheWeek) {
 
 	if (vb_buforGrzeje) { // jak grzeje to spradz czy nie nagrzal
 		if (temp >= grzejDo) { // nagrzal to wylacz
-			wylaczGrzalki();
+			wylaczGrzalki(heaterSetter);
 		}
 	} else { //nie grzeje
 		if (temp < czekajDo) { // temperatura ponizej ustawionej  -> wlacz grzalki
-			wlaczGrzalki();
+			wlaczGrzalki(heaterSetter);
 		}
 	}
 
-	printGrzalkiStatus(grzejDo, czekajDo);
-	obslugaPompyMieszajacej(temp, h, dayOfTheWeek);
+	printGrzalkiStatus(grzejDo, czekajDo, bottomStatusPrinter);
+	obslugaPompyMieszajacej(temp, h, dayOfTheWeek, setMixingPump);
 }
 
-void obslugaPompyMieszajacej(float temp, int h, int dayOfTheWeek) {
+void obslugaPompyMieszajacej(float temp, int h, int dayOfTheWeek, void (*setMixingPump)(bool)) {
 	if (!isCheapTariff(h, dayOfTheWeek)) {
-		wylaczPompaBuf(); //w dzien nie mieszamy
+		wylaczPompaBuf(setMixingPump); //w dzien nie mieszamy
 	} else {
 		if (vb_buforGrzeje && (temp > getTempMixingStart())) {
-			wlaczPompaBuf(); //grzeje i zagrzal juz CWU do gi_temperaturaStartuMieszania wiec grzej dol
+			wlaczPompaBuf(setMixingPump); //grzeje i zagrzal juz CWU do gi_temperaturaStartuMieszania wiec grzej dol
 		} else {
-			wylaczPompaBuf(); // albo nie grzeje albo sie CWU wychlodzilo to nie mieszamy dalej
+			wylaczPompaBuf(setMixingPump); // albo nie grzeje albo sie CWU wychlodzilo to nie mieszamy dalej
 		}
 	}
 }
 
-void printGrzalkiStatus(int grzejDo, int czekajDo) {
+char * printGrzalkiStatus(int grzejDo, int czekajDo, char* (*bottomStatusPrinter)(const char *)) {
 	char buf[40];
-	if (vb_buforGrzeje) {
+	char * status = 0;
+	if (isBufforHeating()) {
 		sprintf(buf, "Buf Grzeje do:%02d", grzejDo);
-		printBottomStatus(buf);
+		status = bottomStatusPrinter(buf);
 	} else {
 		sprintf(buf, "Buf czeka do:%02d", czekajDo);
-		printBottomStatus(buf);
+		status = bottomStatusPrinter(buf);
 	}
+	return status;
 }
 
-void wlaczPompaBuf() {
-	digitalWrite(GI_PIN_POMPY_MIESZAJACEJ, LOW);
+void wlaczPompaBuf(void (*setMixingPump)(bool)) {
+	setMixingPump(true);
 	vb_pompaMieszajacaPracuje = true;
 }
 
-void wylaczPompaBuf() {
-	digitalWrite(GI_PIN_POMPY_MIESZAJACEJ, HIGH);
+void wylaczPompaBuf(void (*setMixingPump)(bool)) {
+	setMixingPump(false);
 	vb_pompaMieszajacaPracuje = false;
 }
 
-void wylaczGrzalki() {
-	ustawPinyGrzalek(HIGH);
+void wylaczGrzalki(void (*heaterSetter)(bool)) {
+	heaterSetter(false);
 	vb_buforGrzeje = false;
 }
 
-void wlaczGrzalki() {
+void wlaczGrzalki(void (*heaterSetter)(bool)) {
+	heaterSetter(true);
 	vb_buforGrzeje = true;
-	ustawPinyGrzalek(LOW);
-}
-
-void ustawPinyGrzalek(uint8_t stan) {
-	digitalWrite(GI_PIN_GRZALEK_1, stan);
-	digitalWrite(GI_PIN_GRZALEK_2, stan);
-	digitalWrite(GI_PIN_GRZALEK_3, stan);
 }
 

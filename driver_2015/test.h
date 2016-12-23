@@ -25,5 +25,7 @@ int inline readTemFromEprom(const int *addr) {
 		return 255;
 }
 
+char* bottomStatusPrinter_console(const char *);
+char* bottomStatusPrinter_empty(const char *);
 
 #endif /* TEST_H_ */

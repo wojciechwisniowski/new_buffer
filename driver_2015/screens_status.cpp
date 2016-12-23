@@ -6,14 +6,15 @@
  */
 #include "screens_status.h"
 
-void printBottomStatus(const char * buf) {
-	GLCD.DrawString(buf, gTextfmt_center, gTextfmt_bottom, eraseTO_EOL);
-}
+//void printBottomStatus(const char * buf) {
+//	GLCD.DrawString(buf, gTextfmt_center, gTextfmt_bottom, eraseTO_EOL);
+//}
 
-void printBottomStatus(char* s) {
+char * printBottomStatus(const char* s) {
 	GLCD.SelectFont(Wendy3x5);
 	GLCD.DrawString(s, gTextfmt_left, gTextfmt_bottom, eraseFULL_LINE);
 	GLCD.SelectFont(System5x7);
+	return 0;
 }
 
 //TODO refactor

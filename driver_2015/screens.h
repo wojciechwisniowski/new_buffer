@@ -32,7 +32,6 @@ void printConfigWent();
 void printConfigFiles();
 
 void printDigitalClock();
-void printGrzalkiStatus(int grzejDo, int czekajDo);
 void printWent();
 void printTemps(int counter);
 void printScreen(int vi_counter);

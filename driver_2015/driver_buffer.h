@@ -7,37 +7,31 @@
 
 #ifndef DRIVER_BUFFER_H_
 #define DRIVER_BUFFER_H_
-#include <Arduino.h>
+#include "driver_buffer_prod.h"
+
 #include "termometry.h"
 #include "screens_status.h"
 #include "power_tariffs.h"
 
-#define GI_PIN_GRZALEK_1 42
-#define GI_PIN_GRZALEK_2 43
-#define GI_PIN_GRZALEK_3 44
-#define GI_PIN_POMPY_MIESZAJACEJ 45//pompa mieszajaca bufor
-#define GI_PIN_POMPY_PODLOGOWEJ 46//pompa od podłogówki
 
-boolean isMixingPumpWorking();
-boolean isMixingPumpDrawing();
-boolean isFloorPumpWorking();
-boolean isFloorPumpDrawing();
+bool isMixingPumpWorking();
+bool isMixingPumpDrawing();
+bool isFloorPumpWorking();
+bool isFloorPumpDrawing();
 
-void setMixingPumpDrawing(boolean);
-void setFloorPumpDrawing(boolean);
+void setMixingPumpDrawing(bool);
+void setFloorPumpDrawing(bool);
 
-void setupBuf();
-void setupPompy();
-void wylaczGrzalki();
-void wlaczGrzalki();
-void obslugaPompyMieszajacej(float temp, int h, int dayOfTheWeek);
-void wylaczPompaBuf();
-void wlaczPompaBuf();
-void ustawPinyGrzalek(uint8_t stan);
-void checkAndChangeBuffor(int h, int dayOfTheWeek);
+void wylaczGrzalki(void (*heaterSetter)(bool));
+void wlaczGrzalki(void (*heaterSetter)(bool));
+void obslugaPompyMieszajacej(float temp, int h, int dayOfTheWeek,void (*setMixingPump)(bool));//
+void wylaczPompaBuf(void (*setMixingPump)(bool));
+void wlaczPompaBuf(void (*setMixingPump)(bool));
 
-boolean isBufforHeating();
+void checkAndChangeBuffor(int h, int dayOfTheWeek,void (*setMixingPump)(bool),char * (*bottomStatusPrinter) (const char *),void (*heaterSetter)(bool));
 
-void printGrzalkiStatus(int grzejDo, int czekajDo);
+bool isBufforHeating();
+
+char * printGrzalkiStatus(int grzejDo, int czekajDo,char* (*bottomStatusPrinter) (const char *));
 
 #endif /* DRIVER_BUFFER_H_ */

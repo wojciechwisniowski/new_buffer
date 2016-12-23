@@ -11,7 +11,7 @@
 #include <openGLCD_Config.h>
 #include <openGLCD.h>
 
-void printBottomStatus(const char * buf);
+char * printBottomStatus(const char * buf);
 void printBottomStatusSent(const char * buf);
 void print0(int line, char const * str);
 
