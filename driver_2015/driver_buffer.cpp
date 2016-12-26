@@ -58,27 +58,26 @@ void handleFloorPump(int h, int dayOfTheWeek, void (*floorPumpSetter)(bool)) {
 void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), char * (*bottomStatusPrinter)(const char *), void (*heaterSetter)(bool),
 		void (*floorPumpSetter)(bool)) {
 	float temp = getCurrentTemps(1); //temperatrua z ciut powyzej polowy zbiornika
-	int grzejDo;
-	int czekajDo;
+
 	if (isCheapTariff(h, dayOfTheWeek)) { // noc lub poludnie lub weekend
-		grzejDo = getTempMaxNight();
-		czekajDo = getTempMinNight();
+		setTempHeatTo(getTempMaxNight());
+		setTempWaitTo(getTempMinNight());
 	} else { // dzien
-		grzejDo = getTempMaxDay();
-		czekajDo = getTempMinDay();
+		setTempHeatTo(getTempMaxDay());
+		setTempWaitTo(getTempMinDay());
 	}
 
 	if (vb_buforGrzeje) { // jak grzeje to spradz czy nie nagrzal
-		if (temp >= grzejDo) { // nagrzal to wylacz
+		if (temp >= getTempHeatTo()) { // nagrzal to wylacz
 			wylaczGrzalki(heaterSetter);
 		}
 	} else { //nie grzeje
-		if (temp < czekajDo) { // temperatura ponizej ustawionej  -> wlacz grzalki
+		if (temp < getTempWaitTo()) { // temperatura ponizej ustawionej  -> wlacz grzalki
 			wlaczGrzalki(heaterSetter);
 		}
 	}
 
-	printGrzalkiStatus(grzejDo, czekajDo, bottomStatusPrinter);
+	printGrzalkiStatus(getTempHeatTo(), getTempWaitTo(), bottomStatusPrinter);
 	obslugaPompyMieszajacej(temp, h, dayOfTheWeek, setMixingPump);
 	handleFloorPump(h, dayOfTheWeek, floorPumpSetter);
 }

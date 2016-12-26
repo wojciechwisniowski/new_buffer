@@ -56,7 +56,7 @@ void setupHttp() {
 //from webServerExample
 
 void printHtmlBufor(EthernetClient& client) {
-	client.println(F("\"VER\":1.8"));
+	client.println(F("\"VER\":1.9"));
 	for (int i = 0; i < TEMPCOUNT; i++) {
 
 		float tempC = getTempC(i);
@@ -92,21 +92,36 @@ void printHtmlWent(EthernetClient& client) {
 }
 void printTimeStamp(EthernetClient& client) {
 	char buf[13];
+	time_t vt_now = now();
 	client.print(F(",\"TIME\":"));
 	// format the time in a buffer
-	snprintf(buf, sizeof(buf), "\"%02d:%02d:%02d\"", hour(), minute(), second());
+	snprintf(buf, sizeof(buf), "\"%02d:%02d:%02d\"", hour(vt_now), minute(vt_now), second(vt_now));
 	client.println(buf);
 	client.print(F(",\"DATE\":"));
-	snprintf(buf, sizeof(buf), "\"%02d.%02d.%04d\"", day(), month(), year());
+	snprintf(buf, sizeof(buf), "\"%02d.%02d.%04d\"", day(vt_now), month(vt_now), year(vt_now));
 	client.println(buf);
 	client.print(F(",\"TS\":"));
 	client.println(now());
 	client.print(F(",\"TARIFF\":"));
-	if (isCheapTariff(getHourIncludingNightShift(now()), dayOfWeek(now()))) {
+	int vi_hInclShift = getHourIncludingNightShift(vt_now);
+	int vi_dayOfTheWeek = dayOfWeek(vt_now);
+	if (isCheapTariff(vi_hInclShift, vi_dayOfTheWeek)) {
 		client.println(F("\"N\""));
 	} else {
 		client.println(F("\"D\""));
 	}
+	client.print(F(",\"TARIFF_DETAIL\":"));
+
+	if (isWeekend(vi_dayOfTheWeek)) {
+		client.println(F("\"Weekend\""));
+	} else if(isNightCheapTariff(vi_hInclShift)){
+		client.println(F("\"Night\""));
+	} else if(isDayCheapTariff(vi_hInclShift)){
+		client.println(F("\"Cheap day\""));
+	} else{
+		client.println(F("\"Day\""));
+	}
+
 }
 
 //void printErrorReport(EthernetClient& client) {
@@ -138,6 +153,15 @@ void printHtmlStatus(EthernetClient& client) {
 	client.print(F(",\"Buf grzeje\":"));
 	snprintf(buf, sizeof(buf), "\"%02d\"", isBufforHeating());
 	client.println(buf);
+
+	client.print(F(",\"Bur_wiatTo\":"));
+	snprintf(buf, sizeof(buf), "\"%02d\"", getTempWaitTo());
+	client.println(buf);
+
+	client.print(F(",\"Bur_heatTo\":"));
+	snprintf(buf, sizeof(buf), "\"%02d\"", getTempHeatTo());
+	client.println(buf);
+
 
 	client.print(F(",\"pompaMieszPracuje\":"));
 	snprintf(buf, sizeof(buf), "\"%02d\"", isMixingPumpWorking());

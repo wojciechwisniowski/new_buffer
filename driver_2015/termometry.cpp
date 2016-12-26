@@ -19,6 +19,8 @@ int gi_Temp_Max_Day;
 int gi_Temp_Min_Night;
 int gi_Temp_Max_Night;
 int gi_Temp_Mixing_Start;
+int gi_Temp_waitTo = 49;
+int gi_Temp_heatTo = 50;
 
 const int ci_minTemp = 5;
 const int ci_maxTemp = 95;
@@ -28,6 +30,21 @@ const int ci_maxDayTempDefault = 31;
 const int ci_minNightTempDefault = 60;
 const int ci_maxNightTempDefault = 80;
 const int ci_mixingPumpStartTempDefault = 55;
+
+void setTempWaitTo(int t){
+	gi_Temp_waitTo = t;
+}
+
+int getTempWaitTo(){
+	return gi_Temp_waitTo;
+}
+
+void setTempHeatTo(int t){
+	gi_Temp_heatTo = t;
+}
+int getTempHeatTo(){
+	return gi_Temp_heatTo;
+}
 
 int getTempMinDay() {
 	return gi_Temp_Min_Day;
