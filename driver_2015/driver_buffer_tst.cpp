@@ -103,57 +103,55 @@ char * driver_buffer_test_checkAndChangeBuffor() {
 	//week day - day
 	initConfigTemp();
 	setCurrentTemps(1, 30); //min day 29 max day 31
-	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 16 at 30", !isBufforHeating());
 
 	setCurrentTemps(1, 28); //min day 29 max day 31
-	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 16 at 28", isBufforHeating());
 
 	setCurrentTemps(1, 30); //min day 29 max day 31 - still heating until 31
-	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 16 at 30", isBufforHeating());
 
 	setCurrentTemps(1, 31); //min day 29 max day 31 - stop at 31
-	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 16 at 31", !isBufforHeating());
 
 	//week day - night
 	initConfigTemp();
 	setCurrentTemps(1, 61); //min night 60 max night 80
-	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 23 at 61", !isBufforHeating());
 
 	setCurrentTemps(1, 59); //min night 60 max night 80
-	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 23 at 59", isBufforHeating());
 
 	setCurrentTemps(1, 79); //min night 60 max night 80 - still heating until 31
-	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 23 at 79", isBufforHeating());
 
 	setCurrentTemps(1, 81); //min night 60 max night 80 - stop at 81
-	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 23 at 81", !isBufforHeating());
-
 
 	//weekend
 	setCurrentTemps(1, 61); //minn 60 maxn 80
-	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekend at 16 at 61", !isBufforHeating());
 
 	setCurrentTemps(1, 59); //minn 60 maxn 80
-	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekend at 16 at 61", isBufforHeating());
 
 	setCurrentTemps(1, 79); //minn 60 maxn 80
-	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekend at 16 at 79", isBufforHeating());
 
 	setCurrentTemps(1, 80); //minn 60 maxn 80
-	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty);
+	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekend at 16 at 80", !isBufforHeating());
-
 
 	return ret;
 }

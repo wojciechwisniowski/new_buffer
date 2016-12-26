@@ -19,6 +19,7 @@ void ustawPinyGrzalek(uint8_t stan);
 void setupBuf();
 void setupPompy();
 void setMixingPumpHW(bool state);
+void setFloorPumpHW(bool state);
 void setHeaterHW(bool state);
 
 #endif /* DRIVER_BUFFER_PROD_H_ */

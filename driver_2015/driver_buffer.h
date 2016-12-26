@@ -28,7 +28,7 @@ void obslugaPompyMieszajacej(float temp, int h, int dayOfTheWeek,void (*setMixin
 void wylaczPompaBuf(void (*setMixingPump)(bool));
 void wlaczPompaBuf(void (*setMixingPump)(bool));
 
-void checkAndChangeBuffor(int h, int dayOfTheWeek,void (*setMixingPump)(bool),char * (*bottomStatusPrinter) (const char *),void (*heaterSetter)(bool));
+void checkAndChangeBuffor(int h, int dayOfTheWeek,void (*setMixingPump)(bool),char * (*bottomStatusPrinter) (const char *),void (*heaterSetter)(bool),void (*floorPumpSetter)(bool));
 
 bool isBufforHeating();
 

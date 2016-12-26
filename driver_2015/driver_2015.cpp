@@ -50,7 +50,7 @@ void loop(void) {
 
 	if (vi_counter % 17 == 0) {
 		requestTemperatures();
-		checkAndChangeBuffor(h, dayOfTheWeek, setMixingPumpHW, printBottomStatus, setHeaterHW);
+		checkAndChangeBuffor(h, dayOfTheWeek, setMixingPumpHW, printBottomStatus, setHeaterHW, setFloorPumpHW);
 	}
 	if (vi_counter % 21 == 0) {
 		char buf[21];

@@ -21,6 +21,12 @@ bool isMixingPumpDrawing() {
 bool isFloorPumpWorking() {
 	return vb_pompaPodlogowaPracuje;
 }
+
+void setFloorPumpWorking(bool status, void (*floorPumpSetter)(bool)) {
+	vb_pompaPodlogowaPracuje = status;
+	floorPumpSetter(status);
+}
+
 bool isFloorPumpDrawing() {
 	return vb_pompaPodlogowaRysuj;
 }
@@ -36,8 +42,21 @@ void setFloorPumpDrawing(bool value) {
 	vb_pompaPodlogowaRysuj = value;
 }
 
+//first algorithm
+void handleFloorPump(int h, int dayOfTheWeek, void (*floorPumpSetter)(bool)) {
+//start at 1pm and heat till 21:59 then break and in the morning from 4 till 6:59
+	if (h >= getHourDayStart() && h < 22) {
+		setFloorPumpWorking(true, floorPumpSetter);
+	} else if (h >= 4 && h < 7) {
+		setFloorPumpWorking(true, floorPumpSetter);
+	} else {
+		setFloorPumpWorking(false, floorPumpSetter);
+	}
+}
+
 //sprawdza temperatury, pore dnia i włącza lub wyłacza graznie elektryczne
-void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), char * (*bottomStatusPrinter)(const char *),void (*heaterSetter)(bool)) {
+void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), char * (*bottomStatusPrinter)(const char *), void (*heaterSetter)(bool),
+		void (*floorPumpSetter)(bool)) {
 	float temp = getCurrentTemps(1); //temperatrua z ciut powyzej polowy zbiornika
 	int grzejDo;
 	int czekajDo;
@@ -61,6 +80,7 @@ void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), 
 
 	printGrzalkiStatus(grzejDo, czekajDo, bottomStatusPrinter);
 	obslugaPompyMieszajacej(temp, h, dayOfTheWeek, setMixingPump);
+	handleFloorPump(h, dayOfTheWeek, floorPumpSetter);
 }
 
 void obslugaPompyMieszajacej(float temp, int h, int dayOfTheWeek, void (*setMixingPump)(bool)) {

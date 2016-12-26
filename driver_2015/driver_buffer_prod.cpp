@@ -32,6 +32,14 @@ void setMixingPumpHW(bool state) {
 }
 
 
+void setFloorPumpHW(bool state) {
+	if (state) {
+		digitalWrite(GI_PIN_POMPY_PODLOGOWEJ, LOW);
+	} else {
+		digitalWrite(GI_PIN_POMPY_PODLOGOWEJ, HIGH);
+	}
+}
+
 void setHeaterHW(bool state) {
 	if (state) {
 		ustawPinyGrzalek(LOW);
