@@ -2,6 +2,7 @@
 
 
 #include "driver2015mock.h"
+#include "vents.h"
 
 #include "minunit.h"
 #include <stdio.h>
@@ -40,6 +41,9 @@ Request::Request(const char* buf) {
     value = new char[8];
     auth = new char[9];
     error = new char[300];
+    response = new char[100];
+    response[0]='\0';
+    for(int i=0;i<100;i++)error[i]=0;
     init(buf);
 }
 
@@ -49,7 +53,15 @@ Request::~Request() {
     delete[] value;
     delete[] auth;
     delete[] error;
+    delete[] response;
+
+    debug("Request destructor done");
+    }
+
+char * Request::getResponse() {
+    return response;
 }
+
 
 char * Request::getError() {
     return error;
@@ -70,49 +82,69 @@ void Request::setError(const char* err) {
     strcpy(error, err);
 }
 
-void Request::init(const char* buf) {
-//void parse(const char* buf,const Print& ) {
-    int i = 0;
-    int j = 0;
+int Request::parseMethod(int i, const char* buf){
     char c = buf[i++];
-
+    int j = 0;
     // get method from request
     while (c != ' ' && i < 8) {
         method[j++] = c;
         c = buf[i++];
     }
     method[j] = '\0';
+    return i;
+}
+
+char Request::parseResource(char c, const char* buf, int& i) {
+	int j = 0;
+	c = buf[i++]; // this should be 'first char of resource'
+	while (c != ' ' && c != '/' && j < 8) {
+		resource[j++] = c;
+		c = buf[i++];
+	}
+	resource[j] = '\0';
+
+	return c;
+}
+
+int Request::parseValue(char c, const char* buf, int i) {
+	//get value from request
+	if (c == '/') {
+		// this is a start of value
+		int j = 0;
+		c = buf[i++];
+		while (c != ' ' && c != '/' && j < 8) {
+			value[j++] = c;
+			c = buf[i++];
+		}
+		value[j] = '\0';
+	}
+	if (c == ' ') {
+		// no value just resource
+		while (c != '\n')
+			c = buf[i++]; // scroll to the next line
+	}
+	return i;
+}
+
+void Request::init(const char* buf) {
+//void parse(const char* buf,const Print& ) {
+    int i = 0;
+    int j = 0;
+    char c;
+    i = parseMethod(i,buf);
     debug("init - after method");
+
     //get resource from request
     c = buf[i++]; // this should be '/'
     if (c != '/')
         setError("ERR:bad request missing resource");
     debug("before res");
     if (!errorFlag) {
-        j = 0;
-        c = buf[i++]; // this should be 'first char of resource'
-        while (c != ' ' && c != '/' && j < 8) {
-            resource[j++] = c;
-            c = buf[i++];
-        }
-        resource[j] = '\0';
-        debug("after res");
-        //get value from request
-        if (c == '/') { // this is a start of value
-            j = 0;
-            c = buf[i++];
-            while (c != ' ' && c != '/' && j < 8) {
-                value[j++] = c;
-                c = buf[i++];
-            }
-            value[j] = '\0';
+		c = parseResource(c, buf, i);
+		debug("after res");
 
-        }
-        if (c == ' ') { // no value just resource
-            while (c != '\n')
-                c = buf[i++]; // scroll to the next line
-        }
-
+		//get value from request
+		i = parseValue(c, buf, i);
         //host line
         c = buf[i++];//eat \r sign
         c = buf[i++];
@@ -150,55 +182,59 @@ void Request::init(const char* buf) {
                     if (strcmp(AUTH, auth) != 0) {
                         setError("Authorization failed");
                     }
-//                    else {
-//                        if (strcmp("GET", method) == 0) {
-//                            if (resource[0] != '\0')
-//                                debug("doGET");
-//                            //doGET(resource, value);
-//                        } else if (strcmp("POST", method) == 0) {
-//                            if (resource[0] != '\0')
-//                                debug("doPOST");
-//                            //doPOST(resource, value);
-//                        }
-//                    }
+                    else {
+                        if (strcmp("GET", method) == 0) {
+                            if (resource[0] != '\0')
+                                debug("doGET");
+                            doGET(resource);
+                        } else if (strcmp("POST", method) == 0) {
+                            if (resource[0] != '\0')
+                                debug("doPOST");
+                            doPOST(resource, value);
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-void doGET(const char* resource, const char* value) {
+void Request::doGET(const char* resource) {
     switch (resource[0]) {
     case 'W':
-        doGETWent(resource, value);
+    	doGETWent(resource);
         break;
     case 'T':
-        doGETTemp(resource, value);
+        doGETTemp(resource);
         break;
     }
 }
 
-void doGETWent(const char* resource, const char* value) {
+void Request::doGETWent(const char* resource) {
     if (strcmp(WN, resource) == 0) {
-        getWN();
+    	int rpm = getDesiredWentRPM(NEW_WENT)*10;
+        sprintf(response,"%d",rpm);
     } else if (strcmp(WU, resource) == 0) {
-        getWU();
+    	int rpm = getDesiredWentRPM(USED_WENT)*10;
+        sprintf(response,"%d",rpm);
     } else if (strcmp(WWN, resource) == 0) {
-        getWWN();
+    	int rpm = getDesiredAiringVentRPM(NEW_WENT)*10;
+        sprintf(response,"%d",rpm);
     } else if (strcmp(WWU, resource) == 0) {
-        getWWU();
+    	int rpm = getDesiredAiringVentRPM(USED_WENT)*10;
+        sprintf(response,"%d",rpm);
     }
 }
 
-void doGETTemp(const char* resource, const char* value) {
+void Request::doGETTemp(const char* resource) {
     if (strcmp(TMD, resource) == 0) {
-        getTMD();
+        sprintf(response,"%d",getTempMinDay());
     } else if (strcmp(TXD, resource) == 0) {
-        getTXD();
+    	sprintf(response,"%d",getTempMaxDay());
     } else if (strcmp(TMN, resource) == 0) {
-        getTMN();
+    	sprintf(response,"%d",getTempMinNight());
     } else if (strcmp(TXN, resource) == 0) {
-        getTXN();
+    	sprintf(response,"%d",getTempMaxNight());
     }
 }
 
@@ -214,27 +250,29 @@ void doPOST(const char* resource, const char* value) {
 }
 
 void doPOSTTemp(const char* resource, const char* value) {
+    	int temp = atoi(value);
     if (strcmp(TMD, resource) == 0) {
-        setTMD(value);
+    	setMinDayTemp(temp);
     } else if (strcmp(TXD, resource) == 0) {
-        setTXD(value);
+        setMaxDayTemp(temp);
     } else if (strcmp(TMN, resource) == 0) {
-        setTMN(value);
+        setMinNightTemp(temp);
     } else if (strcmp(TXN, resource) == 0) {
-        setTXN(value);
+        setMaxNightTemp(temp);
     }
 }
 
 void doPOSTWent(const char* resource, const char* value) {
+	debug("doPOSTWent");
+	int i_value = atoi(value)/10;
     if (strcmp(WN, resource) == 0) {
-
-        setWN(value);
+    	setDesiredVentRPM(NEW_WENT, i_value);
     } else if (strcmp(WU, resource) == 0) {
-        setWU(value);
+    	setDesiredVentRPM(USED_WENT, i_value);
     } else if (strcmp(WWN, resource) == 0) {
-        setWWN(value);
+        setDesiredAiringVentRPM(NEW_WENT, i_value);
     } else if (strcmp(WWU, resource) == 0) {
-        setWWU(value);
+    	setDesiredAiringVentRPM(USED_WENT, i_value);
     }
 }
 

@@ -9,7 +9,7 @@
 #define TEST_H_
 
 const bool gb_production = false;
-
+//#define DEBUG
 
 #ifdef DEBUG
 #define debug(message) do { printf("%s\n", message); } while (0)

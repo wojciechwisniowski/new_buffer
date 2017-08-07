@@ -20,27 +20,7 @@ void getTMN();
 void getTXD();
 void getTXN();
 
-// get went new rpm
-void getWN();
-// get went used rpm
-void getWU();
 
-// get went airing new rpm
-void getWWN();
-
-// get went airing used rpm
-void getWWU();
-
-// set went new rpm
-void setWN(const char* value );
-// set went used rpm
-void setWU(const char* value);
-
-// set went airing new rpm
-void setWWN(const char* value );
-
-// set went airing used rpm
-void setWWU(const char* value );
 
 void setTMD(const char* value );
 void setTXD(const char* value );

@@ -10,6 +10,7 @@
 #include "vents.h"
 
 char * vents_tests();
+char * vents_test_init();
 
 void setWentsTST();
 //void getWentString(char * buf);

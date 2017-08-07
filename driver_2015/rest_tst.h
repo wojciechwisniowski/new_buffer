@@ -8,5 +8,4 @@
 #ifndef REST_TST_H_
 #define REST_TST_H_
 char * rest_tests();
-void restDebug();
 #endif /* REST_TST_H_ */

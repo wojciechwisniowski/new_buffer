@@ -42,15 +42,37 @@ void setFloorPumpDrawing(bool value) {
 	vb_pompaPodlogowaRysuj = value;
 }
 
-//first algorithm
-void handleFloorPump(int h, int dayOfTheWeek, void (*floorPumpSetter)(bool)) {
-//start at 1pm and heat till 21:59 then break and in the morning from 4 till 6:59
-	if (h >= getHourDayStart() && h < 22) {
-		setFloorPumpWorking(true, floorPumpSetter);
-	} else if (h >= 4 && h < 7) {
+// second algorithm 14h all in cheap tariff
+void handleFloorPumpWeekend(int h, void (*floorPumpSetter)(bool)) {
+	if ((h >= 4 && h < 10) || //heat for morning bathroom 04:00-09:59 - 6h
+			(h >= 12 && h < 14) || // heat using cheap p  12:00-13:59 - 2h
+			(h >= 16 && h < 18) || // heat up for 1h      16:00-17:59 - 2h
+			(h >= 18 && h < 22)) { // heat f. e. bathroom 18:00-21:59 - 4h
 		setFloorPumpWorking(true, floorPumpSetter);
 	} else {
 		setFloorPumpWorking(false, floorPumpSetter);
+	}
+}
+
+// second algorithm 11h in all, 6 in cheap 5 in normal
+void handleFloorPumpWeekDay(int h, void (*floorPumpSetter)(bool)) {
+	if ((h >= 3 && h < 7) || //heat for morning bathroom  03:00-06:59 - 4h
+			(h >= 13 && h < 15) || // heat using cheap p  13:00-14:59 - 2h
+			(h >= 16 && h < 17) || // heat up for 1h      16:00-16:59 - 1h
+			(h >= 18 && h < 22)) { // heat f. e. bathroom 18:00-21:59 - 4h
+		setFloorPumpWorking(true, floorPumpSetter);
+	} else {
+		setFloorPumpWorking(false, floorPumpSetter);
+	}
+}
+
+//first algorithm 13:00 - 21:59 = 8h && 04:00 - 06:59 = 3h- nadmierne wychłodzenie po południu
+void handleFloorPump(int h, int dayOfTheWeek, void (*floorPumpSetter)(bool)) {
+//start at 1pm and heat till 21:59 then break and in the morning from 4 till 6:59
+	if (isWeekend(dayOfTheWeek)) {
+		handleFloorPumpWeekend(h, floorPumpSetter);
+	} else {
+		handleFloorPumpWeekDay(h, floorPumpSetter);
 	}
 }
 

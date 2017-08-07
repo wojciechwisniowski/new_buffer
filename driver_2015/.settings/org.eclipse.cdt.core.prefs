@@ -163,13 +163,13 @@ environment/project/it.baeyens.arduino.core.toolChain.release.441984675.17585359
 environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.ESP8266.NETWORK.UPLOAD.TOOL/value=esp8266OTA
 environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.DTS/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.DTS/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.DTS/value=0
+environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.DTS/value=3600
 environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.LOCAL/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.LOCAL/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.LOCAL/value=1482760580
+environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.LOCAL/value=1502097126
 environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.UTC/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.UTC/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.UTC/value=1482756980
+environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.UTC/value=1502089926
 environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.ZONE/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.ZONE/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.441984675.1758535979/A.EXTRA.TIME.ZONE/value=3600

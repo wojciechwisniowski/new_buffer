@@ -239,6 +239,7 @@ int getDesiredWentRPM(int nr) {
 }
 
 void setDesiredVentRPM(int nr, int rpm) {
+	//printf("setDesiredVentRPM(%d,%d)\n",nr,rpm);
 	if (checkRPM(rpm)) {
 		gi_desiredWentRPM[nr] = rpm;
 	}
