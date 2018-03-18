@@ -12,8 +12,8 @@ char * vents_test_init() {
 	initConfigWent();
 	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 100 - after init", getDesiredWentRPM(NEW_WENT) == 100); //ci_defaultNewRPM =100
 	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 90 - after init", getDesiredWentRPM(USED_WENT) == 90); //ci_defaultUsedRPM = 90;
-	mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 140 - after init", getDesiredAiringVentRPM(USED_WENT) == 140); //ci_defaultUsedAiringRPM = 140;
 	mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT) != 160 - after init", getDesiredAiringVentRPM(NEW_WENT) == 160); //ci_defaultUsedAiringRPM = 160;
+	mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 140 - after init", getDesiredAiringVentRPM(USED_WENT) == 140); //ci_defaultUsedAiringRPM = 140;
 	mu_assert((char* )"getWentStep() != 200 - after init", getWentStep() == 200); //
 
 	return 0;
@@ -49,8 +49,8 @@ char * vents_test_decIncWentUSED() {
 	initConfigWent();
 	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 100 - after init", getDesiredWentRPM(NEW_WENT) == 100); //ci_defaultNewRPM =100
 	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 90 - after init", getDesiredWentRPM(USED_WENT) == 90); //ci_defaultUsedRPM = 90;
-	mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 140 - after init", getDesiredAiringVentRPM(USED_WENT) == 140); //ci_defaultUsedAiringRPM = 140;
 	mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT) != 160 - after init", getDesiredAiringVentRPM(NEW_WENT) == 160); //ci_defaultUsedAiringRPM = 160;
+	mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 140 - after init", getDesiredAiringVentRPM(USED_WENT) == 140); //ci_defaultUsedAiringRPM = 140;
 	mu_assert((char* )"getWentStep() != 200 - after init", getWentStep() == 200); //
 
 	decWentUSED(); // should go 1/10 of vent setp down as default is 200 so -20
@@ -134,7 +134,7 @@ char * vents_test_checkWietrzenie() {
 	mu_assert((char* )"setW called - at 22", gi_setWCalled == 1); //doesn't call setw twice if already airing
 
 	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 160 - when airing at 22", getDesiredWentRPM(NEW_WENT) == 170); //not 160 because night adds 10
-	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 140 - when airing at 22", getDesiredWentRPM(USED_WENT) == 150);//not 140 because night adds 10
+	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 140 - when airing at 22", getDesiredWentRPM(USED_WENT) == 150); //not 140 because night adds 10
 
 	return 0;
 }

@@ -114,11 +114,11 @@ void printTimeStamp(EthernetClient& client) {
 
 	if (isWeekend(vi_dayOfTheWeek)) {
 		client.println(F("\"Weekend\""));
-	} else if(isNightCheapTariff(vi_hInclShift)){
+	} else if (isNightCheapTariff(vi_hInclShift)) {
 		client.println(F("\"Night\""));
-	} else if(isDayCheapTariff(vi_hInclShift)){
+	} else if (isDayCheapTariff(vi_hInclShift)) {
 		client.println(F("\"Cheap day\""));
-	} else{
+	} else {
 		client.println(F("\"Day\""));
 	}
 
@@ -161,7 +161,6 @@ void printHtmlStatus(EthernetClient& client) {
 	client.print(F(",\"Bur_heatTo\":"));
 	snprintf(buf, sizeof(buf), "\"%02d\"", getTempHeatTo());
 	client.println(buf);
-
 
 	client.print(F(",\"pompaMieszPracuje\":"));
 	snprintf(buf, sizeof(buf), "\"%02d\"", isMixingPumpWorking());
@@ -237,7 +236,21 @@ void printHTTPHeaderLOG(EthernetClient& client) {
 	client.println();
 }
 
-void printRestStatus(EthernetClient& client, char* input) {
+void printRestStatus(EthernetClient& client, Request *a) {
+	client.print(F(",\"IS_ERROR\":\""));
+	client.print(a->isError());
+	client.print(F("\",\"ERROR\":\""));
+	client.print(a->getError());
+	client.print(F("\",\"RESOURCE\":\""));
+	client.print(a->getResource());
+	client.print(F("\",\"VALUE\":\""));
+	client.print(a->getValue());
+	client.print(F("\",\"METHOD\":\""));
+	client.print(a->getMethod());
+	client.print(F("\""));
+}
+
+void printRestStatus(EthernetClient& client, char* input, Request *a) {
 	// send a standard http response header
 	printHTTPHeader(client);
 	// output the value of each analog input pin
@@ -249,6 +262,7 @@ void printRestStatus(EthernetClient& client, char* input) {
 	printHtmlInput(client, input);
 	//printErrorReport(client);
 	//printHtmlLogFileList(client);
+	printRestStatus(client, a);
 	client.println("}");
 }
 
@@ -294,7 +308,10 @@ void loopServer() {
 				// so you can send a reply
 				if (c == '\n' && currentLineIsBlank) {				// send a standard http response header
 					//parseInput(readString);
-					printRestStatus(client, readString);
+					Request *a = new Request(readString);
+					printRestStatus(client, readString, a);
+					//client.println(a->getResponse());
+					delete a;
 					break;
 				}
 				if (c == '\n') {				// you're starting a new line

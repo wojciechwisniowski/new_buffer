@@ -19,8 +19,8 @@ const int ci_minRPM = 0; // 0 RPM
 const int ci_maxRPM = 260; // 2600 RPM
 const int ci_dumyRPM = 255; // 2550 RPM - invalid value bad read from EEPROM
 
-const int ci_defaultUsedAiringRPM = 140;
 const int ci_defaultNewAiringRPM = 160;
+const int ci_defaultUsedAiringRPM = 140;
 const int ci_defaultNewRPM = 100;
 const int ci_defaultUsedRPM = 90;
 
