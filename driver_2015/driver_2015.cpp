@@ -60,9 +60,9 @@ void loop(void) {
 	if (vi_counter % 41 == 0) { // pat watch dog - sending 8 thrash chars just to say I am alive
 		checkDog();
 	}
-	if (vi_counter % 51 == 0) { // log to file
-		logCurrentStatusToFile();
-	}
+//	if (vi_counter % 51 == 0) { // log to file
+//		logCurrentStatusToFile();
+//	}
 	if (vi_counter % 61 == 0) { // chek wietrzenie
 		checkWietrzenie(h, dayOfTheWeek, &setWents);
 	}
