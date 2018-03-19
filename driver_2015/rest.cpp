@@ -178,14 +178,14 @@ void Request::init(const char* buf) {
 						c = buf[i++];
 					c = buf[i++]; //eat  ' '
 					j = 0;
-					while (c != ' ' && c != '\n' && j < 9) {
+					while (c != ' ' && c != '\n' && j < 9 && c!='\r') {
 						auth[j++] = c;
 						c = buf[i++];
 					}
 					auth[j] = '\0';
 
 					if (strcmp(AUTH, auth) != 0) {
-						setError("Authorization failed");
+						setError(auth);
 					} else {
 						if (strcmp("GET", method) == 0) {
 							if (resource[0] != '\0')

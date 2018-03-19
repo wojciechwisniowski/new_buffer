@@ -56,7 +56,7 @@ void setupHttp() {
 //from webServerExample
 
 void printHtmlBufor(EthernetClient& client) {
-	client.println(F("\"VER\":2.1"));
+	client.println(F("\"VER\":2.2"));
 	for (int i = 0; i < TEMPCOUNT; i++) {
 
 		float tempC = getTempC(i);
@@ -247,7 +247,10 @@ void printRestStatus(EthernetClient& client, Request *a) {
 	client.print(a->getValue());
 	client.print(F("\",\"METHOD\":\""));
 	client.print(a->getMethod());
+	client.print(F("\",\"RESPONSE\":\""));
+	client.print(a->getResponse());
 	client.print(F("\""));
+
 }
 
 void printRestStatus(EthernetClient& client, char* input, Request *a) {
