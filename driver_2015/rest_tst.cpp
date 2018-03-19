@@ -12,6 +12,12 @@
 
 const char*request2 = "POST /WW/MM HTTP/1.1\n\rhost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 const char*request1 = "GET /ala/ola HTTP/1.1\n\rhost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
+//const char*request3 = "GET /WN HTTP/1.1
+//Host: 192.168.1.200:8080
+//Authorization: Basic d3c6d3c=
+//User-Agent: insomnia/5.0.F"
+const char*request3 = "GET /WN HTTP/1.1\nHost: 192.168.1.200:8080\nAuthorization: Basic d3c6d3c=\nUser-Agent: insomnia/5.0.F";
+
 
 const char*requestGetWN = "GET /WN HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 const char*requestGetWU = "GET /WU HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
@@ -77,6 +83,15 @@ void restDebug(Request *a){
     mu_assert((char*)"Parsing request failed - bad method   ", !strcmp("POST", a->getMethod()));
     mu_assert((char*)"Parsing request failed - bad resource ", !strcmp("WW", a->getResource()));
     mu_assert((char*)"Parsing request failed - bad value    ", !strcmp("MM", a->getValue()));
+    delete a;
+}
+
+ char * test_request3() {
+	 debug("test_request3()");
+    Request *a = new Request(request3);
+    mu_assert((char* )a->getError() , !a->isError() ); //
+    mu_assert((char*)"Parsing request failed - bad method   ", !strcmp("GET", a->getMethod()));
+    mu_assert((char*)"Parsing request failed - bad resource ", !strcmp("WN", a->getResource()));
     delete a;
 }
 
@@ -226,6 +241,7 @@ char * rest_tests() {
 	mu_run_test(test_requestError);
 	mu_run_test(test_request1);
 	mu_run_test(test_request2);
+	mu_run_test(test_request3);
 	mu_run_test(test_request_set_new_vent_speed1);
 	mu_run_test(test_request_set_new_vent_speed2);
 	mu_run_test(test_request_set_used_vent_speed1);
