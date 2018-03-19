@@ -97,7 +97,7 @@ void restDebug(Request *a){
 
  char * test_request_set_new_vent_speed1() {
 	vents_test_init();
-    mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 100 - after init", getDesiredWentRPM(NEW_WENT) == 100); //ci_defaultNewRPM =100
+    mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 90 - after init", getDesiredWentRPM(NEW_WENT) == 90); //ci_defaultNewRPM =100
     Request *a =new Request(requestSetWN1);
     mu_assert((char* )a->getError() , !a->isError() ); //
     //warning the 1900 passed from rest api is 190 in system as it is /10
@@ -117,7 +117,7 @@ void restDebug(Request *a){
 
  char * test_request_set_new_vent_speed2() {
 	vents_test_init();
-    mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 100 - after init", getDesiredWentRPM(NEW_WENT) == 100); //ci_defaultNewRPM =100
+    mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 90 - after init", getDesiredWentRPM(NEW_WENT) == 90); //ci_defaultNewRPM =100
     Request *a =new Request(requestSetWN2);
     mu_assert((char* )a->getError() , !a->isError() ); //
     //warning the 100 passed from rest api is 10 in system as it is /10
@@ -129,7 +129,7 @@ void restDebug(Request *a){
 
  char * test_request_set_used_vent_speed1() {
 	vents_test_init();
-    mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 90 - after init", getDesiredWentRPM(USED_WENT) == 90); //ci_defaultNewRPM =100
+    mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 70 - after init", getDesiredWentRPM(USED_WENT) == 70); //ci_defaultNewRPM =100
     Request *a =new Request(requestSetWU1);
     mu_assert((char* )a->getError() , !a->isError() ); //
     //warning the 100 passed from rest api is 190 in system as it is /10
@@ -144,7 +144,7 @@ void restDebug(Request *a){
 }
  char * test_request_set_used_vent_speed2() {
 	vents_test_init();
-    mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 90 - after init", getDesiredWentRPM(USED_WENT) == 90); //ci_defaultNewRPM =100
+    mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 70 - after init", getDesiredWentRPM(USED_WENT) == 70); //ci_defaultNewRPM =100
     Request *a =new Request(requestSetWU2);
     mu_assert((char* )a->getError() , !a->isError() ); //
     //warning the 100 passed from rest api is 10 in system as it is /10
@@ -155,7 +155,7 @@ void restDebug(Request *a){
 
  char * test_request_set_new_vent_airing_speed1() {
  	vents_test_init();
-     mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT) != 160 - after init", getDesiredAiringVentRPM(NEW_WENT) == 160);
+     mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT) != 100 - after init", getDesiredAiringVentRPM(NEW_WENT) == 100);
      Request *a =new Request(requestSetWWN1);
      mu_assert((char* )a->getError() , !a->isError() ); //
      mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT)  != 150 - after rest call", getDesiredAiringVentRPM(NEW_WENT) == 150); //ci_defaultNewRPM =100
@@ -170,7 +170,7 @@ void restDebug(Request *a){
 
  char * test_request_set_used_vent_airing_speed1() {
  	vents_test_init();
-     mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 140 - after init", getDesiredAiringVentRPM(USED_WENT) == 140);
+     mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT) != 80 - after init", getDesiredAiringVentRPM(USED_WENT) == 80);
      Request *a =new Request(requestSetWWU1);
      mu_assert((char* )a->getError() , !a->isError() ); //
      mu_assert((char* )"getDesiredAiringVentRPM(USED_WENT)  != 110 - after rest call", getDesiredAiringVentRPM(USED_WENT) == 110); //ci_defaultNewRPM =100
