@@ -26,6 +26,10 @@ const char* TXD = "TXD"; // temp max day
 
 const char* TMN = "TMN"; // temp min night
 const char* TXN = "TXN"; // temp max night
+
+const char* TMA = "TMA"; // temp min night
+const char* TXA = "TXA"; // temp max night
+
 const char* AUTH = "d3c6d3c="; //ww:ww
 
 int Request::isError() {
@@ -239,6 +243,10 @@ void Request::doGETTemp(const char* resource) {
 		sprintf(response, "%d", getTempMinNight());
 	} else if (strcmp(TXN, resource) == 0) {
 		sprintf(response, "%d", getTempMaxNight());
+	}else if (strcmp(TXA, resource) == 0) {
+		sprintf(response, "%d", getTempMaxAfternoon());
+	}else if (strcmp(TMA, resource) == 0) {
+		sprintf(response, "%d", getTempMinAfternoon());
 	}
 }
 
@@ -263,7 +271,12 @@ void doPOSTTemp(const char* resource, const char* value) {
 		setMinNightTemp(temp);
 	} else if (strcmp(TXN, resource) == 0) {
 		setMaxNightTemp(temp);
+	} else if (strcmp(TMA, resource) == 0) {
+		setMinAfternoonTemp(temp);
+	} else if (strcmp(TXA, resource) == 0) {
+		setMaxAfternoonTemp(temp);
 	}
+
 }
 
 void doPOSTWent(const char* resource, const char* value) {

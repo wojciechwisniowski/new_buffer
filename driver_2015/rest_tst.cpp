@@ -44,6 +44,13 @@ const char*requestSetTXD = "POST /TXD/21 HTTP/1.1 \n\rHost: 176.115.13.101:8080\
 const char*requestSetTMN = "POST /TMN/65 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 const char*requestSetTXN = "POST /TXN/85 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 
+//afternoon hours temps
+const char*requestGetTMA = "GET /TMA HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
+const char*requestGetTXA = "GET /TXA HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
+
+const char*requestSetTMA = "POST /TMA/76 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
+const char*requestSetTXA = "POST /TXA/86 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
+
 void restDebug(Request *a){
     printf("%s\n", "request parsed");
     printf("IS_ERROR:%d\n", a->isError());
@@ -235,6 +242,30 @@ void restDebug(Request *a){
       delete a;
   }
 
+ char * test_request_set_get_maxAfternoonTemp() {
+ 	 test_init();
+ 	 Request *a =new Request(requestGetTXA);
+ 	 mu_assert((char*)"bad value85", !strcmp("85", a->getResponse()));
+       delete a;
+       a =new Request(requestSetTXA);
+       delete a;
+       a =new Request(requestGetTXA);
+       mu_assert((char*)"bad value86", !strcmp("86", a->getResponse()));
+       delete a;
+   }
+
+ char * test_request_set_get_minAfternoonTemp() {
+ 	 test_init();
+ 	 Request *a =new Request(requestGetTMA);
+ 	 mu_assert((char*)"bad value85", !strcmp("75", a->getResponse()));
+       delete a;
+       a =new Request(requestSetTMA);
+       delete a;
+       a =new Request(requestGetTMA);
+       mu_assert((char*)"bad value86", !strcmp("76", a->getResponse()));
+       delete a;
+   }
+
 
 
 char * rest_tests() {
@@ -252,7 +283,8 @@ char * rest_tests() {
 	mu_run_test(test_request_set_get_maxDayTemp);
 	mu_run_test(test_request_set_get_minNightTemp);
 	mu_run_test(test_request_set_get_maxNightTemp);
-
+	mu_run_test(test_request_set_get_maxAfternoonTemp);
+	mu_run_test(test_request_set_get_minAfternoonTemp);
 	return 0;
 }
 

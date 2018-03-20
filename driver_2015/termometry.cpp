@@ -12,12 +12,17 @@ int gi_EE_Temp_Min_Day;
 int gi_EE_Temp_Max_Day;
 int gi_EE_Temp_Min_Night;
 int gi_EE_Temp_Max_Night;
+int gi_EE_Temp_Min_Afternoon;
+int gi_EE_Temp_Max_Afternoon;
 int gi_EE_Temp_Mixing_Start;
 
 int gi_Temp_Min_Day;
 int gi_Temp_Max_Day;
 int gi_Temp_Min_Night;
 int gi_Temp_Max_Night;
+int gi_Temp_Min_Afternoon;
+int gi_Temp_Max_Afternoon;
+
 int gi_Temp_Mixing_Start;
 int gi_Temp_waitTo = 49;
 int gi_Temp_heatTo = 50;
@@ -29,6 +34,9 @@ const int ci_minDayTempDefault = 29;
 const int ci_maxDayTempDefault = 31;
 const int ci_minNightTempDefault = 60;
 const int ci_maxNightTempDefault = 80;
+const int ci_minAfternoonTempDefault = 75;
+const int ci_maxAfternoonTempDefault = 85;
+
 const int ci_mixingPumpStartTempDefault = 55;
 
 void setTempWaitTo(int t){
@@ -57,6 +65,12 @@ int getTempMinNight() {
 }
 int getTempMaxNight() {
 	return gi_Temp_Max_Night;
+}
+int getTempMinAfternoon() {
+	return gi_Temp_Min_Afternoon;
+}
+int getTempMaxAfternoon() {
+	return gi_Temp_Max_Afternoon;
 }
 int getTempMixingStart() {
 	return gi_Temp_Mixing_Start;
@@ -98,6 +112,21 @@ void initConfigTemp() {
 	} else {
 		setMaxNightTemp(ci_maxNightTempDefault);
 	}
+
+	//afternoon
+	vi_t = readTemFromEprom((int*) (&gi_EE_Temp_Min_Afternoon));
+	if (checkTemp(vi_t)) {
+		setMinAfternoonTemp(vi_t);
+	} else {
+		setMinAfternoonTemp(ci_minAfternoonTempDefault);
+	}
+	vi_t = readTemFromEprom((int*) (&gi_EE_Temp_Max_Afternoon));
+	if (checkTemp(vi_t)) {
+		setMaxAfternoonTemp(vi_t);
+	} else {
+		setMaxAfternoonTemp(ci_maxAfternoonTempDefault);
+	}
+
 	vi_t = readTemFromEprom((int*) (&gi_EE_Temp_Mixing_Start));
 	if (checkTemp(vi_t)) {
 		setMixingPumpStartTemp(vi_t);
@@ -137,6 +166,22 @@ void setMaxNightTemp(int temp) {
 		writeTemToEprom(&gi_EE_Temp_Max_Night, temp);
 	}
 }
+
+//afternoon
+void setMinAfternoonTemp(int temp) {
+	if (checkTemp(temp)) {
+		gi_Temp_Min_Afternoon = temp;
+		writeTemToEprom(&gi_EE_Temp_Min_Afternoon, temp);
+	}
+}
+
+void setMaxAfternoonTemp(int temp) {
+	if (checkTemp(temp)) {
+		gi_Temp_Max_Afternoon = temp;
+		writeTemToEprom(&gi_EE_Temp_Max_Afternoon, temp);
+	}
+}
+
 
 void setMixingPumpStartTemp(int temp) {
 	if (checkTemp(temp)) {

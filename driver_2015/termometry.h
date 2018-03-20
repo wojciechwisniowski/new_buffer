@@ -28,6 +28,11 @@ void setMinNightTemp(int temp);
  */
 void setMaxNightTemp(int temp);
 
+
+void setMinAfternoonTemp(int temp);
+void setMaxAfternoonTemp(int temp);
+
+
 /*
  * UT: test_init
  */
@@ -63,6 +68,9 @@ int getTempMinDay();
 int getTempMaxDay();
 int getTempMinNight();
 int getTempMaxNight();
+int getTempMinAfternoon();
+int getTempMaxAfternoon();
+
 
 /*
  * UT: test_checkTemp
