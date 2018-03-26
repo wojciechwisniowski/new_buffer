@@ -81,7 +81,10 @@ void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), 
 		void (*floorPumpSetter)(bool)) {
 	float temp = getCurrentTemps(1); //temperatrua z ciut powyzej polowy zbiornika
 
-	if (isCheapTariff(h, dayOfTheWeek)) { // noc lub poludnie lub weekend
+	if (isDayCheapTariff(h) || isMorningTurboHeater(h)) {
+		setTempHeatTo(getTempMaxAfternoon());
+		setTempWaitTo(getTempMinAfternoon());
+	} else if (isCheapTariff(h, dayOfTheWeek)) { // noc lub poludnie lub weekend
 		setTempHeatTo(getTempMaxNight());
 		setTempWaitTo(getTempMinNight());
 	} else { // dzien

@@ -12,7 +12,7 @@ char * power_tariffs_test_init() {
 	mu_assert((char* )"getHourDayStart() - after init", getHourDayStart() == 13);
 	mu_assert((char* )"getHourDayEnd() - after init", getHourDayEnd() == 15);
 	mu_assert((char* )"getHourNightStart() - after init", getHourNightStart() == 22);
-	mu_assert((char* )"getHourNightEnd() - after init", getHourNightEnd() == 7);
+	mu_assert((char* )"getHourNightEnd() - after init", getHourNightEnd() == 6);
 	mu_assert((char* )"getMinuteNightShift() - after init", getMinuteNightShift() == 5);
 	return 0;
 }
@@ -56,15 +56,21 @@ char * power_tariffs_test_checkAndChangeTariff() {
 	mu_assert((char* )"isWeekend(- sat;", isWeekend(7));
 	mu_assert((char* )"isWeekend( - sun;", isWeekend(1));
 	mu_assert((char* )"isWeekend( - wed;", !isWeekend(4));
-
-
-
-
 }
+
+char * power_tariffs_test_checkMorningTurboBoost() {
+	mu_assert((char* )"isMorningTurboHeater(3);", !isMorningTurboHeater(3));
+	mu_assert((char* )"isMorningTurboHeater(4);", isMorningTurboHeater(4));
+	mu_assert((char* )"isMorningTurboHeater(5);", isMorningTurboHeater(5));
+	mu_assert((char* )"!isMorningTurboHeater(6);", !isMorningTurboHeater(6));
+	mu_assert((char* )"!isMorningTurboHeater(6);", !isMorningTurboHeater(7));
+}
+
 
 char * power_tariffs() {
 	mu_run_test(power_tariffs_test_init);
 	mu_run_test(power_tariffs_test_checkAndChangeTariff);
+	mu_run_test(power_tariffs_test_checkMorningTurboBoost);
 
 	return 0;
 }

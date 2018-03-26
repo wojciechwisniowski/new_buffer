@@ -20,11 +20,12 @@ int gi_Hour_Day_Start;
 int gi_Hour_Day_End;
 int gi_Minute_Night_Shift; //difference between real time and the time on the energy meter - NOT IMPLEMENTED
 
-const int ci_defaultHourNightStart = 22; // G12W tariff night hour 22:00-7:00 and 13:00-15:00 and whole Sat and Sun
-const int ci_defaultHourNightEnd = 7; // G12W tariff night hour 22:00-7:00 and 13:00-15:00 and whole Sat and Sun
-const int ci_defaultHourDayStart = 13; // G12W tariff night hour 22:00-7:00 and 13:00-15:00 and whole Sat and Sun
-const int ci_defaultHourDayEnd = 15; // G12W tariff night hour 22:00-7:00 and 13:00-15:00 and whole Sat and Sun
+const int ci_defaultHourNightStart = 22; // G12W tariff night hour 22:00-6:00 and 13:00-15:00 and whole Sat and Sun
+const int ci_defaultHourNightEnd = 6; // G12W tariff night hour 22:00-6:00 and 13:00-15:00 and whole Sat and Sun
+const int ci_defaultHourDayStart = 13; // G12W tariff night hour 22:00-6:00 and 13:00-15:00 and whole Sat and Sun
+const int ci_defaultHourDayEnd = 15; // G12W tariff night hour 22:00-6:00 and 13:00-15:00 and whole Sat and Sun
 const int ci_defaultMinuteNightShift = 5; //default shift between RTC and meter outside house
+const int ci_defaultTurboShift = 2; //hours before end of cheap tariff end to boost heating
 
 int getMinuteNightShift() {
 	return gi_Minute_Night_Shift;
@@ -165,6 +166,12 @@ void initConfigStrefy() {
 bool isDayCheapTariff(int h) {
 	return (h >= gi_Hour_Day_Start && h < gi_Hour_Day_End); // od 13 do 14:59
 }
+
+//
+bool isMorningTurboHeater(int h) {
+	return ((h + ci_defaultTurboShift) >= gi_Hour_Night_End) && (h < gi_Hour_Night_End);
+}
+
 
 bool isNightCheapTariff(int h) {
 	return (h >= gi_Hour_Night_Start) //22 do 23

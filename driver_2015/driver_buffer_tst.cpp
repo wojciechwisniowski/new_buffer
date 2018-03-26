@@ -156,10 +156,43 @@ char * driver_buffer_test_checkAndChangeBuffor() {
 	return ret;
 }
 
+
+char * driver_test_afternoon() {
+	char *ret = 0;
+	mu_assert((char* )" isBufforHeating - after init", !isBufforHeating());
+	mu_assert((char* )" isMixingPumpWorking - after init", !isMixingPumpWorking());
+	ret = printGrzalkiStatus(1, 2, bottomStatusPrinter2);
+	mu_assert(ret, ret == 0);
+	//week day - day
+	initConfigTemp();
+	mu_assert((char* )" isBufforHeating - after inint for afternoon test", !isBufforHeating());
+	setCurrentTemps(1, 74); //min afternoon 75
+	checkAndChangeBuffor(13, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
+	mu_assert((char* )" isBufforHeating - weekday at 13 at 74", isBufforHeating());
+	setCurrentTemps(1, 86); //min afternoon 75
+	checkAndChangeBuffor(13, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
+	mu_assert((char* )" isBufforHeating - weekday at 13 at 86", !isBufforHeating());
+
+	initConfigTemp();
+	mu_assert((char* )" isBufforHeating - after inint for afternoon test", !isBufforHeating());
+	setCurrentTemps(1, 74); //min afternoon 75
+	checkAndChangeBuffor(3, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
+	mu_assert((char* )" isBufforHeating - weekday at 3 at 74", !isBufforHeating());
+	checkAndChangeBuffor(4, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
+	mu_assert((char* )" isBufforHeating - weekday at 4 at 74", isBufforHeating());
+	checkAndChangeBuffor(5, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
+	mu_assert((char* )" isBufforHeating - weekday at 5 at 74", isBufforHeating());
+	checkAndChangeBuffor(6, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
+	mu_assert((char* )" isBufforHeating - weekday at 6 at 74", !isBufforHeating());
+
+
+}
+
 char * driver_buffer() {
 	mu_run_test(driver_buffer_test_init);
 	mu_run_test(driver_buffer_test_obslugaPompyMieszajacej);
 	mu_run_test(driver_buffer_test_checkAndChangeBuffor);
+	mu_run_test(driver_test_afternoon);
 
 	return 0;
 }
