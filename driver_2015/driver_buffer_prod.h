@@ -22,4 +22,6 @@ void setMixingPumpHW(bool state);
 void setFloorPumpHW(bool state);
 void setHeaterHW(bool state);
 
+void setTimeRTC();
+
 #endif /* DRIVER_BUFFER_PROD_H_ */

@@ -48,3 +48,7 @@ void setHeaterHW(bool state) {
 	}
 }
 
+void setTimeRTC(){
+	RTC.set(now());
+}
+

@@ -30,12 +30,15 @@ public:
     int parseMonth(const char* value);
     //YYYYMMDDHHmm
     int parseYear(const char* value);
+    int returnDebugInResponse();
 
 private:
     void init(const char* buf);
     int parseMethod(int i, const char* buf);
 	char parseResource(char c, const char* buf, int& i);
 	int parseValue(char c,  const char* buf, int i);
+	int parseDebug(char c, const char* buf, int i);
+
 	void doGET(const char* resource);
 	void doGETWent(const char* resource);
 	void doGETTemp(const char* resource);
@@ -53,5 +56,6 @@ private:
     char* auth;
     int errorFlag;
     char* response;
+    int debugFlag;
 
 };

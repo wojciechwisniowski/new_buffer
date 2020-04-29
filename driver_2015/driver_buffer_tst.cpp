@@ -216,3 +216,6 @@ void setHeaterTST(bool state) {
 	}
 }
 
+void setTimeRTC(){
+	//RTC.set(t);
+}

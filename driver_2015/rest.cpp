@@ -34,15 +34,21 @@ const char* CLO = "CLO"; // clock YYYYMMDDHHmm
 
 const char* AUTH = "d3c6d3c="; //ww:ww
 
+int Request::returnDebugInResponse(){
+	return debugFlag;
+}
+
 int Request::isError() {
 	return errorFlag;
 }
 
 Request::Request(const char* buf) {
 	errorFlag = 0;
+	debugFlag = 0;
 	method = new char[8];
 	resource = new char[8];
-	value = new char[8];
+	value = new char[13];
+	value[0] = '\0';
 	auth = new char[9];
 	error = new char[300];
 	response = new char[100];
@@ -101,13 +107,30 @@ int Request::parseMethod(int i, const char* buf) {
 char Request::parseResource(char c, const char* buf, int& i) {
 	int j = 0;
 	c = buf[i++]; // this should be 'first char of resource'
-	while (c != ' ' && c != '/' && j < 8) {
+	while (c != ' ' && c != '/' && c!= '?' && j < 8) {
 		resource[j++] = c;
 		c = buf[i++];
 	}
 	resource[j] = '\0';
 
+	i = parseDebug(c, buf, i);
+
 	return c;
+}
+
+int Request::parseDebug(char c, const char* buf, int i) {
+	if (c == '?'){
+		int j = 0;
+		c = buf[i++];
+		//hack if name of query starts from d = debug
+		if (c == 'd'){
+			debugFlag = 1;
+		}
+		while (c != '\n' && c!= ' '){
+			c = buf[i++]; // scroll to the next line
+		}
+	}
+ return i;
 }
 
 int Request::parseValue(char c, const char* buf, int i) {
@@ -116,12 +139,14 @@ int Request::parseValue(char c, const char* buf, int i) {
 		// this is a start of value
 		int j = 0;
 		c = buf[i++];
-		while (c != ' ' && c != '/' && j < 13) {
+		while (c != ' ' && c != '/' && c!='?' && j < 14) {
 			value[j++] = c;
 			c = buf[i++];
 		}
 		value[j] = '\0';
 	}
+	//check query
+	i = parseDebug(c, buf, i);
 	if (c == ' ') {
 		// no value just resource
 		while (c != '\n')
@@ -197,7 +222,7 @@ void Request::init(const char* buf) {
 							if (resource[0] != '\0')
 								debug("doGET");
 							doGET(resource);
-						} else if (strcmp("POST", method) == 0) {
+						} else if (strcmp("POST", method) == 0 ||strcmp("PUT", method) == 0 ) {
 							if (resource[0] != '\0')
 								debug("doPOST");
 							doPOST(resource, value);
@@ -350,7 +375,7 @@ void Request::doPOSTClock(const char* resource, const char* value) {
 //	printf("-----doPOSTClock -pYResult----------------------:%d\n",parseYear(value));
 	if (strcmp(CLO, resource) == 0) {
 		setTime(parseHour(value), parseMinute(value), /*second()*/ 0, parseDay(value), parseMonth(value), parseYear(value));
-		//RTC.set(now());
+		setTimeRTC();
 	}
 }
 

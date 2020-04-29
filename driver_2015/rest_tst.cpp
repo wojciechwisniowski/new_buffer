@@ -17,6 +17,10 @@ const char*request1 = "GET /ala/ola HTTP/1.1\n\rhost: 176.115.13.101:8080\n\rAut
 //Authorization: Basic d3c6d3c=
 //User-Agent: insomnia/5.0.F"
 const char*request3 = "GET /WN HTTP/1.1\nHost: 192.168.1.200:8080\nAuthorization: Basic d3c6d3c=\nUser-Agent: insomnia/5.0.F";
+const char*requestDebug1 = "GET /WN?de HTTP/1.1\nHost: 192.168.1.200:8080\nAuthorization: Basic d3c6d3c=\nUser-Agent: insomnia/5.0.F";
+const char*requestDebug2 = "POST /TMD/19?de HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
+const char*requestDebug3 = "GET /WN?e HTTP/1.1\nHost: 192.168.1.200:8080\nAuthorization: Basic d3c6d3c=\nUser-Agent: insomnia/5.0.F";
+const char*requestDebug4 = "POST /TMD/19?e HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 
 
 const char*requestGetWN = "GET /WN HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
@@ -55,6 +59,9 @@ const char*requestSetTXA = "POST /TXA/86 HTTP/1.1 \n\rHost: 176.115.13.101:8080\
 const char*requestSetTIME = "POST /CLO/202001161355 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 //const char*requestSetTIME = "POST /CLO/2020 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 
+void now(){
+
+}
 
 void restDebug(Request *a){
     printf("%s\n", "request parsed");
@@ -305,6 +312,46 @@ void restDebug(Request *a){
 
 
 
+ char * test_request_debug() {
+ 	 test_init();
+ 	 Request *a =new Request(requestDebug1);
+	 	debug("res:");debugnl(a->getResource());
+	 	debug("val:"); debugnl(a->getValue());
+	 	debug("met:");debugnl(a->getMethod());
+	 	debug("deb:");debugnl(a->returnDebugInResponse()?"y":"n");
+	 	debugnl("_________");
+
+     mu_assert((char*)"requestDebug1 failed ", a->returnDebugInResponse() == 1);
+ 	 delete a;
+ 	 a =new Request(requestDebug2);
+	 	debug("res:");debugnl(a->getResource());
+	 	debug("val:"); debugnl(a->getValue());
+	 	debug("met:");debugnl(a->getMethod());
+	 	debug("deb:");debugnl(a->returnDebugInResponse()?"y":"n");
+	 	debugnl("_________");
+ 	 mu_assert((char*)"requestDebug2 failed ", a->returnDebugInResponse() == 1);
+ 	 delete a;
+ 	 a =new Request(requestDebug3);
+	 	debug("res:");debugnl(a->getResource());
+	 	debug("val:"); debugnl(a->getValue());
+	 	debug("met:");debugnl(a->getMethod());
+	 	debug("deb:");debugnl(a->returnDebugInResponse()?"y":"n");
+	 	debugnl("_________");
+ 	 mu_assert((char*)"requestDebug3 failed ", a->returnDebugInResponse() == 0);
+ 	 delete a;
+ 	 a =new Request(requestDebug4);
+	 	debug("res:");debugnl(a->getResource());
+	 	debug("val:"); debugnl(a->getValue());
+	 	debug("met:");debugnl(a->getMethod());
+	 	debug("deb:");debugnl(a->returnDebugInResponse()?"y":"n");
+	 	debugnl("_________");
+ 	 mu_assert((char*)"requestDebug4 failed ", a->returnDebugInResponse() == 0);
+ 	 delete a;
+
+   }
+
+
+
 char * rest_tests() {
 	mu_run_test(test_requestError);
 	mu_run_test(test_request1);
@@ -323,7 +370,8 @@ char * rest_tests() {
 	mu_run_test(test_request_set_get_maxAfternoonTemp);
 	mu_run_test(test_request_set_get_minAfternoonTemp);
 	mu_run_test(test_request_set_TimeUnit);
-	//mu_run_test(test_request_set_Time);
+	mu_run_test(test_request_set_Time);
+	mu_run_test(test_request_debug);
 	return 0;
 }
 

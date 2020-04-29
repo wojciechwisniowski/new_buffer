@@ -16,5 +16,6 @@ void setMixingPump_empty(bool state);
 void setMixingPumpTST(bool state);
 void setHeater_empty(bool state);
 void setHeaterTST(bool state);
+void setTimeRTC();
 
 #endif /* DRIVER_BUFFER_TST_H_ */
