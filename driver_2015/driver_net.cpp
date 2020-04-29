@@ -56,7 +56,7 @@ void setupHttp() {
 //from webServerExample
 
 void printHtmlBufor(EthernetClient& client) {
-	client.println(F("\"VER\":2.2"));
+	client.println(F("\"VER\":2.3"));
 	for (int i = 0; i < TEMPCOUNT; i++) {
 
 		float tempC = getTempC(i);
@@ -253,6 +253,12 @@ void printRestStatus(EthernetClient& client, Request *a) {
 
 }
 
+void printValue(EthernetClient& client, Request *a) {
+	client.print(F("\"VALUE\":\""));
+	client.print(a->getValue());
+	client.print(F("\""));
+}
+
 void printRestStatus(EthernetClient& client, char* input, Request *a) {
 	// send a standard http response header
 	printHTTPHeader(client);
@@ -286,8 +292,8 @@ void printLogFile(EthernetClient& client, char* fileName) {
 	}
 }
 
-void parseInpt(String input) {
-}
+//void parseInpt(String input) {
+//}
 
 //TODO przetestowac czy dziala pobieranie pliku z logami
 //TODO dopisac pobranie listy plikow z logami?
@@ -312,8 +318,13 @@ void loopServer() {
 				if (c == '\n' && currentLineIsBlank) {				// send a standard http response header
 					//parseInput(readString);
 					Request *a = new Request(readString);
-					printRestStatus(client, readString, a);
-					//client.println(a->getResponse());
+					if(a->returnDebugInResponse()){
+					  printRestStatus(client, readString, a);
+					}else{
+					  printHTTPHeader(client);
+					  printValue(client, a);
+					  client.println("}");
+					}
 					delete a;
 					break;
 				}
