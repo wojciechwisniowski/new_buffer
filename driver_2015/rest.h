@@ -2,9 +2,9 @@
 
 
 void parse(const char* req);
-void doPOST(const char* resource, const char* value);
-void doPOSTTemp(const char* resource, const char* value);
-void doPOSTWent(const char* resource, const char* value);
+
+
+
 
 #ifndef TEST_REST
 #else
@@ -21,6 +21,16 @@ public:
     void setError(const char* err);
     virtual ~Request();
     int isError();
+    int parseFromTo(int from,int to, const char* value);
+    int parseHour(const char* value);
+    int parseMinute(const char* value);
+    //YYYYMMDDHHmm
+    int parseDay(const char* value);
+    //YYYYMMDDHHmm
+    int parseMonth(const char* value);
+    //YYYYMMDDHHmm
+    int parseYear(const char* value);
+
 private:
     void init(const char* buf);
     int parseMethod(int i, const char* buf);
@@ -29,7 +39,12 @@ private:
 	void doGET(const char* resource);
 	void doGETWent(const char* resource);
 	void doGETTemp(const char* resource);
+	void doGETClock(const char* resource);
 
+	void doPOST(const char* resource, const char* value);
+	void doPOSTTemp(const char* resource, const char* value);
+	void doPOSTClock(const char* resource, const char* value);
+	void doPOSTWent(const char* resource, const char* value);
 
     char* resource;
     char* method;

@@ -58,6 +58,7 @@ void setDesiredVentRPM(int nr, int rpm);
 
 int getDesiredAiringVentRPM(int nr);
 void setDesiredAiringVentRPM(int nr, int rpm);
+void setWents();
 
 int getWentStep();
 

@@ -30,6 +30,8 @@ const char* TXN = "TXN"; // temp max night
 const char* TMA = "TMA"; // temp min night
 const char* TXA = "TXA"; // temp max night
 
+const char* CLO = "CLO"; // clock YYYYMMDDHHmm
+
 const char* AUTH = "d3c6d3c="; //ww:ww
 
 int Request::isError() {
@@ -114,7 +116,7 @@ int Request::parseValue(char c, const char* buf, int i) {
 		// this is a start of value
 		int j = 0;
 		c = buf[i++];
-		while (c != ' ' && c != '/' && j < 8) {
+		while (c != ' ' && c != '/' && j < 13) {
 			value[j++] = c;
 			c = buf[i++];
 		}
@@ -215,6 +217,10 @@ void Request::doGET(const char* resource) {
 	case 'T':
 		doGETTemp(resource);
 		break;
+	case 'C':
+		doGETClock(resource);
+		break;
+
 	}
 }
 
@@ -234,6 +240,11 @@ void Request::doGETWent(const char* resource) {
 	}
 }
 
+void Request::doGETClock(const char* resource) {
+//	time_t vt_now = now();
+//	snprintf(response, "\"%02d:%02d:%02d\"", hour(vt_now), minute(vt_now), second(vt_now));
+}
+
 void Request::doGETTemp(const char* resource) {
 	if (strcmp(TMD, resource) == 0) {
 		sprintf(response, "%d", getTempMinDay());
@@ -250,7 +261,8 @@ void Request::doGETTemp(const char* resource) {
 	}
 }
 
-void doPOST(const char* resource, const char* value) {
+void Request::doPOST(const char* resource, const char* value) {
+
 	switch (resource[0]) {
 	case 'W':
 		doPOSTWent(resource, value);
@@ -258,10 +270,13 @@ void doPOST(const char* resource, const char* value) {
 	case 'T':
 		doPOSTTemp(resource, value);
 		break;
+	case 'C':
+		doPOSTClock(resource, value);
+		break;
 	}
 }
 
-void doPOSTTemp(const char* resource, const char* value) {
+void Request::doPOSTTemp(const char* resource, const char* value) {
 	int temp = atoi(value);
 	if (strcmp(TMD, resource) == 0) {
 		setMinDayTemp(temp);
@@ -276,10 +291,70 @@ void doPOSTTemp(const char* resource, const char* value) {
 	} else if (strcmp(TXA, resource) == 0) {
 		setMaxAfternoonTemp(temp);
 	}
-
 }
 
-void doPOSTWent(const char* resource, const char* value) {
+//parse from to from string - string max 12chars result max 4 chars
+int Request::parseFromTo(int from,int to, const char* value){
+	char ret[7];
+	int i = from;
+	int j = 0;
+	char c = value[i];
+	while (++i<= to && i < 14 && j<6) {
+		ret[j++]=c;
+		c = value[i];
+	}
+	ret[j] = '\0';
+	int iRet = atoi(ret);
+
+	return iRet;
+}
+
+//YYYYMMDDHHmm
+int Request::parseHour(const char* value){
+	int i = parseFromTo(8,10,value);
+	if(i<0 || i>23) i=12;
+	return i;
+}
+//YYYYMMDDHHmm
+int Request::parseMinute(const char* value){
+	int i = parseFromTo(10,12,value);
+	if(i<0 || i>60) i=0;
+	return i;
+}
+//YYYYMMDDHHmm
+int Request::parseDay(const char* value){
+	int i = parseFromTo(6,8,value);
+	if(i<1 || i>31) i =1;
+	return i;
+}
+//YYYYMMDDHHmm
+int Request::parseMonth(const char* value){
+	int i = parseFromTo(4,6,value);
+	if(i<1 || i>12)i=1;
+	return i;
+}
+//YYYYMMDDHHmm
+int Request::parseYear(const char* value){
+	int i = parseFromTo(0,4,value);
+	if(i<2020 || i>2030) i = 2020;
+	return i;
+}
+
+//YYYYMMDDHHmm
+void Request::doPOSTClock(const char* resource, const char* value) {
+//	printf("-----doPOSTClock-----------------------\n");
+//	printf("-----doPOSTClock -phResult----------------------:%d\n",parseHour(value));
+//	printf("-----doPOSTClock -pmResult----------------------:%d\n",parseMinute(value));
+//	printf("-----doPOSTClock -pDResult----------------------:%d\n",parseDay(value));
+//	printf("-----doPOSTClock -pMResult----------------------:%d\n",parseMonth(value));
+//	printf("-----doPOSTClock -pYResult----------------------:%d\n",parseYear(value));
+	if (strcmp(CLO, resource) == 0) {
+		setTime(parseHour(value), parseMinute(value), /*second()*/ 0, parseDay(value), parseMonth(value), parseYear(value));
+		//RTC.set(now());
+	}
+}
+
+void Request::doPOSTWent(const char* resource, const char* value) {
 	debug("doPOSTWent");
 	int i_value = atoi(value) / 10;
 	if (strcmp(WN, resource) == 0) {
@@ -291,5 +366,6 @@ void doPOSTWent(const char* resource, const char* value) {
 	} else if (strcmp(WWU, resource) == 0) {
 		setDesiredAiringVentRPM(USED_WENT, i_value);
 	}
+	setWents();
 }
 

@@ -51,6 +51,11 @@ const char*requestGetTXA = "GET /TXA HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rA
 const char*requestSetTMA = "POST /TMA/76 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 const char*requestSetTXA = "POST /TXA/86 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 
+//YYYYMMDDHHmm
+const char*requestSetTIME = "POST /CLO/202001161355 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
+//const char*requestSetTIME = "POST /CLO/2020 HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
+
+
 void restDebug(Request *a){
     printf("%s\n", "request parsed");
     printf("IS_ERROR:%d\n", a->isError());
@@ -266,6 +271,38 @@ void restDebug(Request *a){
        delete a;
    }
 
+ char * test_request_set_Time() {
+ 	 test_init();
+ 	 Request *a =new Request(requestSetTIME);
+ 	 //mu_assert((char*)"bad time", !strcmp("75", a->getResponse()));
+       delete a;
+   }
+
+ char * test_request_set_TimeUnit() {
+ 	 test_init();
+ 	 Request *a =new Request(requestSetTIME);
+ 	 mu_assert((char*)"parsing1", a->parseFromTo(0,2,"12") == 12);
+ 	 mu_assert((char*)"parsing2", a->parseFromTo(0,2,"1200") == 12);
+ 	 mu_assert((char*)"parsing3", a->parseFromTo(2,4,"1234") == 34);
+
+ 	 mu_assert((char*)"parsing4", a->parseHour("202001161355") == 13);
+ 	mu_assert((char*)"parsing4", a->parseHour("202001162555") == 12);//if wrong hour return 12
+
+ 	 mu_assert((char*)"parsing5", a->parseYear("202001161355") == 2020);
+ 	mu_assert((char*)"parsing5", a->parseYear("205001161355") == 2020);//if year <2020 or >2030 return 2020
+
+ 	 mu_assert((char*)"parsing6", a->parseMinute("202001161354") == 54);
+ 	mu_assert((char*)"parsing6", a->parseMinute("202001161364") == 0);//if wrong minute return 0
+
+ 	mu_assert((char*)"parsing7", a->parseMonth("202001161355") == 1);
+ 	mu_assert((char*)"parsing7", a->parseMonth("202013161355") == 1);//if wrong month return 1
+
+ 	mu_assert((char*)"parsing7", a->parseDay("202001161355") == 16);
+ 	mu_assert((char*)"parsing7", a->parseDay("202001321355") == 1);//if wrong day return 1
+
+       delete a;
+   }
+
 
 
 char * rest_tests() {
@@ -285,6 +322,8 @@ char * rest_tests() {
 	mu_run_test(test_request_set_get_maxNightTemp);
 	mu_run_test(test_request_set_get_maxAfternoonTemp);
 	mu_run_test(test_request_set_get_minAfternoonTemp);
+	mu_run_test(test_request_set_TimeUnit);
+	//mu_run_test(test_request_set_Time);
 	return 0;
 }
 

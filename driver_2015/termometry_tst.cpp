@@ -93,13 +93,13 @@ char * test_checkTemp() {
 }
 
 char * test_currentTemps() {
-//#define TEMPCOUNT 6 //ilosc termometrów
+//#define TEMPCOUNT 6 //ilosc termometrow
 	for (int i = 0; i < TEMPCOUNT; i++)
 		setCurrentTemps(i, 12.34f);
 	for (int i = 0; i < TEMPCOUNT; i++) {
-		mu_assert((char* )"getCurrentTemps[i]", getCurrentTemps(i) == 12.34f);
+		mu_assert((char* )"getCurrentTemps[i]==12.34f", getCurrentTemps(i) == 12.34f);
 	}
-
+	return 0;
 }
 
 char * termometers_tests() {

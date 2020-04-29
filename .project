@@ -6,7 +6,12 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>it.baeyens.arduino.core.inoToCpp</name>
+			<name>io.sloeber.core.inoToCpp</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>io.sloeber.arduino.core.inoToCpp</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
@@ -28,88 +33,88 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
-		<nature>it.baeyens.arduinonature</nature>
+		<nature>io.sloeber.arduinonature</nature>
 	</natures>
 	<linkedResources>
 		<link>
 			<name>core/core</name>
 			<type>2</type>
-			<location>/home/src/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/cores/arduino</location>
+			<location>c:/home/src/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/cores/arduino</location>
 		</link>
 		<link>
 			<name>core/variant</name>
 			<type>2</type>
-			<location>/home/src/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/variants/mega</location>
+			<location>c:/home/src/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/variants/mega</location>
 		</link>
 		<link>
 			<name>libraries/DS3232RTC-master</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/DS3232RTC-master</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/DS3232RTC-master</location>
 		</link>
 		<link>
 			<name>libraries/DallasTemperature</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/DallasTemperature</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/DallasTemperature</location>
 		</link>
 		<link>
 			<name>libraries/EEPROM</name>
 			<type>2</type>
-			<location>/home/src/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/libraries/EEPROM</location>
+			<location>c:/home/src/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/libraries/EEPROM</location>
 		</link>
 		<link>
 			<name>libraries/Esplora</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/Esplora</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/Esplora</location>
 		</link>
 		<link>
 			<name>libraries/Ethernet</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/Ethernet</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/Ethernet</location>
 		</link>
 		<link>
 			<name>libraries/Keypad</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/Keypad</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/Keypad</location>
 		</link>
 		<link>
 			<name>libraries/LiquidCrystal</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/LiquidCrystal</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/LiquidCrystal</location>
 		</link>
 		<link>
 			<name>libraries/OneWire</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/OneWire</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/OneWire</location>
 		</link>
 		<link>
 			<name>libraries/SD</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/SD</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/SD</location>
 		</link>
 		<link>
 			<name>libraries/SPI</name>
 			<type>2</type>
-			<location>/home/src/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/libraries/SPI</location>
+			<location>c:/home/src/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/libraries/SPI</location>
 		</link>
 		<link>
 			<name>libraries/TFT</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/TFT</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/TFT</location>
 		</link>
 		<link>
 			<name>libraries/Time</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/Time</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/Time</location>
 		</link>
 		<link>
 			<name>libraries/Wire</name>
 			<type>2</type>
-			<location>/home/src/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/libraries/Wire</location>
+			<location>c:/home/src/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.14/libraries/Wire</location>
 		</link>
 		<link>
 			<name>libraries/openGLCD</name>
 			<type>2</type>
-			<location>/home/src/arduino/arduino-1.6.8/libraries/openGLCD</location>
+			<location>c:/home/src/arduino/arduino-1.6.8/libraries/openGLCD</location>
 		</link>
 	</linkedResources>
 </projectDescription>

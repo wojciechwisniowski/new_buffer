@@ -12,6 +12,6 @@ do
   cat $x | grep -v ".h\""  >> driver_2015.ino
 done
 
-cp driver_2015.ino /root/sketchbook/driver_2015/
+cp driver_2015.ino /mnt/c/s/out/
 
 rm -f driver_2015.ino

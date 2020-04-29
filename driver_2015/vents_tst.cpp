@@ -120,6 +120,8 @@ void emptySetW() {
 
 char * vents_test_checkWietrzenie() {
 	initConfigWent();
+	gi_setWCalled = 0;
+	 mu_assert((char* )"setW called0 - at 22", gi_setWCalled == 0);
 	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 90 - after init", getDesiredWentRPM(NEW_WENT) == 90); //ci_defaultNewRPM =100
 	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 70 - after init", getDesiredWentRPM(USED_WENT) == 70); //ci_defaultUsedRPM = 90;
 	mu_assert((char* )"getDesiredAiringVentRPM(NEW_WENT) != 100 - after init", getDesiredAiringVentRPM(NEW_WENT) == 100); //ci_defaultUsedAiringRPM = 160;
@@ -130,9 +132,9 @@ char * vents_test_checkWietrzenie() {
 	//if (h >= 22 || h == 4 || h == 5 || h == 13 || h == 14) { // jeżeli godzina 22 do 24 i  4 do 5 i 13 do 14
 	checkWietrzenie(22, 4, emptySetW);
 	mu_assert((char* )"is airing - at 22", isAiring());
-	mu_assert((char* )"setW called - at 22", gi_setWCalled == 1);
+	mu_assert((char* )"setW called1 - at 22", gi_setWCalled == 1);
 	checkWietrzenie(22, 4, emptySetW);
-	mu_assert((char* )"setW called - at 22", gi_setWCalled == 1); //doesn't call setw twice if already airing
+	mu_assert((char* )"setW called2 - at 22", gi_setWCalled == 1); //doesn't call setw twice if already airing
 
 	mu_assert((char* )"getDesiredWentRPM(NEW_WENT) != 110 - when airing at 22", getDesiredWentRPM(NEW_WENT) == 110); //not 160 because night adds 10
 	mu_assert((char* )"getDesiredWentRPM(USED_WENT) != 90 - when airing at 22", getDesiredWentRPM(USED_WENT) == 90); //not 140 because night adds 10
@@ -155,6 +157,10 @@ char * vents_tests() {
 //	strcpy(buf,"12345678932126002700");
 //	//return in buf "12345678932126002700";
 //}
+void setWents(){
+    emptySetW();
+    printf("setWents");
+}
 
 void setWentsTST() {
 

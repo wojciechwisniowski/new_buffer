@@ -11,10 +11,18 @@
 const bool gb_production = false;
 //#define DEBUG
 
+#define DEBUG_CLOCK
+
 #ifdef DEBUG
 #define debug(message) do { printf("%s\n", message); } while (0)
 #else
 #define debug(message)
+#endif
+
+#ifdef DEBUG_CLOCK
+#define debugClock(message) do { printf("%s\n", message); } while (0)
+#else
+#define debugClock(message)
 #endif
 
 void inline writeTemToEprom(int *addr, int value) {

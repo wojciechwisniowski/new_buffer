@@ -1,7 +1,7 @@
 #ifndef _termometry_H_
 #define _termometry_H_
 
-#define TEMPCOUNT 6 //ilosc termometrów
+#define TEMPCOUNT 6 //ilosc termometrow
 
 #define PODLOGA_OUT 4
 #define PODLOGA_IN 5
