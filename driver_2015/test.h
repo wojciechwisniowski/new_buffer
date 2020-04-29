@@ -9,9 +9,9 @@
 #define TEST_H_
 
 const bool gb_production = false;
-#define DEBUG
+//#define DEBUG
 
-#define DEBUG_CLOCK
+//#define DEBUG_CLOCK
 
 #ifdef DEBUG
 #define debugnl(message) do { printf("%s\n", message); } while (0)
