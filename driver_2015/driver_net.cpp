@@ -56,7 +56,7 @@ void setupHttp() {
 //from webServerExample
 
 void printVersion(EthernetClient& client) {
-	client.println(F("\"VER\" :2.3"));
+	client.println(F("\"VER\" :2.4"));
 }
 void printHtmlBufor(EthernetClient& client) {
 	client.println(F("\"BUFOR\" :{"));
