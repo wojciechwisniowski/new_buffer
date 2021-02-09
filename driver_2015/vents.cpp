@@ -13,16 +13,13 @@ int gi_EE_Vent_New_Airing_RPM; //obroty dla new dla wietrzenia (zakodowane na 8 
 int gi_EE_Vent_New_Desired_RPM; //obroty dla pozostalego czasu dla new (zakodowane na 8 bitach czyli obroty to wartość * 10)
 int gi_EE_Vent_Used_Desired_RPM; //obroty dla pozostalego czasu dla used (zakodowane na 8 bitach czyli obroty to wartość * 10)
 
-const int gi_nightWentAdd = 10; //w taryfie nocnej obroty wentylatorów wieksze o
+
 
 const int ci_minRPM = 0; // 0 RPM
 const int ci_maxRPM = 260; // 2600 RPM
 const int ci_dumyRPM = 255; // 2550 RPM - invalid value bad read from EEPROM
 
-const int ci_defaultNewAiringRPM = 140;
-const int ci_defaultUsedAiringRPM = 100;
-const int ci_defaultNewRPM = 130;
-const int ci_defaultUsedRPM = 90;
+
 
 int gi_currentWentRPM[WENTCOUNT]; //0 new 1 used
 
@@ -36,7 +33,7 @@ int gi_wentStep;
 bool vb_wietrzenie = false;
 
 int getNightWentAdd() {
-	return gi_nightWentAdd;
+	return ci_nightWentAdd;
 }
 
 void changeWentStep() {
@@ -98,7 +95,7 @@ void stopWietrzenie(void (*setW)()) {
 
 void checkWietrzenie(int h,int dayOfTheWeek, void (*setW)()) {
 
-	if (h >= 22 || h == 4 || h == 5 || h == 13 || h == 14) { // jeżeli godzina 22 do 24 i  4 do 5 i 13 do 14
+	if (h >= 22 || h == 4 || h == 5 || h == 13 || h == 14) { // jezeli godzina 22 do 24 i  4 do 5 i 13 do 14
 		if (!isAiring()) {
 			startWietrzenie(h,dayOfTheWeek, setW);
 		}
