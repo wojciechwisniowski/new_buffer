@@ -56,7 +56,7 @@ void setupHttp() {
 //from webServerExample
 
 void printVersion(EthernetClient& client) {
-	client.println(F("\"VER\" :2.8d"));
+	client.println(F("\"VER\" :2.9"));
 }
 void printHtmlBufor(EthernetClient& client) {
 	client.println(F("\"BUFOR\" :{"));
@@ -148,7 +148,7 @@ void printHtmlConfig(EthernetClient& client) {
 	client.println(buf);
 
 	client.print(F(",\"Temperatury\" :"));
-	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d\"", getTempMinDay(), getTempMaxDay(), getTempMinNight(), getTempMaxNight());
+	snprintf(buf, sizeof(buf), "\"D %02d-%02d N %02d-%02d A %02d-%02d\"", getTempMinDay(), getTempMaxDay(), getTempMinNight(), getTempMaxNight(), getTempMinAfternoon(), getTempMaxAfternoon());
 	client.println(buf);
 	snprintf(buf, sizeof(buf), ",\"PompMiesz\" :\"%02d\"", getTempMixingStart());
 	client.println(buf);

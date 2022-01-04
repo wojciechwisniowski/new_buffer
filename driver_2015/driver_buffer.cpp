@@ -54,9 +54,9 @@ void handleFloorPumpWeekend(int h, void (*floorPumpSetter)(bool)) {
 	}
 }
 
-// second algorithm 11h in all, 6 in cheap 5 in normal
+// second algorithm 12h in all, 6 in cheap 5 in normal
 void handleFloorPumpWeekDay(int h, void (*floorPumpSetter)(bool)) {
-	if ((h >= 3 && h < 7) || //heat for morning bathroom  03:00-06:59 - 4h
+	if ((h >= 2 && h < 7) || //heat for morning bathroom  02:00-06:59 - 5h
 			(h >= 13 && h < 15) || // heat using cheap p  13:00-14:59 - 2h
 			(h >= 16 && h < 17) || // heat up for 1h      16:00-16:59 - 1h
 			(h >= 18 && h < 22)) { // heat f. e. bathroom 18:00-21:59 - 4h
