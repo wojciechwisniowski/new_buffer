@@ -10,13 +10,24 @@
 
 
 
-const char*request2 = "POST /WW/MM HTTP/1.1\n\rhost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
+//const char*request2 = "POST /WW/MM HTTP/1.1\n\rhost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
+//changed user agent place
+const char*request2 = "POST /WW/MM HTTP/1.1\n\rhost: 176.115.13.101:8080\n\rUser-Agent: insomnia/2021.3.0\n\rAuthorization:  Basic d3c6d3c=\n\raccept�";
 const char*request1 = "GET /ala/ola HTTP/1.1\n\rhost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 //const char*request3 = "GET /WN HTTP/1.1
 //Host: 192.168.1.200:8080
 //Authorization: Basic d3c6d3c=
 //User-Agent: insomnia/5.0.F"
-const char*request3 = "GET /WN HTTP/1.1\nHost: 192.168.1.200:8080\nAuthorization: Basic d3c6d3c=\nUser-Agent: insomnia/5.0.F";
+const char*request3 = "GET /WN HTTP/1.1\n\rHost: 192.168.1.200:8080\n\rAuthorization: Basic d3c6d3c=\n\rUser-Agent: insomnia/5.0.F";
+const char*request4 = "POST /TMN/61?debug HTTP/1.1\n\rHost: 192.168.1.200:8080\n\rUser-Agent: insomnia/2021.7.2\n\rAuthorization: Basic d3c6d3c=\n\rAccept: */*\n\rContent-Length: 0\n\r";
+
+//> POST /TMN/61?debug HTTP/1.1
+//> Host: 192.168.1.200:8080
+//> User-Agent: insomnia/2021.7.2
+//> Authorization: Basic d3c6d3c=
+//> Accept: */*
+//> Content-Length: 0
+
 const char*requestDebug1 = "GET /WN?de HTTP/1.1\nHost: 192.168.1.200:8080\nAuthorization: Basic d3c6d3c=\nUser-Agent: insomnia/5.0.F";
 const char*requestDebug2 = "POST /TMD/19?de HTTP/1.1 \n\rHost: 176.115.13.101:8080\n\rAuthorization: Basic d3c6d3c=\n\raccept�";
 const char*requestDebug3 = "GET /WN?e HTTP/1.1\nHost: 192.168.1.200:8080\nAuthorization: Basic d3c6d3c=\nUser-Agent: insomnia/5.0.F";
@@ -113,6 +124,14 @@ void restDebug(Request *a){
     mu_assert((char*)"Parsing request failed - bad resource ", !strcmp("WN", a->getResource()));
     delete a;
 }
+ char * test_request4() {
+	 debug("test_request4()");
+    Request *a = new Request(request4);
+    mu_assert((char* )a->getError() , !a->isError() ); //
+    mu_assert((char*)"Parsing request failed - bad method   ", !strcmp("POST", a->getMethod()));
+    mu_assert((char*)"Parsing request failed - bad resource ", !strcmp("TMN", a->getResource()));
+    delete a;
+}
 
  char * test_request_set_new_vent_speed1() {
 	vents_test_init();
@@ -207,24 +226,26 @@ void restDebug(Request *a){
 	 Request *a =new Request(requestGetTMD);
       mu_assert((char*)"Parsing request failed - bad method", !strcmp("GET", a->getMethod()));
       mu_assert((char*)"Parsing request failed - bad resource", !strcmp("TMD", a->getResource()));
-      mu_assert((char*)"bad value", !strcmp("29", a->getResponse()));
+      int temp = atoi(a->getResponse());
+      mu_assert((char*)"bad value1", temp == ci_minDayTempDefault );
       delete a;
       a =new Request(requestSetTMD);
       delete a;
       a =new Request(requestGetTMD);
-      mu_assert((char*)"bad value", !strcmp("19", a->getResponse()));
+      mu_assert((char*)"bad value2", !strcmp("19", a->getResponse()));
       delete a;
   }
 
  char * test_request_set_get_maxDayTemp() {
 	 test_init();
 	 Request *a =new Request(requestGetTXD);
-	 mu_assert((char*)"bad value", !strcmp("31", a->getResponse()));
+	 int temp = atoi(a->getResponse());
+	 mu_assert((char*)"bad value1", temp == ci_maxDayTempDefault);
       delete a;
       a =new Request(requestSetTXD);
       delete a;
       a =new Request(requestGetTXD);
-      mu_assert((char*)"bad value", !strcmp("21", a->getResponse()));
+      mu_assert((char*)"bad value2", !strcmp("21", a->getResponse()));
       delete a;
   }
 
@@ -233,7 +254,8 @@ void restDebug(Request *a){
  char * test_request_set_get_minNightTemp() {
 	 test_init();
 	 Request *a =new Request(requestGetTMN);
-      mu_assert((char*)"bad value60", !strcmp("60", a->getResponse()));
+	 int temp = atoi(a->getResponse());
+      mu_assert((char*)"bad value60", temp == ci_minNightTempDefault);
       delete a;
       a =new Request(requestSetTMN);
       delete a;
@@ -245,21 +267,26 @@ void restDebug(Request *a){
  char * test_request_set_get_maxNightTemp() {
 	 test_init();
 	 Request *a =new Request(requestGetTXN);
-	 mu_assert((char*)"bad value80", !strcmp("80", a->getResponse()));
+	 int temp = atoi(a->getResponse());
+	 mu_assert((char*)"bad value80", temp == ci_maxNightTempDefault);
       delete a;
       a =new Request(requestSetTXN);
       delete a;
       a =new Request(requestGetTXN);
-      mu_assert((char*)"bad value85", !strcmp("85", a->getResponse()));
+      mu_assert((char*)"bad value_85", !strcmp("85", a->getResponse()));
       delete a;
   }
 
  char * test_request_set_get_maxAfternoonTemp() {
  	 test_init();
  	 Request *a =new Request(requestGetTXA);
- 	 mu_assert((char*)"bad value85", !strcmp("85", a->getResponse()));
+ 	int temp = atoi(a->getResponse());
+ 	 mu_assert((char*)"bad value__85", ci_maxAfternoonTempDefault);
        delete a;
        a =new Request(requestSetTXA);
+       printf("!!!!!!!!!!!!!!->");
+       printf(a->getError());
+       printf("<-!!!!!!!!!!!!!!");
        delete a;
        a =new Request(requestGetTXA);
        mu_assert((char*)"bad value86", !strcmp("86", a->getResponse()));
@@ -269,7 +296,8 @@ void restDebug(Request *a){
  char * test_request_set_get_minAfternoonTemp() {
  	 test_init();
  	 Request *a =new Request(requestGetTMA);
- 	 mu_assert((char*)"bad value85", !strcmp("75", a->getResponse()));
+ 	int temp = atoi(a->getResponse());
+ 	 mu_assert((char*)"bad value85", temp == ci_minAfternoonTempDefault);
        delete a;
        a =new Request(requestSetTMA);
        delete a;
@@ -357,6 +385,7 @@ char * rest_tests() {
 	mu_run_test(test_request1);
 	mu_run_test(test_request2);
 	mu_run_test(test_request3);
+	mu_run_test(test_request4);
 	mu_run_test(test_request_set_new_vent_speed1);
 	mu_run_test(test_request_set_new_vent_speed2);
 	mu_run_test(test_request_set_used_vent_speed1);

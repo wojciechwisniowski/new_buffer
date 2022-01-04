@@ -6,13 +6,14 @@
  */
 #include "minunit.h"
 #include "termometry_tst.h"
+#include "termometry.h"
 
 char * test_default() {
-	mu_assert((char* )"Set default min day temp failed", getTempMinDay() == 29); //ci_minDayTempDefault);
-	mu_assert((char* )"Set default max day temp failed", getTempMaxDay() == 31); //ci_maxDayTempDefault);
-	mu_assert((char* )"Set default max night temp failed", getTempMaxNight() == 80); //ci_maxNightTempDefault);
-	mu_assert((char* )"Set default min night temp failed", getTempMinNight() == 60); //ci_minNightTempDefault);
-	mu_assert((char* )"Set default mixing temp failed", getTempMixingStart() == 55); //ci_mixingPumpStartTempDefault);
+	mu_assert((char* )"Set default min day temp failed", getTempMinDay() == ci_minDayTempDefault); //ci_minDayTempDefault);
+	mu_assert((char* )"Set default max day temp failed", getTempMaxDay() == ci_maxDayTempDefault); //ci_maxDayTempDefault);
+	mu_assert((char* )"Set default max night temp failed", getTempMaxNight() == ci_maxNightTempDefault); //ci_maxNightTempDefault);
+	mu_assert((char* )"Set default min night temp failed", getTempMinNight() == ci_minNightTempDefault); //ci_minNightTempDefault);
+	mu_assert((char* )"Set default mixing temp failed", getTempMixingStart() == ci_mixingPumpStartTempDefault); //ci_mixingPumpStartTempDefault);
 }
 
 char * test_init() {

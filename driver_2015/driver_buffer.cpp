@@ -76,10 +76,22 @@ void handleFloorPump(int h, int dayOfTheWeek, void (*floorPumpSetter)(bool)) {
 	}
 }
 
-//sprawdza temperatury, pore dnia i włącza lub wyłacza graznie elektryczne
+
+bool isTempCritical(){
+	bool ret = false;
+	for (int i = 0; i < TEMPCOUNT; i++) {
+		float t = getCurrentTemps(i);
+		if(t > cf_tempCritical){
+			ret = true;
+		}
+	}
+	return ret;
+}
+
+//check the current temperatures, check the time of the day and turns on or off the electric heater
 void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), char * (*bottomStatusPrinter)(const char *), void (*heaterSetter)(bool),
 		void (*floorPumpSetter)(bool)) {
-	float temp = getCurrentTemps(1); //temperatrua z ciut powyzej polowy zbiornika
+	float temp = getCurrentTemps(1); //temperature blow middle of the tank
 
 	if (isDayCheapTariff(h) || isMorningTurboHeater(h)) {
 		setTempHeatTo(getTempMaxAfternoon());
@@ -93,7 +105,7 @@ void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), 
 	}
 
 	if (vb_buforGrzeje) { // jak grzeje to spradz czy nie nagrzal
-		if (temp >= getTempHeatTo()) { // nagrzal to wylacz
+		if (temp >= getTempHeatTo() || isTempCritical()) { // nagrzal to wylacz
 			wylaczGrzalki(heaterSetter);
 		}
 	} else { //nie grzeje
@@ -103,21 +115,23 @@ void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), 
 	}
 
 	printGrzalkiStatus(getTempHeatTo(), getTempWaitTo(), bottomStatusPrinter);
-	obslugaPompyMieszajacej(temp, h, dayOfTheWeek, setMixingPump);
+	//obslugaPompyMieszajacej(temp, h, dayOfTheWeek, setMixingPump);
 	handleFloorPump(h, dayOfTheWeek, floorPumpSetter);
 }
 
-void obslugaPompyMieszajacej(float temp, int h, int dayOfTheWeek, void (*setMixingPump)(bool)) {
-	if (!isCheapTariff(h, dayOfTheWeek)) {
-		wylaczPompaBuf(setMixingPump); //w dzien nie mieszamy
-	} else {
-		if (vb_buforGrzeje && (temp > getTempMixingStart())) {
-			wlaczPompaBuf(setMixingPump); //grzeje i zagrzal juz CWU do gi_temperaturaStartuMieszania wiec grzej dol
-		} else {
-			wylaczPompaBuf(setMixingPump); // albo nie grzeje albo sie CWU wychlodzilo to nie mieszamy dalej
-		}
-	}
-}
+
+
+//void obslugaPompyMieszajacej(float temp, int h, int dayOfTheWeek, void (*setMixingPump)(bool)) {
+//	if (!isCheapTariff(h, dayOfTheWeek)) {
+//		wylaczPompaBuf(setMixingPump); //w dzien nie mieszamy
+//	} else {
+//		if (vb_buforGrzeje && (temp > getTempMixingStart())) {
+//			wlaczPompaBuf(setMixingPump); //grzeje i zagrzal juz CWU do gi_temperaturaStartuMieszania wiec grzej dol
+//		} else {
+//			wylaczPompaBuf(setMixingPump); // albo nie grzeje albo sie CWU wychlodzilo to nie mieszamy dalej
+//		}
+//	}
+//}
 
 char * printGrzalkiStatus(int grzejDo, int czekajDo, char* (*bottomStatusPrinter)(const char *)) {
 	char buf[40];

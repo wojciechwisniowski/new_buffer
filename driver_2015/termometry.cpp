@@ -27,17 +27,19 @@ int gi_Temp_Mixing_Start;
 int gi_Temp_waitTo = 49;
 int gi_Temp_heatTo = 50;
 
-const int ci_minTemp = 5;
-const int ci_maxTemp = 95;
-
-const int ci_minDayTempDefault = 29;
-const int ci_maxDayTempDefault = 31;
-const int ci_minNightTempDefault = 60;
-const int ci_maxNightTempDefault = 80;
-const int ci_minAfternoonTempDefault = 75;
-const int ci_maxAfternoonTempDefault = 85;
-
-const int ci_mixingPumpStartTempDefault = 55;
+//const int ci_minTemp = 5;
+//const int ci_maxTemp = 95;
+//
+//const int ci_minDayTempDefault = 40;
+//const int ci_maxDayTempDefault = 50;
+//const int ci_minNightTempDefault = 55;
+//const int ci_maxNightTempDefault = 65;
+//const int ci_minAfternoonTempDefault = 60;
+//const int ci_maxAfternoonTempDefault = 70;
+//
+//const int ci_mixingPumpStartTempDefault = 55;
+//
+//const float cf_tempCritical = 90.0f;
 
 void setTempWaitTo(int t){
 	gi_Temp_waitTo = t;

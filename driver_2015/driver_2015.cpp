@@ -48,22 +48,30 @@ void loop(void) {
 	int h = getHourIncludingNightShift(now());
 	int dayOfTheWeek = dayOfWeek(now());
 
+	// get temperature, check buffor status and change it
 	if (vi_counter % 17 == 0) {
 		requestTemperatures();
 		checkAndChangeBuffor(h, dayOfTheWeek, setMixingPumpHW, printBottomStatus, setHeaterHW, setFloorPumpHW);
 	}
+	// read rpm's from ventilation driver
 	if (vi_counter % 21 == 0) {
 		char buf[21];
 		getWentString(buf);
 		parseRekuperatorMSG(buf);   // Send request to get went's temps and rpms
 	}
-	if (vi_counter % 41 == 0) { // pat watch dog - sending 8 thrash chars just to say I am alive
+
+	// pat watch dog - sending 8 thrash chars just to say "I am alive"
+	if (vi_counter % 41 == 0) {
 		checkDog();
 	}
+
+// log to sd card
 //	if (vi_counter % 51 == 0) { // log to file
 //		logCurrentStatusToFile();
 //	}
-	if (vi_counter % 61 == 0) { // chek wietrzenie
+
+	// check ventilation airing
+	if (vi_counter % 61 == 0) {
 		checkWietrzenie(h, dayOfTheWeek, &setWents);
 	}
 

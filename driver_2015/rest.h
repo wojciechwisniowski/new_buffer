@@ -48,6 +48,8 @@ private:
 	void doPOSTTemp(const char* resource, const char* value);
 	void doPOSTClock(const char* resource, const char* value);
 	void doPOSTWent(const char* resource, const char* value);
+	int findAuthorization(int start,int guard,const char*buf);
+	int checkAuthorization(int start,int guard,const char*buf);
 
     char* resource;
     char* method;

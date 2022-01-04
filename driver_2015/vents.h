@@ -31,11 +31,11 @@
 #define USED_OUT 3
 
 // consts
-const int ci_defaultNewAiringRPM = 100;
-const int ci_defaultUsedAiringRPM = 70;
-const int ci_defaultNewRPM = 90;
-const int ci_defaultUsedRPM = 60;
-const int ci_nightWentAdd = 10; //w taryfie nocnej obroty wentylatorow wieksze o 100
+const int ci_defaultNewAiringRPM = 150;
+const int ci_defaultUsedAiringRPM = 120;
+const int ci_defaultNewRPM = 150;
+const int ci_defaultUsedRPM = 120;
+const int ci_nightWentAdd = 20; //w taryfie nocnej obroty wentylatorow wieksze o 100
 // consts
 
 int getNightWentAdd(); //

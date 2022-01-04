@@ -34,35 +34,35 @@ char * driver_buffer_test_init() {
 //	}
 //}
 
-char * driver_buffer_test_obslugaPompyMieszajacej() {
-	mu_assert((char* )" isMixingPumpWorking - after init", !isMixingPumpWorking());
-	wlaczPompaBuf(setMixingPump_empty);
-	mu_assert((char* )" isMixingPumpWorking - after start", isMixingPumpWorking());
-	obslugaPompyMieszajacej(1, 11, 4, setMixingPump_empty); //not cheap tariff so it should stop mixing
-	mu_assert((char* )" isMixingPumpWorking - at 11:00", !isMixingPumpWorking());
-
-	wlaczPompaBuf(setMixingPump_empty);
-	mu_assert((char* )" isMixingPumpWorking - after start", isMixingPumpWorking());
-	obslugaPompyMieszajacej(1, 23, 4, setMixingPump_empty); //cheap tariff but buffer is not heating so it should stop mixing
-	mu_assert((char* )" isMixingPumpWorking - at 1deg", !isMixingPumpWorking());
-
-	wlaczGrzalki(setHeater_empty); // buf is heating
-	mu_assert((char* )" isBufforHeating - after init", isBufforHeating());
-	wlaczPompaBuf(setMixingPump_empty); //mixing pump is working
-	mu_assert((char* )" isMixingPumpWorking - after start", isMixingPumpWorking());
-	obslugaPompyMieszajacej(1, 23, 4, setMixingPump_empty); //cheap tariff, buffer heaating but too cold -> stop mixing
-	mu_assert((char* )" isMixingPumpWorking - at 1deg", !isMixingPumpWorking());
-
-	wlaczGrzalki(setHeater_empty); // buf is heating
-	mu_assert((char* )" isBufforHeating - after init", isBufforHeating());
-	wylaczPompaBuf(setMixingPump_empty); //mixing pump is working
-	mu_assert((char* )" isMixingPumpWorking - after stop", !isMixingPumpWorking());
-	obslugaPompyMieszajacej(70, 23, 4, setMixingPump_empty); //cheap tariff, buffer heaating , temp ok -> start mixing
-	mu_assert((char* )" isMixingPumpWorking - at 1deg", isMixingPumpWorking());
-	wylaczGrzalki(setHeater_empty); // buf is not heating
-	wylaczPompaBuf(setMixingPump_empty); //mixing pump is working
-	return 0;
-}
+//char * driver_buffer_test_obslugaPompyMieszajacej() {
+//	mu_assert((char* )" isMixingPumpWorking - after init", !isMixingPumpWorking());
+//	wlaczPompaBuf(setMixingPump_empty);
+//	mu_assert((char* )" isMixingPumpWorking - after start", isMixingPumpWorking());
+//	obslugaPompyMieszajacej(1, 11, 4, setMixingPump_empty); //not cheap tariff so it should stop mixing
+//	mu_assert((char* )" isMixingPumpWorking - at 11:00", !isMixingPumpWorking());
+//
+//	wlaczPompaBuf(setMixingPump_empty);
+//	mu_assert((char* )" isMixingPumpWorking - after start", isMixingPumpWorking());
+//	obslugaPompyMieszajacej(1, 23, 4, setMixingPump_empty); //cheap tariff but buffer is not heating so it should stop mixing
+//	mu_assert((char* )" isMixingPumpWorking - at 1deg", !isMixingPumpWorking());
+//
+//	wlaczGrzalki(setHeater_empty); // buf is heating
+//	mu_assert((char* )" isBufforHeating - after init", isBufforHeating());
+//	wlaczPompaBuf(setMixingPump_empty); //mixing pump is working
+//	mu_assert((char* )" isMixingPumpWorking - after start", isMixingPumpWorking());
+//	obslugaPompyMieszajacej(1, 23, 4, setMixingPump_empty); //cheap tariff, buffer heaating but too cold -> stop mixing
+//	mu_assert((char* )" isMixingPumpWorking - at 1deg", !isMixingPumpWorking());
+//
+//	wlaczGrzalki(setHeater_empty); // buf is heating
+//	mu_assert((char* )" isBufforHeating - after init", isBufforHeating());
+//	wylaczPompaBuf(setMixingPump_empty); //mixing pump is working
+//	mu_assert((char* )" isMixingPumpWorking - after stop", !isMixingPumpWorking());
+//	obslugaPompyMieszajacej(70, 23, 4, setMixingPump_empty); //cheap tariff, buffer heaating , temp ok -> start mixing
+//	mu_assert((char* )" isMixingPumpWorking - at 1deg", isMixingPumpWorking());
+//	wylaczGrzalki(setHeater_empty); // buf is not heating
+//	wylaczPompaBuf(setMixingPump_empty); //mixing pump is working
+//	return 0;
+//}
 
 //void checkAndChangeBuffor(int h, int dayOfTheWeek, void (*setMixingPump)(bool), char * (*bottomStatusPrinter)(char *),void (*heaterSetter)(bool)) {
 //	float temp = getCurrentTemps(1); //temperatrua z ciut powyzej polowy zbiornika
@@ -102,9 +102,9 @@ char * driver_buffer_test_checkAndChangeBuffor() {
 	mu_assert(ret, ret == 0);
 	//week day - day
 	initConfigTemp();
-	setCurrentTemps(1, 30); //min day 29 max day 31
+	setCurrentTemps(1, 41); //min day 40 max day 50
 	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
-	mu_assert((char* )" isBufforHeating - weekday at 16 at 30", !isBufforHeating());
+	mu_assert((char* )" isBufforHeating - weekday at 16 at 41", !isBufforHeating());
 
 	setCurrentTemps(1, 28); //min day 29 max day 31
 	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
@@ -114,9 +114,9 @@ char * driver_buffer_test_checkAndChangeBuffor() {
 	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 16 at 30", isBufforHeating());
 
-	setCurrentTemps(1, 31); //min day 29 max day 31 - stop at 31
+	setCurrentTemps(1, 51); //min day 40 max day 50 - stop at 50
 	checkAndChangeBuffor(16, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
-	mu_assert((char* )" isBufforHeating - weekday at 16 at 31", !isBufforHeating());
+	mu_assert((char* )" isBufforHeating - weekday at 16 at 51", !isBufforHeating());
 
 	//week day - night
 	initConfigTemp();
@@ -124,30 +124,36 @@ char * driver_buffer_test_checkAndChangeBuffor() {
 	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 23 at 61", !isBufforHeating());
 
-	setCurrentTemps(1, 59); //min night 60 max night 80
+	setCurrentTemps(1, 54); //min night 55 max night 65
 	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
-	mu_assert((char* )" isBufforHeating - weekday at 23 at 59", isBufforHeating());
+	mu_assert((char* )" isBufforHeating - weekday at 23 at 54", isBufforHeating());
 
-	setCurrentTemps(1, 79); //min night 60 max night 80 - still heating until 31
+	setCurrentTemps(1, 64); //min night 55 max night 65 - still heating until 65
 	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
-	mu_assert((char* )" isBufforHeating - weekday at 23 at 79", isBufforHeating());
+	mu_assert((char* )" isBufforHeating - weekday at 23 at 64", isBufforHeating());
 
 	setCurrentTemps(1, 81); //min night 60 max night 80 - stop at 81
 	checkAndChangeBuffor(23, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 23 at 81", !isBufforHeating());
 
 	//weekend
-	setCurrentTemps(1, 61); //minn 60 maxn 80
+	setCurrentTemps(1, 66); //minn 55 maxn 65
 	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
-	mu_assert((char* )" isBufforHeating - weekend at 16 at 61", !isBufforHeating());
+	mu_assert((char* )" isBufforHeating - weekend at 16 at 66", !isBufforHeating());
 
-	setCurrentTemps(1, 59); //minn 60 maxn 80
+	setCurrentTemps(1, 54); //minn 55 maxn 65
 	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
-	mu_assert((char* )" isBufforHeating - weekend at 16 at 61", isBufforHeating());
+	mu_assert((char* )" isBufforHeating - weekend at 16 at 54", isBufforHeating());
 
-	setCurrentTemps(1, 79); //minn 60 maxn 80
+	setCurrentTemps(1, 95); //minn 55 maxn 65 - critical stop
 	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
-	mu_assert((char* )" isBufforHeating - weekend at 16 at 79", isBufforHeating());
+	mu_assert((char* )" isBufforHeating - critical stop", !isBufforHeating());
+
+
+
+	setCurrentTemps(1, 79); //minn 55 maxn 65
+	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
+	mu_assert((char* )" isBufforHeating - weekend at 16 at 79", !isBufforHeating());
 
 	setCurrentTemps(1, 80); //minn 60 maxn 80
 	checkAndChangeBuffor(16, 1, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
@@ -166,9 +172,9 @@ char * driver_test_afternoon() {
 	//week day - day
 	initConfigTemp();
 	mu_assert((char* )" isBufforHeating - after inint for afternoon test", !isBufforHeating());
-	setCurrentTemps(1, 74); //min afternoon 75
+	setCurrentTemps(1, 74); //min 60 afternoon max 70
 	checkAndChangeBuffor(13, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
-	mu_assert((char* )" isBufforHeating - weekday at 13 at 74", isBufforHeating());
+	mu_assert((char* )" isBufforHeating - weekday at 13 at 74", !isBufforHeating());
 	setCurrentTemps(1, 86); //min afternoon 75
 	checkAndChangeBuffor(13, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 13 at 86", !isBufforHeating());
@@ -179,9 +185,9 @@ char * driver_test_afternoon() {
 	checkAndChangeBuffor(3, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 3 at 74", !isBufforHeating());
 	checkAndChangeBuffor(4, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
-	mu_assert((char* )" isBufforHeating - weekday at 4 at 74", isBufforHeating());
+	mu_assert((char* )" isBufforHeating - weekday at 4 at 74", !isBufforHeating());
 	checkAndChangeBuffor(5, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
-	mu_assert((char* )" isBufforHeating - weekday at 5 at 74", isBufforHeating());
+	mu_assert((char* )" isBufforHeating - weekday at 5 at 74", !isBufforHeating());
 	checkAndChangeBuffor(6, 4, setMixingPump_empty, bottomStatusPrinter2, setHeater_empty, setHeater_empty);
 	mu_assert((char* )" isBufforHeating - weekday at 6 at 74", !isBufforHeating());
 
@@ -190,7 +196,7 @@ char * driver_test_afternoon() {
 
 char * driver_buffer() {
 	mu_run_test(driver_buffer_test_init);
-	mu_run_test(driver_buffer_test_obslugaPompyMieszajacej);
+//	mu_run_test(driver_buffer_test_obslugaPompyMieszajacej);
 	mu_run_test(driver_buffer_test_checkAndChangeBuffor);
 	mu_run_test(driver_test_afternoon);
 

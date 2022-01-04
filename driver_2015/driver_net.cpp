@@ -56,7 +56,7 @@ void setupHttp() {
 //from webServerExample
 
 void printVersion(EthernetClient& client) {
-	client.println(F("\"VER\" :2.4"));
+	client.println(F("\"VER\" :2.8d"));
 }
 void printHtmlBufor(EthernetClient& client) {
 	client.println(F("\"BUFOR\" :{"));
@@ -280,7 +280,7 @@ void printRestStatus(EthernetClient& client, char* input, Request *a) {
 	printHtmlConfig(client);client.println(",");
 	printTimeStamp(client);	client.println(",");
 	printHtmlStatus(client);client.println(",");
-	//printHtmlInput(client, input);
+	//printHtmlInput(client, input);client.println(",");
 	//printErrorReport(client);
 	printRestStatus(client, a);
 	client.println("}");
@@ -291,14 +291,14 @@ void loopServer() {
 	// listen for incoming clients
 	EthernetClient client = server.available();
 	if (client) {
-		char readString[100];
+		char readString[300];
 		int i = 0;
 		// an http request ends with a blank line
 		boolean currentLineIsBlank = true;
 		while (client.connected()) {
 			if (client.available()) {
 				char c = client.read();
-				if (i < 100) {
+				if (i < 300) {
 					readString[i++] = c;
 				}
 

@@ -91,4 +91,18 @@ int getTempWaitTo();
 void setTempHeatTo(int t);
 int getTempHeatTo();
 
+const int ci_minTemp = 5;
+const int ci_maxTemp = 95;
+
+const int ci_minDayTempDefault = 40;
+const int ci_maxDayTempDefault = 50;
+const int ci_minNightTempDefault = 55;
+const int ci_maxNightTempDefault = 65;
+const int ci_minAfternoonTempDefault = 60;
+const int ci_maxAfternoonTempDefault = 70;
+
+const int ci_mixingPumpStartTempDefault = 55;
+
+const float cf_tempCritical = 90.0f;
+
 #endif /* _termometry_H_ */
