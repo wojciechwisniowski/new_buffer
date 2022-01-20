@@ -113,6 +113,12 @@ int getDesiredAiringVentRPM(int nr) {
 void setDesiredAiringVentRPM(int nr, int rpm) {
 	if (checkRPM(rpm)) {
 		gi_desiredWentWietrzenieRPM[nr] = rpm;
+		if( nr == NEW_WENT){
+		  writeTemToEprom(&gi_EE_Vent_New_Airing_RPM, gi_desiredWentWietrzenieRPM[nr]);
+		}
+		if( nr == USED_WENT){
+		  writeTemToEprom(&gi_EE_Vent_Used_Airing_RPM, gi_desiredWentWietrzenieRPM[nr]);
+		}
 	}
 }
 
@@ -239,6 +245,13 @@ void setDesiredVentRPM(int nr, int rpm) {
 	//printf("setDesiredVentRPM(%d,%d)\n",nr,rpm);
 	if (checkRPM(rpm)) {
 		gi_desiredWentRPM[nr] = rpm;
+		if( nr == NEW_WENT){
+		  writeTemToEprom(&gi_EE_Vent_New_Desired_RPM, gi_desiredWentRPM[nr]);
+		}
+		if( nr == USED_WENT){
+		  writeTemToEprom(&gi_EE_Vent_Used_Desired_RPM, gi_desiredWentRPM[nr]);
+		}
+
 	}
 }
 
